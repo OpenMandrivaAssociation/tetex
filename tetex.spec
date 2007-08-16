@@ -4,13 +4,16 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    31
+%define tetexrelease    32
 %define relsuffix	mdk
 %if %{mdkversion} >= 200610
 %define relsuffix	mdv2007.0
 %endif
 %if %{mdkversion} >= 200710
 %define relsuffix	mdv2007.1
+%endif
+%if %{mdkversion} >= 200800
+%define relsuffix	mdv2008.0
 %endif
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
@@ -119,6 +122,7 @@ BuildRequires:  desktop-file-utils
 %endif
 Obsoletes:	cweb
 Provides:	cweb
+Conflicts:      texlive-texmf
 
 %description
 teTeX is an implementation of TeX for Linux or UNIX systems. TeX takes

@@ -575,7 +575,7 @@ install -m 644 texk/xdvik/t1mapper.1 $RPM_BUILD_ROOT%{_mandir}/man1/
 )
 
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
+#bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
 
 # these are links
 
@@ -613,7 +613,8 @@ find $RPM_BUILD_ROOT -type f -or -type l | \
 	    -e "s|%{_datadir}/texmf/xdvi/XDvi|%config &|" \
 	    -e "s|%{_datadir}/texmf/tex/generic/config/.*|%config &|" \
 	    -e "s|%{_datadir}/texmf/tex/dvips/config/updmap$|%config(noreplace) &|" \
-	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" > filelist.full
+	    -e "s|^%{_infodir}\(.*\)|%attr(644,root,root) \%{_infodir}\1.\*|" \
+	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1.\*|" > filelist.full
 
 find $RPM_BUILD_ROOT%{_datadir}/texmf* \
 	-type d | \
@@ -640,7 +641,7 @@ echo "%{_bindir}/mfw" >> filelist.mfwin
 echo "%{_datadir}/texmf/metafont/config/mf.ini" >> filelist.mfwin
 
 echo "%{_bindir}/t1mapper" >> filelist.xdvi
-echo "%attr(644,root,root) %{_mandir}/man1/t1mapper.1.bz2" >> filelist.xdvi
+echo "%attr(644,root,root) %{_mandir}/man1/t1mapper.1.*" >> filelist.xdvi
 
 grep -v "/doc/" filelist.full | \
 	grep "%{_includedir}" > filelist.devel
@@ -687,9 +688,9 @@ EOF
 
 cat > filelist.texi2html <<EOF
 %{_bindir}/texi2html
-%attr(644,root,root) %{_mandir}/man1/texi2html.1.bz2
+%attr(644,root,root) %{_mandir}/man1/texi2html.1.*
 %{_datadir}/texinfo/html/texi2html.html
-%{_infodir}/texi2html.info.bz2
+%{_infodir}/texi2html.info.*
 EOF
 
 # now files listed only once, i.e. not included in any subpackage, will
@@ -764,8 +765,8 @@ rm -f filelist.*
 
 # make sure ls-R used by teTeX is updated after an install
 %post
-/sbin/install-info %{_infodir}/web2c.info.bz2 %{_infodir}/dir
-/sbin/install-info %{_infodir}/kpathsea.info.bz2 %{_infodir}/dir
+/sbin/install-info %{_infodir}/web2c.info.* %{_infodir}/dir
+/sbin/install-info %{_infodir}/kpathsea.info.* %{_infodir}/dir
 /usr/bin/env - /usr/bin/texhash 2> /dev/null
 if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
 	%{_bindir}/updmap-sys --quiet
@@ -774,7 +775,7 @@ exit 0
 
 %post latex
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-/sbin/install-info %{_infodir}/latex.info.bz2 %{_infodir}/dir
+/sbin/install-info %{_infodir}/latex.info.* %{_infodir}/dir
 exit 0
 
 %post xdvi
@@ -783,7 +784,7 @@ exit 0
 exit 0
 
 %post dvips
-/sbin/install-info %{_infodir}/dvips.info.bz2 %{_infodir}/dir
+/sbin/install-info %{_infodir}/dvips.info.* %{_infodir}/dir
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
@@ -817,7 +818,7 @@ exit 0
 exit 0
 
 %post texi2html
-/sbin/install-info %{_infodir}/texi2html.info.bz2 %{_infodir}/dir
+/sbin/install-info %{_infodir}/texi2html.info.* %{_infodir}/dir
 
 %post usrlocal
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -876,23 +877,23 @@ exit 0
 
 %preun
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/kpathsea.info.bz2 %{_infodir}/dir
-	/sbin/install-info --delete %{_infodir}/web2c.info.bz2 %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/kpathsea.info.* %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/web2c.info.* %{_infodir}/dir
 fi
 
 %preun dvips
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/dvips.info.bz2 %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/dvips.info.* %{_infodir}/dir
 fi
 
 %preun latex
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/latex.info.bz2 %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/latex.info.* %{_infodir}/dir
 fi
 
 %preun texi2html
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/texi2html.info.bz2 %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/texi2html.info.* %{_infodir}/dir
 fi
 
 %triggerpostun -- tetex < 3.0-31mdv2007.1

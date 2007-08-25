@@ -477,7 +477,11 @@ popd
 )
 
 # ttf2pk
-(cd ttf2pk; rm -f configure; aclocal-1.7; autoconf)
+pushd ttf2pk
+rm -f configure
+aclocal-1.7
+autoconf
+popd
 
 find . -type f -print0 | xargs -0 chmod u+rw,go+r
 
@@ -486,7 +490,6 @@ find . -type f -print0 | xargs -0 chmod u+rw,go+r
 #%{?__cputoolize: %{__cputoolize} -c libs/libwww}
 #%{?__cputoolize: %{__cputoolize} -c texk}
 #%{?__cputoolize: %{__cputoolize} -c utils/texinfo}
-
 
 %build
 perl -pi -e 's@^vartexfonts\s*=\s.*@vartexfonts = %vartexfonts@g' texk/make/paths.mk
@@ -530,19 +533,19 @@ make all
 )
 
 # ttf2pk TrueType support (CJK extensions)
-(cd ttf2pk
- mkdir -p extras/{include,lib}
- ln -sf ../../../texk/kpathsea extras/include/kpathsea
- ln -sf ../../../texk/kpathsea/.libs/libkpathsea.a extras/lib/libkpathsea.a
- rm -f config.cache config.log
- ./configure --with-kpathsea-dir=./extras
- make
-)
+pushd ttf2pk
+mkdir -p extras/{include,lib}
+ln -sf ../../../texk/kpathsea extras/include/kpathsea
+ln -sf ../../../texk/kpathsea/.libs/libkpathsea.a extras/lib/libkpathsea.a
+rm -f config.cache config.log
+./configure --with-kpathsea-dir=./extras
+make
+popd
 
 # csindex
-(cd csindex-%{csidxversion}
- make CC="gcc $RPM_OPT_FLAGS"
-)
+pushd csindex-%{csidxversion}
+make CC="gcc $RPM_OPT_FLAGS"
+popd
 
 
 %install

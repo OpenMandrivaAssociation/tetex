@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    33
+%define tetexrelease    34
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0k
@@ -88,6 +88,14 @@ Patch44:	tetex-3.0-mktexlsr.patch
 Patch45:	tetex-3.0-ttf2pk-autoconf.patch
 Patch46:	tetex-3.0-CVE-2007-0455.patch
 Patch47:	tetex-3.0-CVE-2007-2756.patch
+Patch48:	xpdf-3.02-CVE-2007-3387.patch
+Patch49:	gd-2.0.33_CVE-2007-3472.patch
+Patch50:	gd-2.0.33_CVE-2007-3473.patch
+Patch51:	gd-2.0.33_CVE-2007-3474.patch
+Patch52:	gd-2.0.33_CVE-2007-3475.patch
+Patch53:	gd-2.0.33_CVE-2007-3476.patch
+Patch54:	gd-2.0.33_CVE-2007-3477.patch
+Patch55:	gd-2.0.33_CVE-2007-3478.patch
 
 #
 URL:		http://www.tug.org/teTeX/
@@ -453,14 +461,21 @@ popd
 
 %patch45 -p0 -b .autoconf
 
-# CVE-2007-0455 and CVE-2007-2756
 pushd libs/gd/
 %patch46 -p1 -b .CVE-2007-0455
 %patch47 -p0 -b .CVE-2007-2756
+%patch49 -p1 -b .cve-2007-3472
+%patch50 -p1 -b .cve-2007-3473
+%patch51 -p1 -b .cve-2007-3474
+%patch52 -p1 -b .cve-2007-3475
+%patch53 -p1 -b .cve-2007-3476
+%patch54 -p1 -b .cve-2007-3477
+%patch55 -p1 -b .cve-2007-3478
 popd
 
-
-
+pushd libs/xpdf
+%patch48 -p1 -b .cve-2007-3387
+popd
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc

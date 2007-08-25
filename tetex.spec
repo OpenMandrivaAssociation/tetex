@@ -4,17 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    32
-%define relsuffix	mdk
-%if %{mdkversion} >= 200610
-%define relsuffix	mdv2007.0
-%endif
-%if %{mdkversion} >= 200710
-%define relsuffix	mdv2007.1
-%endif
-%if %{mdkversion} >= 200800
-%define relsuffix	mdv2008.0
-%endif
+%define tetexrelease    33
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0k
@@ -22,12 +12,12 @@
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 98
-%define jaderelease	%(R=%{tetexrelease}; echo $((${R/%relsuffix/} + %{jaderelease_delta}))%relsuffix)
+%define jaderelease	%mkrel %{tetexrelease}+%{jaderelease_delta}
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 # reset the delta if changing the xmltexversion.
 %define xmltexrelease_delta 46
-%define xmltexrelease	%(R=%{tetexrelease}; echo $((${R/%relsuffix/} + %{xmltexrelease_delta}))%relsuffix)
+%define xmltexrelease	%mkrel %{tetexrelease}+%{xmltexrelease_delta}
 %define csidxversion	19990820
 
 %define vartexfonts	/var/lib/texmf
@@ -41,7 +31,7 @@
 Summary:	The TeX text formatting system
 Name:		%{name}
 Version:	%{version}
-Release:	%{tetexrelease}%{relsuffix}
+Release:	%mkrel %{tetexrelease}
 License:	Distributable
 Group:		Publishing
 #

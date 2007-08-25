@@ -12,12 +12,12 @@
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 98
-%define jaderelease	%mkrel %{tetexrelease}+%{jaderelease_delta}
+%define jaderelease	%(echo $((%{tetexrelease}+%{jaderelease_delta})))
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 # reset the delta if changing the xmltexversion.
 %define xmltexrelease_delta 46
-%define xmltexrelease	%mkrel %{tetexrelease}+%{xmltexrelease_delta}
+%define xmltexrelease	%(echo $((%{tetexrelease}+%{xmltexrelease_delta})))
 %define csidxversion	19990820
 
 %define vartexfonts	/var/lib/texmf
@@ -320,7 +320,7 @@ applications using kpathsea library.
 %package -n	%{jadename}
 Summary:	TeX macros used by Jade TeX output.
 Version: 	%{jadeversion}
-Release:	%{jaderelease}
+Release:	%mkrel %{jaderelease}
 Group:		Publishing
 License: 	Distributable (C) Sebastian Rahtz <s.rahtz@elsevier.co.uk>
 URL: 		http://sourceforge.net/projects/jadetex
@@ -338,7 +338,7 @@ or PDF files for example.
 %package -n	%{xmltexname}
 Summary:	Namespace-aware XML parser written in TeX.
 Version: 	%{xmltexversion}
-Release:	%{xmltexrelease}
+Release:	%mkrel %{xmltexrelease}
 Group:		Publishing
 License: 	LaTeX Project Public License
 URL: 		http://www.dcarlisle.demon.co.uk/xmltex/manual.html

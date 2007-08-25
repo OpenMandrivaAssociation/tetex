@@ -80,7 +80,6 @@ Patch25:	passivetex-1.23.patch
 Patch26:	passivetex-1.24.patch
 Patch27:	passivetex-1.25.patch
 Patch28:	%{name}-3.0-texdoc-wwwbrowser.patch
-Patch29:	tetex-3.0-ttf2pk-use-local-libtool.patch
 Patch30:	tetex-src-3.0-cvs20050823a.patch
 Patch31:	tetex-src-3.0-t1lib-autoconf.patch
 Patch32:	koffce-xpdf-CVE-2007-0104.patch
@@ -96,6 +95,7 @@ Patch41:	tetex-3.0-kpathsea-cnf.patch
 Patch42:	tetex-3.0-cweb.patch
 Patch43:	tetex-3.0-makeindex-CVE-2007-0650.patch
 Patch44:	tetex-3.0-mktexlsr.patch
+Patch45:	tetex-3.0-ttf2pk-autoconf.patch
 #
 URL:		http://www.tug.org/teTeX/
 Packager:	Giuseppe Ghibò <ghibo@mandriva.com>
@@ -107,6 +107,7 @@ Requires:	info-install
 Requires:	sam2p
 BuildRequires:	autoconf2.1
 BuildRequires:	automake1.7
+BuildRequires:	libtool
 BuildRequires:	bison
 BuildRequires:	ed
 BuildRequires:	flex
@@ -402,6 +403,7 @@ mkdir -p texmf
 bzip2 -cd %{SOURCE1} | tar xf - -C texmf
 bzip2 -cd %{SOURCE5} | tar xf - -C texmf
 cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
+cp -p texmf/tex/generic/hyphen/hyphen.tex texmf/tex/generic/hyphen/ushyph1.tex
 
 # dvips config.generic
 %patch20 -p1
@@ -421,7 +423,6 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 %patch27 -p1
 
 %patch28 -p1 -b .wwwbrowser
-%patch29 -p1 -b .local-libtool
 
 # cvs 20050823
 %patch30 -p1 -E
@@ -456,6 +457,8 @@ popd
 %patch43 -p1 -b .cve-2007-0650
 
 %patch44 -p1 -b .mktexlsr
+
+%patch45 -p0 -b .autoconf
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc

@@ -86,6 +86,9 @@ Patch42:	tetex-3.0-cweb.patch
 Patch43:	tetex-3.0-makeindex-CVE-2007-0650.patch
 Patch44:	tetex-3.0-mktexlsr.patch
 Patch45:	tetex-3.0-ttf2pk-autoconf.patch
+Patch46:	tetex-3.0-CVE-2007-0455.patch
+Patch47:	tetex-3.0-CVE-2007-2756.patch
+
 #
 URL:		http://www.tug.org/teTeX/
 Packager:	Giuseppe Ghibò <ghibo@mandriva.com>
@@ -449,6 +452,15 @@ popd
 %patch44 -p1 -b .mktexlsr
 
 %patch45 -p0 -b .autoconf
+
+# CVE-2007-0455 and CVE-2007-2756
+pushd libs/gd/
+%patch46 -p1 -b .CVE-2007-0455
+%patch47 -p0 -b .CVE-2007-2756
+popd
+
+
+
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc

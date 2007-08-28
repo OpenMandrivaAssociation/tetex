@@ -756,7 +756,6 @@ Icon=dvi
 Terminal=false
 Type=Application
 Categories=X-MandrivaLinux-Office-Publishing;Graphics;Office;Viewer;
-Encoding=UTF-8
 EOF
 
 desktop-file-install --vendor="" \

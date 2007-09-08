@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    34
+%define tetexrelease    35
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0k
@@ -122,8 +122,8 @@ BuildRequires:	XFree86-devel
 %if %{mdkversion} >= 200610
 BuildRequires:  desktop-file-utils
 %endif
-Obsoletes:	cweb
-Provides:	cweb
+Obsoletes:	cweb < %{version}-%{release}
+Provides:	cweb = %{version}-%{release}
 Conflicts:      texlive-texmf
 
 %description
@@ -148,9 +148,9 @@ package, which includes the documentation for TeX.
 %package	latex
 Summary:	The LaTeX front end for the TeX text formatting system
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 %if %{mdkversion} < 200610
-Requires:	tetex-dvips
+Requires:	tetex-dvips = %{version}-%{release}
 %else
 Requires:	ghostscript-dvipdf
 %endif
@@ -179,7 +179,7 @@ which contains documentation for TeX.
 %package	xdvi
 Summary:	An X viewer for DVI files
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 %if %{mdkversion} >= 200610
 Requires:	xmessage
 %else
@@ -204,7 +204,7 @@ the TeX text formatting system.
 %package	dvips
 Summary:	A DVI to PostScript converter for the TeX text formatting system
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 
 %description	dvips
 Dvips converts .dvi files produced by the TeX text formatting system
@@ -224,7 +224,7 @@ package, which contains documentation for the TeX system.
 %package	dvilj
 Summary:	A DVI to HP PCL (Printer Control Language) converter
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 
 %description	dvilj
 Dvilj and dvilj's siblings (included in this package) will convert TeX
@@ -247,7 +247,7 @@ which contains documentation for TeX.
 %package	afm
 Summary:	A converter for PostScript(TM) font metric files, for use with TeX
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 
 %description	afm
 tetex-afm provides afm2tfm, a converter for PostScript font metric files. 
@@ -269,7 +269,7 @@ package, which includes documentation for TeX.
 %package	doc
 Summary:	The documentation files for the TeX text formatting system
 Group:		Books/Other
-Requires:	tetex-xdvi
+Requires:	tetex-xdvi = %{version}-%{release}
 %define _requires_exceptions pear
 
 %description	doc
@@ -288,8 +288,8 @@ interface for TeX) and tetex-xdvi (for previewing .dvi files).
 %package	dvipdfm
 Summary:	A DVI to PDF converter
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
-Requires:	tetex-dvips = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
+Requires:	tetex-dvips = %{version}-%{release}
 Requires:	ghostscript
 %if %{mdkversion} >= 200610
 Requires:	ghostscript-dvipdf
@@ -301,7 +301,7 @@ dvidpfm is a DVI to PDF translator for use with TeX.
 %package	mfwin
 Summary:	Metafont with output window
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 
 %description	mfwin
 This package contains METAFONT with window support. Install this
@@ -311,7 +311,7 @@ the font building in a output window.
 %package	devel
 Summary:	Development libraries (kpathsea) for teTeX
 Group:		Development/C
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}-%{release}
 
 %description	devel
 This package contains C headers and libraries, for developing TeX
@@ -325,9 +325,9 @@ Group:		Publishing
 License: 	Distributable (C) Sebastian Rahtz <s.rahtz@elsevier.co.uk>
 URL: 		http://sourceforge.net/projects/jadetex
 Requires: 	sgml-common >=  0.6.3-2mdk
-Requires: 	tetex >= 1.0.7-51mdk
-Requires: 	tetex-latex >= 1.0.7-51mdk
-Requires: 	tetex-dvips >= 1.0.7-51mdk
+Requires: 	tetex = %{version}-%{release}
+Requires: 	tetex-latex = %{version}-%{release}
+Requires: 	tetex-dvips = %{version}-%{release}
 Requires: 	openjade >= 1.3.1
 
 %description -n	%{jadename}
@@ -342,8 +342,8 @@ Release:	%mkrel %{xmltexrelease}
 Group:		Publishing
 License: 	LaTeX Project Public License
 URL: 		http://www.dcarlisle.demon.co.uk/xmltex/manual.html
-Requires: 	tetex >= 1.0.7-52mdk
-Requires: 	tetex-latex >= 1.0.7-52mdk
+Requires: 	tetex = %{version}-%{release}
+Requires: 	tetex-latex = %{version}-%{release}
 
 %description -n	%{xmltexname}
 Namespace-aware XML parser written in TeX. This package
@@ -353,7 +353,7 @@ document which results from an XSL trasformation to formatting objects.
 %package	context
 Summary:	Document engineering system based on TeX
 Group:		Publishing
-Requires:	tetex >= 2.0.2
+Requires:	tetex = %{version}-%{release}
 
 %description	context
 CONTeXT is a document engineering system based on TeX. TeX is a
@@ -367,6 +367,7 @@ Group:		Publishing
 License:	GPL
 Provides:	texi2html
 Obsoletes:	texi2html
+Requires:       tetex = %{version}-%{release}
 
 %description	texi2html
 This package converts the GNU standard form of documentation (texinfo) into
@@ -376,6 +377,7 @@ HTML files which can be read with any WWW browser.
 Summary:	Virtual package for placing local system-wide teTeX files
 Group:		Publishing
 License:	GPL
+Requires:       tetex = %{version}-%{release}
 
 %description	usrlocal
 This packages provides just the directory /usr/local/share/texmf
@@ -955,6 +957,7 @@ exit 0
 
 %files -f filelist.dvips dvips
 %defattr(-,root,root)
+%exclude %{_datadir}/texmf/fonts/map/dvips/tetex/dvipdfm35.map
 
 %files -f filelist.dvilj dvilj
 %defattr(-,root,root)

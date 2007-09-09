@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    35
+%define tetexrelease    36
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0k
@@ -325,9 +325,9 @@ Group:		Publishing
 License: 	Distributable (C) Sebastian Rahtz <s.rahtz@elsevier.co.uk>
 URL: 		http://sourceforge.net/projects/jadetex
 Requires: 	sgml-common >=  0.6.3-2mdk
-Requires: 	tetex = %{version}-%{release}
-Requires: 	tetex-latex = %{version}-%{release}
-Requires: 	tetex-dvips = %{version}-%{release}
+Requires: 	tetex = %{tetexversion}-%{tetexrelease}
+Requires: 	tetex-latex = %{tetexversion}-%{tetexrelease}
+Requires: 	tetex-dvips = %{tetexversion}-%{tetexrelease}
 Requires: 	openjade >= 1.3.1
 
 %description -n	%{jadename}
@@ -342,8 +342,8 @@ Release:	%mkrel %{xmltexrelease}
 Group:		Publishing
 License: 	LaTeX Project Public License
 URL: 		http://www.dcarlisle.demon.co.uk/xmltex/manual.html
-Requires: 	tetex = %{version}-%{release}
-Requires: 	tetex-latex = %{version}-%{release}
+Requires: 	tetex = %{tetexversion}-%{tetexrelease}
+Requires: 	tetex-latex = %{tetexversion}-%{tetexrelease}
 
 %description -n	%{xmltexname}
 Namespace-aware XML parser written in TeX. This package
@@ -352,6 +352,8 @@ document which results from an XSL trasformation to formatting objects.
 
 %package	context
 Summary:	Document engineering system based on TeX
+Version:	%{tetexversion}
+Release:	%mkrel %{tetexrelease}
 Group:		Publishing
 Requires:	tetex = %{version}-%{release}
 

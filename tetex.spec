@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    37
+%define tetexrelease    38
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0k
@@ -686,6 +686,7 @@ echo "%{_bindir}/dvi2fax" >> filelist.dvips
 grep -v "/doc/" filelist.full | grep dvipdfm | \
 	grep -v "%{_datadir}/texmf/tex"	|
 	grep -v "%{_datadir}/texmf/dvipdfm/config/config" |
+	grep -v "%{_datadir}/texmf/fonts/map/dvips/tetex/dvipdfm35.map" |
 	grep -v "%{_datadir}/texmf/dvips" > filelist.dvipdfm
 echo "%{_bindir}/ebb" >> filelist.dvipdfm
 echo "%{_bindir}/dvipdft" >> filelist.dvipdfm
@@ -959,7 +960,6 @@ exit 0
 
 %files -f filelist.dvips dvips
 %defattr(-,root,root)
-%exclude %{_datadir}/texmf/fonts/map/dvips/tetex/dvipdfm35.map
 
 %files -f filelist.dvilj dvilj
 %defattr(-,root,root)

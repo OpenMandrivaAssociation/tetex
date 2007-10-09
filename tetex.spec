@@ -318,7 +318,7 @@ This package contains C headers and libraries, for developing TeX
 applications using kpathsea library.
 
 %package -n	%{jadename}
-Summary:	TeX macros used by Jade TeX output.
+Summary:	TeX macros used by Jade TeX output
 Version: 	%{jadeversion}
 Release:	%mkrel %{jaderelease}
 Group:		Publishing
@@ -336,7 +336,7 @@ TeX output files and processing them as TeX files, to obtain DVI, Postscript
 or PDF files for example.
 
 %package -n	%{xmltexname}
-Summary:	Namespace-aware XML parser written in TeX.
+Summary:	Namespace-aware XML parser written in TeX
 Version: 	%{xmltexversion}
 Release:	%mkrel %{xmltexrelease}
 Group:		Publishing

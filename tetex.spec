@@ -118,7 +118,7 @@ BuildRequires:	lesstif-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	png-devel
 BuildRequires:	xpm-devel
-BuildRequires:	XFree86-devel
+BuildRequires:	X11-devel
 %if %{mdkversion} >= 200610
 BuildRequires:  desktop-file-utils
 %endif

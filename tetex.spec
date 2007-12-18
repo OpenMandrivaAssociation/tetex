@@ -791,8 +791,8 @@ rm -f filelist.*
 
 # make sure ls-R used by teTeX is updated after an install
 %post
-/sbin/install-info %{_infodir}/web2c.info.* %{_infodir}/dir
-/sbin/install-info %{_infodir}/kpathsea.info.* %{_infodir}/dir
+%_install_info web2c
+%_install_info kpathsea
 /usr/bin/env - /usr/bin/texhash 2> /dev/null
 if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
 	%{_bindir}/updmap-sys --quiet
@@ -801,7 +801,7 @@ exit 0
 
 %post latex
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-/sbin/install-info %{_infodir}/latex.info.* %{_infodir}/dir
+%_install_info latex
 exit 0
 
 %post xdvi
@@ -810,7 +810,7 @@ exit 0
 exit 0
 
 %post dvips
-/sbin/install-info %{_infodir}/dvips.info.* %{_infodir}/dir
+%_install_info dvips
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
@@ -844,7 +844,7 @@ exit 0
 exit 0
 
 %post texi2html
-/sbin/install-info %{_infodir}/texi2html.info.* %{_infodir}/dir
+%_install_info texi2html
 
 %post usrlocal
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -902,25 +902,17 @@ exit 0
 exit 0
 
 %preun
-if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/kpathsea.info.* %{_infodir}/dir
-	/sbin/install-info --delete %{_infodir}/web2c.info.* %{_infodir}/dir
-fi
+%_remove_install_info %{_infodir}/kpathsea.info.*
+%_remove_install_info %{_infodir}/web2c.info.*
 
 %preun dvips
-if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/dvips.info.* %{_infodir}/dir
-fi
+%_remove_install_info %{_infodir}/dvips.info.*
 
 %preun latex
-if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/latex.info.* %{_infodir}/dir
-fi
+%_remove_install_info %{_infodir}/latex.info.*
 
 %preun texi2html
-if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/texi2html.info.* %{_infodir}/dir
-fi
+%_remove_install_info %{_infodir}/texi2html.info.*
 
 %triggerpostun -- tetex < 3.0-31mdv2007.1
 if [ "$2" -ge 1 ]; then

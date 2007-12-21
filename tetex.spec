@@ -100,6 +100,7 @@ Patch55:	gd-2.0.33_CVE-2007-3478.patch
 #
 URL:		http://www.tug.org/teTeX/
 Packager:	Giuseppe Ghibò <ghibo@mandriva.com>
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires:	tmpwatch
 Requires:	dialog
 Requires:	ed

@@ -674,8 +674,8 @@ find $RPM_BUILD_ROOT -type f -or -type l | \
 %if %{mdkversion} < 200800 || "%{mdkver}" == "mlcd4"
 	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" \
 %else
-	    -e "s|^%{_infodir}\(.*\)|%attr(644,root,root) \%{_infodir}\1|" \
-	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" \
+	    -e "s|^%{_infodir}\(.*\)|%attr(644,root,root) \%{_infodir}\1.\*|" \
+	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1.\*|" \
 %endif
 		> filelist.full
 

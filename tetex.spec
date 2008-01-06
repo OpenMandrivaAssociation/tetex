@@ -4,11 +4,11 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    38
+%define tetexrelease    39
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
-%define texmfggversion	3.0k
-%define texmfsrcggversion	3.0k
+%define texmfggversion	3.0l
+%define texmfsrcggversion	3.0l
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 98
@@ -47,6 +47,7 @@ Source10:	tetex.cron
 Source11:	ftp://math.feld.cvut.cz/pub/cstex/tetex-rpm/mandrake/csindex-%{csidxversion}.tar.bz2
 Source20:	ttf2pk.tar.bz2
 Source21:	dvipdfpress.bz2
+Source22:	tetex-texi2html-178-images.tar.bz2
 #
 Patch0:		%{name}-3.0-texmfcnf.patch
 Patch1:		%{name}-3.0-fmtutil.patch
@@ -96,7 +97,13 @@ Patch52:	gd-2.0.33_CVE-2007-3475.patch
 Patch53:	gd-2.0.33_CVE-2007-3476.patch
 Patch54:	gd-2.0.33_CVE-2007-3477.patch
 Patch55:	gd-2.0.33_CVE-2007-3478.patch
-
+Patch57:	tetex-deb-dvips-CVE-2007-5935.patch
+Patch58:	t1lib-5.1.0-ub-CVE-2007-4033.patch
+Patch59:	tetex-3.0-gentoo-mdv-CVE-2007-5936_5937.patch
+Patch60:	tetex-texi2html-178.patch
+Patch61:	tetex-3.0-pdftex1405.patch
+Patch62:	tetex-3.0-xpdf302pl1.patch
+Patch63:	tetex-3.0-xpdf-3.02pl1-CVE-2007-4352_5392_5393.patch
 #
 URL:		http://www.tug.org/teTeX/
 Packager:	Giuseppe Ghibò <ghibo@mandriva.com>
@@ -117,6 +124,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	lesstif-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	png-devel
+BuildRequires:	gd-devel
 BuildRequires:	xpm-devel
 BuildRequires:	X11-devel
 %if %{mdkversion} >= 200610
@@ -387,7 +395,7 @@ which is defined by the var TEXMFLOCAL in the default config file
 and can be used for system-wide teTeX files.
 
 %prep
-%setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 11 -a 20
+%setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 11 -a 20 -a 22
 chmod 755 csindex-%{csidxversion}
 %patch0 -p1 -b .texmfcnf
 %patch1 -p1 -b .fmtutil
@@ -481,6 +489,28 @@ pushd libs/xpdf
 %patch48 -p1 -b .cve-2007-3387
 popd
 
+pushd texk/dvipsk
+%patch57 -p0 -b .cve-2007-5935
+popd
+
+pushd libs/t1lib
+%patch58 -p3 -b .cve-2007-4033
+popd
+
+%patch59 -p0 -b .cve-2007-5936_5937
+
+# texi2html 1.78
+%patch60 -p1
+
+# pdftex 1.40.5
+%patch61 -p1
+
+# xpdf 3.02pl1 (needed by pdftex 1.40.5)
+%patch62 -p1
+
+# CVE 2007-4352_5392_5393
+%patch63 -p1 -b .cve-2007-4352_5392_5393
+
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc
  rm -f texmf/fonts/map/dvips/lm/{cork-lm,lm,qx-lm,texnansi-lm,ts1-lm}.map
@@ -521,11 +551,12 @@ sh ./reautoconf
 	--with-system-ncurses \
 	--with-system-zlib \
 	--with-system-pnglib \
+	--with-system-gd \
 	--disable-multiplatform \
 	--without-dialog \
 	--without-texinfo
 
-make all
+%make all
 
 # jadetex
 (CURRENTDIR=`pwd`
@@ -640,8 +671,13 @@ find $RPM_BUILD_ROOT -type f -or -type l | \
 	    -e "s|%{_datadir}/texmf/xdvi/XDvi|%config &|" \
 	    -e "s|%{_datadir}/texmf/tex/generic/config/.*|%config &|" \
 	    -e "s|%{_datadir}/texmf/tex/dvips/config/updmap$|%config(noreplace) &|" \
-	    -e "s|^%{_infodir}\(.*\)|%attr(644,root,root) \%{_infodir}\1.\*|" \
-	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1.\*|" > filelist.full
+%if %{mdkversion} < 200800 || "%{mdkver}" == "mlcd4"
+	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" \
+%else
+	    -e "s|^%{_infodir}\(.*\)|%attr(644,root,root) \%{_infodir}\1|" \
+	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" \
+%endif
+		> filelist.full
 
 find $RPM_BUILD_ROOT%{_datadir}/texmf* \
 	-type d | \
@@ -717,6 +753,7 @@ EOF
 cat > filelist.texi2html <<EOF
 %{_bindir}/texi2html
 %attr(644,root,root) %{_mandir}/man1/texi2html.1.*
+%{_datadir}/texi2html
 %{_datadir}/texinfo/html/texi2html.html
 %{_infodir}/texi2html.info.*
 EOF
@@ -786,14 +823,20 @@ bzip2 -cd %{SOURCE21} > $RPM_BUILD_ROOT%{_bindir}/dvipdfpress
 find $RPM_BUILD_ROOT -type f -print0 | xargs -0 chmod u+rw,go+r
 find $RPM_BUILD_ROOT -type d -print0 | xargs -0 chmod u+rw,go+r
 
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 rm -f filelist.*
 
 # make sure ls-R used by teTeX is updated after an install
 %post
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+/sbin/install-info %{_infodir}/web2c.info.* %{_infodir}/dir
+/sbin/install-info %{_infodir}/kpathsea.info.* %{_infodir}/dir
+%else
 %_install_info web2c
 %_install_info kpathsea
+%endif
 /usr/bin/env - /usr/bin/texhash 2> /dev/null
 if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
 	%{_bindir}/updmap-sys --quiet
@@ -802,7 +845,11 @@ exit 0
 
 %post latex
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+/sbin/install-info %{_infodir}/latex.info.* %{_infodir}/dir
+%else
 %_install_info latex
+%endif
 exit 0
 
 %post xdvi
@@ -811,7 +858,11 @@ exit 0
 exit 0
 
 %post dvips
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+/sbin/install-info %{_infodir}/dvips.info.* %{_infodir}/dir
+%else
 %_install_info dvips
+%endif
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
@@ -845,7 +896,11 @@ exit 0
 exit 0
 
 %post texi2html
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+/sbin/install-info %{_infodir}/texi2html.info.* %{_infodir}/dir
+%else
 %_install_info texi2html
+%endif
 
 %post usrlocal
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -903,19 +958,44 @@ exit 0
 exit 0
 
 %preun
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+if [ "$1" = 0 ]; then
+   /sbin/install-info --delete %{_infodir}/kpathsea.info.* %{_infodir}/dir
+   /sbin/install-info --delete %{_infodir}/web2c.info.* %{_infodir}/dir 	 
+fi
+%else
 %_remove_install_info %{_infodir}/kpathsea.info.*
 %_remove_install_info %{_infodir}/web2c.info.*
+%endif
 
 %preun dvips
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+if [ "$1" = 0 ]; then
+   /sbin/install-info --delete %{_infodir}/dvips.info.* %{_infodir}/dir 	 
+fi
+%else
 %_remove_install_info %{_infodir}/dvips.info.*
+%endif
 
 %preun latex
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+if [ "$1" = 0 ]; then
+   /sbin/install-info --delete %{_infodir}/latex.info.* %{_infodir}/dir 	 
+fi
+%else
 %_remove_install_info %{_infodir}/latex.info.*
+%endif
 
 %preun texi2html
+%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
+if [ "$1" = 0 ]; then
+   /sbin/install-info --delete %{_infodir}/texi2html.info.* %{_infodir}/dir 	 
+fi
+%else
 %_remove_install_info %{_infodir}/texi2html.info.*
+%endif
 
-%triggerpostun -- tetex < 3.0-31mdv2007.1
+%triggerpostun -- tetex < 3.0-39mdv2007.1
 if [ "$2" -ge 1 ]; then
 	if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
         	if [ -x %{_bindir}/updmap-sys ]; then
@@ -990,5 +1070,4 @@ exit 0
 %files usrlocal
 %defattr(-,root,root)
 %dir /usr/local/share/texmf
-
 

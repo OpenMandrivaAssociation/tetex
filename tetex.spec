@@ -556,7 +556,7 @@ sh ./reautoconf
 	--without-dialog \
 	--without-texinfo
 
-%make all
+make all
 
 # jadetex
 (CURRENTDIR=`pwd`
@@ -696,15 +696,15 @@ grep -v "/doc/" filelist.full | grep jadetex	> filelist.jadetex
 
 grep -v "/doc/" filelist.full | grep xmltex	> filelist.xmltex
 
-grep -v "/doc/" filelist.full | grep xdvi | \
+grep -v "/doc/" filelist.full | grep \
+	-e xdvi \
+	-e "^%attr(644,root,root) %{_mandir}/man1/t1mapper.1" \
+	-e "%{_bindir}/t1mapper" | \
 	grep -v "%{_datadir}/texmf/tex"		> filelist.xdvi
 
 echo "%{_bindir}/mf" >> filelist.mfwin
 echo "%{_bindir}/mfw" >> filelist.mfwin
 echo "%{_datadir}/texmf/metafont/config/mf.ini" >> filelist.mfwin
-
-echo "%{_bindir}/t1mapper" >> filelist.xdvi
-echo "%attr(644,root,root) %{_mandir}/man1/t1mapper.1.*" >> filelist.xdvi
 
 grep -v "/doc/" filelist.full | \
 	grep "%{_includedir}" > filelist.devel
@@ -750,13 +750,13 @@ cat >> filelist.context <<EOF
 %{texmfsysvar}/web2c/mptopdf.log
 EOF
 
-cat > filelist.texi2html <<EOF
-%{_bindir}/texi2html
-%attr(644,root,root) %{_mandir}/man1/texi2html.1.*
-%{_datadir}/texi2html
-%{_datadir}/texinfo/html/texi2html.html
-%{_infodir}/texi2html.info.*
-EOF
+grep -v "/doc" filelist.full | \
+	grep -e "^%{_datadir}/texi2html" \
+	     -e "^%{_bindir}/texi2html" \
+	     -e "^%{_datadir}/texinfo/html/texi2html.html" \
+	     -e "^%attr(644,root,root) %{_mandir}/man1/texi2html.1" \
+	     -e "^%{_infodir}/texi2html.info" \
+		> filelist.texi2html
 
 # now files listed only once, i.e. not included in any subpackage, will
 # go in the main package

@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    41
+%define tetexrelease    42
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0l

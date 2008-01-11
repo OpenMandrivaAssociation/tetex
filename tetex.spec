@@ -777,15 +777,6 @@ cat filelist.full \
     sort | uniq -u > filelist.main
 
 # xdvi menu things
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-cat > $RPM_BUILD_ROOT%{_menudir}/tetex-xdvi <<EOF
-?package(tetex-xdvi): command="%{_bindir}/xdvi" needs="X11" \
-icon="dvi.png" section="Applications/Publishing" title="XDvi" \
-%if %{mdkversion} >= 200610
-xdg=true \
-%endif
-longtitle="DVI files viewer"
-EOF
 
 %if %{mdkversion} >= 200610
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
@@ -1024,7 +1015,6 @@ exit 0
 
 %files -f filelist.xdvi xdvi
 %defattr(-,root,root)
-%{_menudir}/tetex-xdvi
 %{_iconsdir}/*
 %if %{mdkversion} >= 200610
 %{_datadir}/applications/*.desktop

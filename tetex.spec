@@ -376,7 +376,6 @@ Summary:	Convert texinfo (GNU docs) directly to HTML for easy reading
 Group:		Publishing
 License:	GPL
 Provides:	texi2html
-Obsoletes:	texi2html
 Requires:       tetex = %{version}-%{release}
 
 %description	texi2html

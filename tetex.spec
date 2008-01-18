@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    44
+%define tetexrelease    45
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0l
@@ -168,6 +168,8 @@ Provides:	latex-xcolor
 Obsoletes:	latex-xcolor
 Provides:	latex-pgf
 Obsoletes:	latex-pgf
+Obsoletes:      latex-beamer < 0:3.06
+Provides:       latex-beamer = 0:3.06
 
 %description	latex
 LaTeX is a front end for the TeX text formatting system.  Easier to use
@@ -375,7 +377,7 @@ electronic documents.
 Summary:	Convert texinfo (GNU docs) directly to HTML for easy reading
 Group:		Publishing
 License:	GPL
-Provides:	texi2html
+Provides:	texi2html = 1.78
 Requires:       tetex = %{version}-%{release}
 
 %description	texi2html

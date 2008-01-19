@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    45
+%define tetexrelease    46
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0l
@@ -106,7 +106,6 @@ Patch62:	tetex-3.0-xpdf302pl1.patch
 Patch63:	tetex-3.0-xpdf-3.02pl1-CVE-2007-4352_5392_5393.patch
 #
 URL:		http://www.tug.org/teTeX/
-Packager:	Giuseppe Ghibò <ghibo@mandriva.com>
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires:	tmpwatch
 Requires:	dialog
@@ -133,6 +132,9 @@ BuildRequires:  desktop-file-utils
 Obsoletes:	cweb < %{version}-%{release}
 Provides:	cweb = %{version}-%{release}
 Conflicts:      texlive-texmf
+# (Anssi 01/2008) texinfo needs either tetex or texlive-texmf, but it is
+# needed during building of texlive, so this provide is here for that:
+Provides:	texmf-data = 1
 
 %description
 teTeX is an implementation of TeX for Linux or UNIX systems. TeX takes

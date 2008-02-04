@@ -4,11 +4,11 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    46
+%define tetexrelease    47
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
-%define texmfggversion	3.0l
-%define texmfsrcggversion	3.0l
+%define texmfggversion	3.0m
+%define texmfsrcggversion	3.0m
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 98
@@ -170,8 +170,8 @@ Provides:	latex-xcolor
 Obsoletes:	latex-xcolor
 Provides:	latex-pgf
 Obsoletes:	latex-pgf
-Obsoletes:      latex-beamer < 0:3.06
-Provides:       latex-beamer = 0:3.06
+Obsoletes:      latex-beamer < 0:3.07
+Provides:       latex-beamer = 0:3.07
 
 %description	latex
 LaTeX is a front end for the TeX text formatting system.  Easier to use

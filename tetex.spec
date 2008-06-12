@@ -848,7 +848,9 @@ exit 0
 
 %post xdvi
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
+%if %mdkversion < 200900
 %{update_menus}
+%endif
 exit 0
 
 %post dvips
@@ -911,7 +913,9 @@ exit 0
 %postun xdvi
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 if [ "$1" = "0" ]; then
+%if %mdkversion < 200900
 %{clean_menus}
+%endif
 fi
 exit 0
 

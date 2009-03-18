@@ -4,7 +4,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    47
+%define tetexrelease    48
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0m
@@ -27,6 +27,9 @@
 # 1 = have ghostscript >= 6.01 (e.g. Mandrake Linux >= 8.1)
 # 0 = don't have ghostscript >= 6.01 (e.g. Mandrake Linux 8.0, 7.2, etc.)
 %define haveghost6	1
+
+%define _default_patch_fuzz 3
+%define Werror_cflags %nil
 
 Summary:	The TeX text formatting system
 Name:		%{name}
@@ -381,6 +384,7 @@ Group:		Publishing
 License:	GPL
 Provides:	texi2html = 1.78
 Requires:       tetex = %{version}-%{release}
+Conflicts:	tetex < 3.0-48mdv
 
 %description	texi2html
 This package converts the GNU standard form of documentation (texinfo) into
@@ -758,7 +762,7 @@ grep -v "/doc" filelist.full | \
 	     -e "^%{_bindir}/texi2html" \
 	     -e "^%{_datadir}/texinfo/html/texi2html.html" \
 	     -e "^%attr(644,root,root) %{_mandir}/man1/texi2html.1" \
-	     -e "^%{_infodir}/texi2html.info" \
+	     -e "^%attr(644,root,root) %{_infodir}/texi2html.info" \
 		> filelist.texi2html
 
 # now files listed only once, i.e. not included in any subpackage, will

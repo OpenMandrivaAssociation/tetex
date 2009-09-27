@@ -1,10 +1,14 @@
+%define bootstrap 0
+%{?_without_bootstrap: %global bootstrap 0}
+%{?_with_bootstrap: %global bootstrap 1}
+
 %define name            tetex
 %define pkgname         tetex
 %define version         3.0
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    48
+%define tetexrelease    49
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0m
@@ -129,8 +133,10 @@ BuildRequires:	png-devel
 BuildRequires:	gd-devel
 BuildRequires:	xpm-devel
 BuildRequires:	X11-devel
+%if !%bootstrap
 %if %{mdkversion} >= 200610
 BuildRequires:  desktop-file-utils
+%endif
 %endif
 Obsoletes:	cweb < %{version}-%{release}
 Provides:	cweb = %{version}-%{release}
@@ -785,6 +791,7 @@ cat filelist.full \
 
 # xdvi menu things
 
+%if !%bootstrap
 %if %{mdkversion} >= 200610
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
 cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-%{name}.desktop << EOF
@@ -803,6 +810,7 @@ desktop-file-install --vendor="" \
   --add-category="Office" \
   --add-category="X-MandrivaLinux-Office-Publishing" \
   --dir $RPM_BUILD_ROOT%{_datadir}/applications $RPM_BUILD_ROOT%{_datadir}/applications/*
+%endif
 %endif
 
 # mdk icons
@@ -1027,8 +1035,10 @@ exit 0
 %files -f filelist.xdvi xdvi
 %defattr(-,root,root)
 %{_iconsdir}/*
+%if !%bootstrap
 %if %{mdkversion} >= 200610
 %{_datadir}/applications/*.desktop
+%endif
 %endif
 
 %files -f filelist.dvips dvips

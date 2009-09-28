@@ -111,6 +111,7 @@ Patch60:	tetex-texi2html-178.patch
 Patch61:	tetex-3.0-pdftex1405.patch
 Patch62:	tetex-3.0-xpdf302pl1.patch
 Patch63:	tetex-3.0-xpdf-3.02pl1-CVE-2007-4352_5392_5393.patch
+Patch64:	tetex-3.0-getline.patch
 #
 URL:		http://www.tug.org/teTeX/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -523,6 +524,8 @@ popd
 
 # CVE 2007-4352_5392_5393
 %patch63 -p1 -b .cve-2007-4352_5392_5393
+
+%patch64 -p1 -b .getline
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc

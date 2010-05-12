@@ -8,7 +8,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    49
+%define tetexrelease    50
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0m
@@ -112,6 +112,11 @@ Patch61:	tetex-3.0-pdftex1405.patch
 Patch62:	tetex-3.0-xpdf302pl1.patch
 Patch63:	tetex-3.0-xpdf-3.02pl1-CVE-2007-4352_5392_5393.patch
 Patch64:	tetex-3.0-getline.patch
+Patch65:	tetex-3.0-CVE-2009-1284.diff
+Patch66:	tetex-3.0-CVE-2010-0827.diff
+Patch67:	tetex-3.0-CVE-2010-0739,1440.diff
+Patch68:	tetex-3.0-CVE-2010-0829.diff
+Patch69:	tetex-3.0-CVE-2009-3608.diff
 #
 URL:		http://www.tug.org/teTeX/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -526,6 +531,11 @@ popd
 %patch63 -p1 -b .cve-2007-4352_5392_5393
 
 %patch64 -p1 -b .getline
+%patch65 -p0 -b .CVE-2009-1284
+%patch66 -p0 -b .CVE-2010-0827
+%patch67 -p0 -b .CVE-2010-0739,1440
+%patch68 -p1 -b .CVE-2010-0829
+%patch69 -p1 -b .CVE-2009-3608
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc
@@ -572,7 +582,7 @@ sh ./reautoconf
 	--without-dialog \
 	--without-texinfo
 
-make all
+%make all
 
 # jadetex
 (CURRENTDIR=`pwd`
@@ -605,14 +615,13 @@ ln -sf ../../../texk/kpathsea extras/include/kpathsea
 ln -sf ../../../texk/kpathsea/.libs/libkpathsea.a extras/lib/libkpathsea.a
 rm -f config.cache config.log
 ./configure --with-kpathsea-dir=./extras
-make
+%make
 popd
 
 # csindex
 pushd csindex-%{csidxversion}
-make CC="gcc $RPM_OPT_FLAGS"
+%make CC="gcc $RPM_OPT_FLAGS"
 popd
-
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -839,193 +848,107 @@ rm -f filelist.*
 
 # make sure ls-R used by teTeX is updated after an install
 %post
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-/sbin/install-info %{_infodir}/web2c.info.* %{_infodir}/dir
-/sbin/install-info %{_infodir}/kpathsea.info.* %{_infodir}/dir
-%else
 %_install_info web2c
 %_install_info kpathsea
-%endif
-/usr/bin/env - /usr/bin/texhash 2> /dev/null
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
 	%{_bindir}/updmap-sys --quiet
 fi
-exit 0
 
 %post latex
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-/sbin/install-info %{_infodir}/latex.info.* %{_infodir}/dir
-%else
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 %_install_info latex
-%endif
-exit 0
 
 %post xdvi
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 %if %mdkversion < 200900
-%{update_menus}
+%update_menus
 %endif
-exit 0
 
 %post dvips
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-/sbin/install-info %{_infodir}/dvips.info.* %{_infodir}/dir
-%else
 %_install_info dvips
-%endif
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post dvilj
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post afm
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
-
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post dvipdfm
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post mfwin
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post -n %{jadename}
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post -n %{xmltexname}
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post context
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %post texi2html
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-/sbin/install-info %{_infodir}/texi2html.info.* %{_infodir}/dir
-%else
 %_install_info texi2html
-%endif
 
 %post usrlocal
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun latex
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun xdvi
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 if [ "$1" = "0" ]; then
 %if %mdkversion < 200900
 %{clean_menus}
 %endif
 fi
-exit 0
 
 %postun dvips
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun dvilj
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun afm
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun dvipdfm
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun mfwin
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun -n %{jadename}
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun -n %{xmltexname}
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun context
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %postun usrlocal
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
+[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 
 %preun
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-if [ "$1" = 0 ]; then
-   /sbin/install-info --delete %{_infodir}/kpathsea.info.* %{_infodir}/dir
-   /sbin/install-info --delete %{_infodir}/web2c.info.* %{_infodir}/dir 	 
-fi
-%else
 %_remove_install_info %{_infodir}/kpathsea.info.*
 %_remove_install_info %{_infodir}/web2c.info.*
-%endif
 
 %preun dvips
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-if [ "$1" = 0 ]; then
-   /sbin/install-info --delete %{_infodir}/dvips.info.* %{_infodir}/dir 	 
-fi
-%else
 %_remove_install_info %{_infodir}/dvips.info.*
-%endif
 
 %preun latex
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-if [ "$1" = 0 ]; then
-   /sbin/install-info --delete %{_infodir}/latex.info.* %{_infodir}/dir 	 
-fi
-%else
 %_remove_install_info %{_infodir}/latex.info.*
-%endif
 
 %preun texi2html
-%if %{mdkversion} < 200810 || "%{mdkver}" == "mlcd4"
-if [ "$1" = 0 ]; then
-   /sbin/install-info --delete %{_infodir}/texi2html.info.* %{_infodir}/dir 	 
-fi
-%else
 %_remove_install_info %{_infodir}/texi2html.info.*
-%endif
-
-%triggerpostun -- tetex < 3.0-39mdv2007.1
-if [ "$2" -ge 1 ]; then
-	if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
-        	if [ -x %{_bindir}/updmap-sys ]; then
-			grep -q "^Map cork-lm.map" %{texmfconfig}/web2c/updmap.cfg && %{_bindir}/updmap-sys --quiet --disable cork-lm.map
-			grep -q "^Map qx-lm.map" %{texmfconfig}/web2c/updmap.cfg && %{_bindir}/updmap-sys --quiet --disable qx-lm.map
-			grep -q "^Map texnansi-lm.map" %{texmfconfig}/web2c/updmap.cfg && %{_bindir}/updmap-sys --quiet --disable texnansi-lm.map
-			grep -q "^Map ts1-lm.map" %{texmfconfig}/web2c/updmap.cfg && %{_bindir}/updmap-sys --quiet --disable ts1-lm.map
-
-			grep -q "^Map lm-ec.map" %{texmfconfig}/web2c/updmap.cfg || %{_bindir}/updmap-sys --quiet --enable Map=lm-ec.map
-			grep -q "^Map lm-qx.map" %{texmfconfig}/web2c/updmap.cfg || %{_bindir}/updmap-sys --quiet --enable Map=lm-qx.map
-			grep -q "^Map lm-t5.map" %{texmfconfig}/web2c/updmap.cfg || %{_bindir}/updmap-sys --quiet --enable Map=lm-t5.map
-			grep -q "^Map lm-texnansi.map" %{texmfconfig}/web2c/updmap.cfg || %{_bindir}/updmap-sys --quiet --enable Map=lm-texnansi.map
-			grep -q "^Map lm-ts1.map" %{texmfconfig}/web2c/updmap.cfg || %{_bindir}/updmap-sys --quiet --enable Map=lm-ts1.map
-		fi
-	fi
-fi
-exit 0
 
 %files -f filelist.main
 %defattr(-,root,root)
@@ -1039,9 +962,7 @@ exit 0
 %defattr(-,root,root)
 %{_iconsdir}/*
 %if !%bootstrap
-%if %{mdkversion} >= 200610
 %{_datadir}/applications/*.desktop
-%endif
 %endif
 
 %files -f filelist.dvips dvips
@@ -1084,4 +1005,3 @@ exit 0
 %files usrlocal
 %defattr(-,root,root)
 %dir /usr/local/share/texmf
-

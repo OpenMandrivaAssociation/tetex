@@ -8,7 +8,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    50
+%define tetexrelease    51
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0m
@@ -31,8 +31,6 @@
 # 1 = have ghostscript >= 6.01 (e.g. Mandrake Linux >= 8.1)
 # 0 = don't have ghostscript >= 6.01 (e.g. Mandrake Linux 8.0, 7.2, etc.)
 %define haveghost6	1
-
-%define Werror_cflags %nil
 
 Summary:	The TeX text formatting system
 Name:		%{name}
@@ -116,6 +114,7 @@ Patch66:	tetex-3.0-CVE-2010-0827.diff
 Patch67:	tetex-3.0-CVE-2010-0739,1440.diff
 Patch68:	tetex-3.0-CVE-2010-0829.diff
 Patch69:	tetex-3.0-CVE-2009-3608.diff
+Patch70:	tetex-3.0-format_not_a_string_literal_and_no_format_arguments.diff
 #
 URL:		http://www.tug.org/teTeX/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -533,6 +532,7 @@ popd
 %patch67 -p0 -b .CVE-2010-0739,1440
 %patch68 -p1 -b .CVE-2010-0829
 %patch69 -p1 -b .CVE-2009-3608
+%patch70 -p1 -b .format_not_a_string_literal_and_no_format_arguments
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc

@@ -579,7 +579,8 @@ sh ./reautoconf
 	--without-dialog \
 	--without-texinfo
 
-%make all
+# (oe) don't use paralell make (%%make) here because the mandriva build system can't handle it properly.
+make all
 
 # jadetex
 (CURRENTDIR=`pwd`
@@ -612,12 +613,12 @@ ln -sf ../../../texk/kpathsea extras/include/kpathsea
 ln -sf ../../../texk/kpathsea/.libs/libkpathsea.a extras/lib/libkpathsea.a
 rm -f config.cache config.log
 ./configure --with-kpathsea-dir=./extras
-%make
+make
 popd
 
 # csindex
 pushd csindex-%{csidxversion}
-%make CC="gcc $RPM_OPT_FLAGS"
+make CC="gcc $RPM_OPT_FLAGS"
 popd
 
 %install

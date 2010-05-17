@@ -32,7 +32,6 @@
 # 0 = don't have ghostscript >= 6.01 (e.g. Mandrake Linux 8.0, 7.2, etc.)
 %define haveghost6	1
 
-%define _default_patch_fuzz 3
 %define Werror_cflags %nil
 
 Summary:	The TeX text formatting system
@@ -461,9 +460,7 @@ cp -p texmf/tex/generic/hyphen/hyphen.tex texmf/tex/generic/hyphen/ushyph1.tex
 %patch31 -p1 -b .t1auto
 
 # CVE-2007-0104
-pushd libs
-%patch32 -p3 -b .cve-2007-0104
-popd
+%patch32 -p1 -b .cve-2007-0104
 
 %patch33 -p1 -b .numargs
 %patch34 -p1 -b .manfix
@@ -1005,3 +1002,416 @@ fi
 %files usrlocal
 %defattr(-,root,root)
 %dir /usr/local/share/texmf
+
+
+%changelog
+* Wed May 12 2010 Oden Eriksson <oeriksson@mandriva.com> 3.0-50mdv2010.1
++ Revision: 544580
+- P65: security fix for CVE-2009-1284 (debian)
+- P66: security fix for CVE-2010-0827 (debian)
+- P67: security fix for CVE-2010-0739,1440 (redhat)
+- P68: security fix for CVE-2010-0829 (redhat)
+- P69: security fix for CVE-2009-3608 (redhat)
+- spec file cleanups
+- use %%make as it works fine for me...
+
+* Mon Sep 28 2009 Olivier Blin <oblin@mandriva.com> 3.0-49mdv2010.0
++ Revision: 450767
+- fix getline() redefinition in ttf2pk as well
+- fix getline() redefinition in mpto too
+- rediff getline patch, it was not properly applying because of fuzz=3...
+- fix duplicate getline() declaration (patch from SM)
+- add bootstrap flag to remove desktop-file-util dep
+  (from Arnaud Patard)
+
+* Wed Mar 18 2009 Frederik Himpe <fhimpe@mandriva.org> 3.0-48mdv2009.1
++ Revision: 357475
+- Define _default_patch_fuzz 3 and Werror_cflags %%nil to make it build
+- Move texi2html info file to tetex-texi2html subpackge to fix conflict
+  with plain texi2html package
+
+* Thu Jun 12 2008 Pixel <pixel@mandriva.com> 3.0-47mdv2009.0
++ Revision: 218426
+- rpm filetriggers deprecates update_menus/update_scrollkeeper/update_mime_database/update_icon_cache/update_desktop_database/post_install_gconf_schemas
+
+* Wed Feb 06 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-47mdv2008.1
++ Revision: 162974
+- move beamer latex files to avoid overlapping with old ones.
+- update unicode package and added missed utf8x.def.
+- added translator.sty from beamer package.
+- Updated tetex-texmf-extras-gg to release 3.0m:
+  o hyperref 6.75g -> 6.77i.
+  o beamer 3.06 -> 3.07.
+  o pgf 1.01 -> 1.18.
+  o pdfsync.sty 1.0 -> 1.1.
+  o txfonts.sty 3.2.1: fix \precapapprox and \succapapprox definitions (Young Ryu).
+  o pfxfonts.sty 1.1.1: fix \precapapprox and \succapapprox definitions (Young Ryu).
+  o txmi|txmi1.tfm|.vf: fix encoding mistakes in Math Italic (Young Ryu).
+  o pxmi|pxmi1.tfm|.vf: fix encoding mistakes in Math Italic (Young Ryu).
+
+* Sat Jan 19 2008 Anssi Hannula <anssi@mandriva.org> 3.0-46mdv2008.1
++ Revision: 155107
+- provide texmf-data for texinfo
+
+* Fri Jan 18 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-45mdv2008.1
++ Revision: 154904
+- Versionize Provides: tetex-texi2html
+- Provides: latex-beamer 3.06.
+
+* Thu Jan 17 2008 Anssi Hannula <anssi@mandriva.org> 3.0-44mdv2008.1
++ Revision: 154188
+- do not obsolete texi2html
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - rebuild now that texlive isn't any more the default
+    - drop old menu
+
+* Wed Jan 09 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-43mdv2008.1
++ Revision: 147344
+- Bump release and rebuild as was not uploaded correctly in cooker.
+
+* Wed Jan 09 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-42mdv2008.1
++ Revision: 147127
+- Rebuild.
+
+* Wed Jan 09 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-41mdv2008.1
++ Revision: 147123
+- Disable parallel building (as there are problems building in klodia).
+- Bump release number due to Marcelo fixes to the Emi bot.
+
+* Mon Jan 07 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-40mdv2008.1
++ Revision: 146199
++ rebuild (emptylog)
+
+* Sun Jan 06 2008 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-39mdv2008.1
++ Revision: 146101
+- fix %%{_infodir} and %%{_mandir} in filelists.
+- Patch60: update texi2html to release 1.78 (and texi2html shouldn't be duplicated as a standalone external package), fix bug #35003.
+- Patch57: security fix for CVE-2007-5935 (dvips), merged from Vincent Danen updates.
+- Patch58: security fix for CVE-2007-4033 (embedded t1lib), merged from Vincent Danen updates
+- Patch59: security fix for CVE-2007-{5936,5937} (embedded gd), merged from Vincent Danen updates.
+- Patch61: update pdfTeX to release 1.40.5.
+- Patch62: update internal xpdf libs to 3.02pl1 (needed by pdfTeX 1.40.5).
+- Patch63: security fix for CVE-2007-{4352,5392,5393} (embedded xpdf 3.02pl1), merged from Vincent Danen updates for xpdf 3.02.
+- Updated tetex-texmf-extras-gg to release 3.0l:
+  o hyperref 6.75t -> 6.77g.
+  o oberdiek 2007/01/24 -> 2007/10/01.
+  o url.sty 3.2 -> 3.3.
+  o framed.sty 0.8a -> 0.95.
+  o graphics/pdftex.def 0.04d -> 0.04i.
+
+  + Olivier Blin <oblin@mandriva.com>
+    - restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - use std info-install macros
+    - kill re-definition of %%buildroot on Pixel's request
+    - buildrequires X11-devel instead of XFree86-devel
+    - fix summary-ended-with-dot
+
+* Sun Sep 09 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-38mdv2008.0
++ Revision: 83954
+- move dvipdfm35.map to dvips subpackage not to dvipdfm.
+
+* Sun Sep 09 2007 Herton Ronaldo Krzesinski <herton@mandriva.com.br> 3.0-37mdv2008.0
++ Revision: 83284
+- Really fix xmltex and jadetex Requires.
+
+* Sun Sep 09 2007 Herton Ronaldo Krzesinski <herton@mandriva.com.br> 3.0-36mdv2008.0
++ Revision: 83283
+- Quick fix for breakage of Requires in jadetex/xmltex and all
+  subpackages below them introduced in last commit (note that jadetex
+  and xmltex redefine version and release).
+
+* Sat Sep 08 2007 David Walluck <walluck@mandriva.org> 3.0-35mdv2008.0
++ Revision: 82540
+- remove references to %%{PACKAGE_VERSION} and replace with %%{version}-%%{release}
+- version cweb Provides/Obsoletes
+- make sure every subpackage at least requires tetex = %%{version}-%%{release}
+- make sure every subpackage requires on %%{version}-%%{release} and not something like >= 1.0.7-52mdk (should fix bug #33323)
+- %%exclude %%{_datadir}/texmf/fonts/map/dvips/tetex/dvipdfm35.map in dvips to fix file conflict with other subpackage
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill desktop-file-validate's 'warning: key "Encoding" in group "Desktop Entry" is deprecated'
+
+* Sat Aug 25 2007 Pascal Terjan <pterjan@mandriva.org> 3.0-34mdv2008.0
++ Revision: 71190
+- Fix mkrel usage
+- Add patches 49-55 for CVE-2007-347[2-8] and CVE-2007-3387 (#32278)
+- Don't build in subshell (aka see the errors)
+- Add P46 for CVE-2007-0455 (#30989)
+- Add P47 for CVE-2007-2756 (#31389)
+- Use mkrel
+
+* Sat Aug 25 2007 Pascal Terjan <pterjan@mandriva.org> 3.0-32mdv2008.0
++ Revision: 71147
+- Fix build issues (autoconf, libtool, missing ushyph1.tex)
+- Fix for lzma manpages/info
+
+  + David Walluck <walluck@mandriva.org>
+    - Conflicts: texlive-texmf
+    - set relsuffix for mdv2008.0 (why don't we use %%mkrel?)
+
+
+* Thu Mar 15 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-31mdv2007.0
++ Revision: 144390
+- Bumped triggers to 3.0-31mdv2007.1 accordingly.
+- Added tetex-xdvi to Requires for tetex-doc subpackage.
+
+* Sun Mar 11 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-29mdv2007.1
++ Revision: 141160
+- Rebuild because tetex-doc RPM was unsigned.
+- Updated tetex-texmf-extras-gg to release 3.0k:
+  o hyperref 6.75r -> 6.75t.
+  o oberdiek 2007/01/24 -> 2007/03/07.
+
+* Wed Mar 07 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-28mdv2007.1
++ Revision: 134300
+- Use trigger migration for Latin Modern for any tetex release < 3.0-28mdv2007.1 (thanks to Camille).
+
+* Wed Feb 28 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-27mdv2007.1
++ Revision: 127332
+- Rebuild for fixing bug #29000.
+
+* Tue Feb 20 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-26mdv2007.1
++ Revision: 123111
+- Updated tetex-texmf-extras-gg to release 3.0j:
+  o removed duplicate url.sty (David Walluck).
+
+* Sun Feb 18 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-25mdv2007.1
++ Revision: 122235
+- fixed tetex-xdvi %%post scripts.
+
+* Sat Feb 17 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-24mdv2007.1
++ Revision: 122201
+- Backported patches from pdftex 1.40.3 (Patch39) fixing:
+  o document which used type 1 and truetype or opentype fonts.
+    resulted in broken pdfs (729).
+  o maplines starting with = would not work as advertised.
+  o xpdf would complain that PDF 1.7 is too new.
+- Install missed pdftosrc (Patch40).
+- Added Patch41 for kpathsea for showing warnings when a
+  .cnf file is not found.
+- Added Patch42 for fixing typos in cwebman.tex, and updating
+  cwebmac.tex to release 3.67 (previous 3.64).
+- Move /usr/local/share/texmf into a standalone subpackage
+  (fix bug #21018).
+- Added Patch43 for CVE-2007-0650.
+- Merged Patch44 from Fedora (don't inherit incorrect permission for
+  ls-R).
+- Updated tetex-texmf-extras-gg to release 3.0i:
+  o latex/graphics/pdftex.def 0.03t -> 0.04d.
+  o added tex/generic/pdftex/glyphtounicode.tex v1.1.
+  o plain/tex/base/cwebmac.tex 3.64 -> 3.67.
+  o hyperref 6.75r -> 6.75q.
+  o footmisc 5.3c -> 5.3d.
+- merged Gwenole fix for %%relsuffix to SPEC file.
+
+* Sun Jan 28 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-23mdv2007.0
++ Revision: 114626
+- Updated tetex-texmf-extras-gg to release 3.0h:
+        o hyperref 6.75o -> 6.75q.
+        o xcolor 2.09 -> 2.11.
+        o preview 2004-04-11 -> 2006-08-25.
+        o oberdiek 20060826 -> 20070124.
+- fixed fmtutil.cnf for texi2dvi (thanks to Gwenole).
+- fixed xdvizilla (patch from Guillaume Rousse, bug #22698).
+- Dropped dependencies to X11R6-contrib (bug #22698)
+- removed BuildRequires: tetex-context from package
+  tetex-latex (close bug #22413).
+- reworked Patch36.
+- use version 3.0g also for %%texmfsrcggversion.
+
+* Mon Jan 22 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-22mdv2007.1
++ Revision: 111677
+- Reworked Patch36
+- fixed SPEC file.
+- Remove %%elseif (not supported).
+- bump version number to 22mdv2007.1.
+- move updmaps from tetex-dvips to main packages (needed also by pdftex).
+- updated pdfTeX engine to release 1.40.1 (Patch36 & Patch37).
+- updated Patch30 (bug #26479).
+- added powerdot (bug #27713), probably still needed fourier-GUT.
+- Added Patch33 (sprintf was not passing right number of arguments).
+- Added Patch34 to fix some man pages.
+- added simpdftex script from TeXLive (Patch35).
+- Updated tetex-texmf-extras-gg to release 3.0g:
+        - hyperref 6.75d -> 6.75o.
+        - powerdot (bug #27713), probably needs fourier-GUT.
+        - fixed syst-etex.tex for pdfTeX 1.40.1.
+        - movie15 2007/01/17.
+
+* Fri Jan 19 2007 Andreas Hasenack <andreas@mandriva.com> 3.0-21mdv2007.1
++ Revision: 110844
+- force 2007.1 release tag for now (see #28256). This still has to be properly
+  fixed
+- fix patch filename
+
+  + Giuseppe Ghib√≤ <ghibo@mandriva.com>
+    - P32: security fix for CVE-2007-0104 (embedded xpdf), from
+      Stew Benedict.
+
+* Tue Jan 16 2007 Giuseppe Ghib√≤ <ghibo@mandriva.com> 3.0-20mdv2007.0
++ Revision: 109662
+- added Patch31 for building with autoconf-2.5.60.
+- better trigger for updmap Latin Modern map migration (bug #25639).
+- remove obsolete Latin Modern map and enc files.
+- force updmap-sys call in %%post to have fontmap updated in case of
+  customized updmap.cfg (for bug #25639).
+
+  + Oden Eriksson <oeriksson@mandriva.com>
+    - Import tetex
+
+* Thu Sep 07 2006 Giuseppe GhibÚ <ghibo@mandriva.com> 3.0-18mdv2007.0
+- Updated tetex-texmf-extras-gg to release 3.0f:
+	- beamer 3.01 -> 3.06.
+	- pgf -> 1.01.
+
+* Wed Sep 06 2006 Giuseppe GhibÚ <ghibo@mandriva.com> 3.0-17mdv2007.0
+- Updated Patch20 (dvipsgeneric).
+- Added ghostscript-dvipdf to tetex-latex's Requires (fix bug #23627).
+- Merged fixes/changes from tetex's cvs 20050823 and TeXLive (updates dvips
+  to release 5.95b, pdftex to 1.30.6, xdvik to release 22.8.10,
+  web2c to 7.5.5), and merged security fixes from Stew Benedict:
+  - security fix for CAN-2004-0941 (internal gd)
+  - security fix for CVE-2006-2906 (internal gd)
+- Updated internal dvipng to release 1.8,
+- Updated internal xpdf to 3.0.1pl2 (and merged security fixes). Bug #23405.
+- Updated tetex-texmf-extras-gg to release 3.0e:
+	- pdfpages.sty 0.3e -> 0.4a.
+        - fixed utf8raw.tex.
+        - xcolor 2.00 -> 2.09.
+	- hyperref 6.74m -> 6.75d.
+	- latex -> 2005/12/01.
+	- tools -> 2005/12/01 (from latex 2005/12/01)).
+	- graphics.sty 1.0n -> 1.0o (from latex 2005/12/01).
+	- cyrillic -> 2005/12/01 (from latex 2005/12/01).
+	- psnfss 9.2 -> 9.2a (from latex 2005/12/01).
+	- caption 3.0c -> 3.0j.
+	- lm font (Latin Modern) 0.92 -> 1.0.
+	- babel.sty 3.8d -> 3.8h.
+	- thumbpdf.sty 3.7 -> 3.8.
+	- url.sty 3.1 -> 3.2.
+	- optional.sty 2.2 -> 2.2b.
+	- oberdiek -> 20060826.
+	- marvosym -> 2.1.
+	- xkeyval 2.0 -> 2.5e.
+	- pstricks -> 2006.
+	- metapost docs -> 0.9.
+- XDG menus.
+
+* Fri May 05 2006 Giuseppe GhibÚ <ghibo@mandriva.com> 3.0-16mdk
+- Merged security updates from Stew Benedict <sbenedict@mandriva.com>:
+  security update for CVE-2005-3191,3192,3193 (Patch30),
+  security update for overflows in goo/gmem.c (Patch31),
+  additional overflow issues discovered by Chris Evans (Patch32)
+  (CVE-2005-3624,3625,3626,3627,3628).
+- added automake1.7 to BuildRequires.
+
+* Fri Jan 27 2006 Christiaan Welvaart <cjw@daneel.dyndns.org> 3.0-15mdk
+- patch29: generate a local libtool script for ttf2mk
+
+* Mon Jan 23 2006 Till Kamppeter <till@mandriva.com> 3.0-14mdk
+- Added "Requires: ghostscript ghostscript-dvipdf" to the
+  tetex-dvipdfm package. This way it is assured that the dvipdf tools
+  work, and there is also the simple command "dvipdf" (without "m",
+  "t", or "press") available.
+
+* Sun Sep 18 2005 Giuseppe GhibÚ <ghibo@mandriva.com> 3.0-13mdk
+- use www-browser instead of mozilla in tetexdoc (fix bug #18653).
+
+* Wed Sep 07 2005 Giuseppe GhibÚ <ghibo@mandriva.com> 3.0-12mdk
+- Provides|Obsoletes: latex-xcolor, latex-pgf (fix bug #14734)
+- Updated tetex-texmf-extras-gg to release 3.0d:
+	- ha-prosper 4.21.
+	- ppr-prv 0.13c.
+	- talk 1.0.1.
+
+* Wed Sep 07 2005 Gˆtz Waschk <waschk@mandriva.org> 3.0-11mdk
+- fix bug 18163
+
+* Thu Sep 01 2005 Gwenole Beauchesne <gbeauchesne@mandriva.com> 3.0-10mdk
+- build kpathsea.a objects with pic (needed for evince shared libs)
+
+* Fri Jul 22 2005 Giuseppe GhibÚ <ghibo@mandriva.com> 3.0-9mdk
+- Updated tetex-texmf-extras-gg to release 3.0c:
+	- algorithmic.sty 2005/07/05.
+	- put back mtplus support in my{1,2,3}mtt.fd.
+	- envlab 1.2.
+
+* Sat Mar 12 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-8mdk
+- updated tetex-texmf-extras-gg to release 3.0a (fix for bug #14885).
+
+* Thu Mar 10 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-7mdk
+- Updated Patch11 (badscript), merged from RH.
+- Removed Patch7 (2.0.2-texconfig-mf).
+- Updated Patch21 for calling www-browser instead of netscape.
+- Added Patch17, partially backported patch from CAN-2005-0206
+  (bug #13754).
+- Removed Patch29 (badc).
+
+* Thu Feb 17 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-6mdk
+- Added sam2p to Requires (for fixing bug #13723).
+
+* Wed Feb 16 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-5mdk
+- Clean initial /var/lib/texmf (fix bug #13691).
+
+* Mon Feb 14 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-4mdk
+- Modified Patch1 to use 'pdfetex' engine instead of 'tex' also for hugelatex.
+- Fixed missed jadetex .fmt files (Camille).
+- Set TEXMF env var before makeinstall (avoid conflicts with installed tetex).
+
+* Sat Feb 12 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-3mdk
+- Updated tetex-texmf-extras-gg to release 3.0a (removed unneded cyrillic/*.fdd files).
+- Used pdfetex as default latex engine in fmtutil.cnf (Thomas request).
+- removed "context" files from tetex-latex package (Thierry).
+
+* Fri Feb 11 2005 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.0-2mdk
+- fix ttf2pk build ex-nihilo (i.e. sans tetex-devel installed beforehand)
+
+* Thu Feb 10 2005 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 3.0-1mdk
+- Rebuilt Patch0, 1, 3, 4, 5, 6, 10, 12.
+- Removed Patch8 (xdvik).
+- Removed Patch28 (typefacename), merged upstream.
+- Removed texi2html 1.64 Sources (mainstream contains texi2html 1.76).
+- Added Patch for CAN-2004-0888, CAN-2005-0064 (Jindrich Novy).
+- Updated tetex-texmf-extras-gg to release 3.0 (and removed files merged upstream).
+
+* Thu Aug 26 2004 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 2.0.2-19mdk
+- Added support for czech makeindex (csindex).
+- texmfgg archive updated to release 2.0.2e:
+	- psnfss 9.1b
+	- cyrillic: 2004-01-26.
+	- tools: 2004-02-27.
+	- LaTeX base Issue 16: 2003/12/01.
+	- babel: 2004-02-20.
+	- changebar: 3.4d -> 3.4g.
+	- amsthm.sty (amslatex): 2000/10/26 v2.08 -> 2004/08/06 v2.20.
+	- upref.sty (amslatex): 1.12d -> 2.01.
+	- amsmidx.sty: 2.01.
+	- amsart.cls (amslatex): 2.08 -> 2.20.
+	- amsbook.cls (amslatex): 2.01 -> 2.20.
+	- amsdtx.cls (amslatex): 2.02 -> 2.06.
+	- amsproc.cls (amslatex): 2.08 -> 2.20.
+	- amsldoc.cls (amslatex): 2.02 -> 2.06.
+	- amsrefs.sty (amslatex): 1.23 -> 2.0.
+	- ifoption.sty (amslatex): 1.01 -> 1.02.
+	- matscinet.sty (amslatex): 1.02 -> 2.01.
+	- pcatcode.sty (amslatex): 1.03 -> 1.04.
+	- rkeyval.sty (amslatex): 2.00 -> 1.05.
+	- textcmds.sty (amslatex): 1.03 -> 1.05.
+	- algorithm.sty.
+	- SIstyle.sty: 2.0.
+
+* Sun Jun 20 2004 Christiaan Welvaart <cjw@daneel.dyndns.org> 2.0.2-18mdk
+- re-add BuildRequires: ed.
+
+* Wed Jun 16 2004 Per ÿyvind Karlsen <peroyvind@linux-mandrake.com> 2.0.2-17mdk
+- fix buildrequires.
+
+* Sat Jun 05 2004 <lmontel@n2.mandrakesoft.com> 2.0.2-16mdk
+- Rebuild-
+
+* Wed Apr 28 2004 Giuseppe GhibÚ <ghibo@mandrakesoft.com> 2.0.2-15mdk
+- Rebuilt against latest gettext 0.14.1.
+

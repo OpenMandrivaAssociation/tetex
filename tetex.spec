@@ -8,7 +8,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    51
+%define tetexrelease    52
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0m
@@ -295,6 +295,7 @@ package, which includes documentation for TeX.
 Summary:	The documentation files for the TeX text formatting system
 Group:		Books/Other
 Requires:	tetex-xdvi = %{version}-%{release}
+BuildArch: noarch
 %define _requires_exceptions pear
 
 %description	doc

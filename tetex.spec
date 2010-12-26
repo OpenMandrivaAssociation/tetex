@@ -8,11 +8,11 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    52
+%define tetexrelease    53
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
-%define texmfggversion	3.0m
-%define texmfsrcggversion	3.0m
+%define texmfggversion	3.0n
+%define texmfsrcggversion	3.0n
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 98
@@ -851,6 +851,7 @@ rm -f filelist.*
 %_install_info kpathsea
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
 if [ -e %{texmfconfig}/web2c/updmap.cfg ]; then
+	grep -q "^Map bera.map" %{texmfconfig}/web2c/updmap.cfg || %{_bindir}/updmap-sys --quiet --enable Map=bera.map
 	%{_bindir}/updmap-sys --quiet
 fi
 
@@ -903,11 +904,11 @@ fi
 
 %postun xdvi
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :
-if [ "$1" = "0" ]; then
 %if %mdkversion < 200900
+if [ "$1" = "0" ]; then
 %{clean_menus}
-%endif
 fi
+%endif
 
 %postun dvips
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash >/dev/null || :

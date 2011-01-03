@@ -8,7 +8,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    53
+%define tetexrelease    54
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0n
@@ -124,7 +124,7 @@ Requires:	ed
 Requires:	info-install
 Requires:	sam2p
 BuildRequires:	autoconf2.1
-BuildRequires:	automake1.7
+BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	bison
 BuildRequires:	ed
@@ -552,7 +552,7 @@ popd
 # ttf2pk
 pushd ttf2pk
 rm -f configure
-aclocal-1.7
+aclocal
 autoconf
 popd
 

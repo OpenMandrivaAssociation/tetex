@@ -8,7 +8,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    54
+%define tetexrelease    55
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0n
@@ -115,6 +115,7 @@ Patch67:	tetex-3.0-CVE-2010-0739,1440.diff
 Patch68:	tetex-3.0-CVE-2010-0829.diff
 Patch69:	tetex-3.0-CVE-2009-3608.diff
 Patch70:	tetex-3.0-format_not_a_string_literal_and_no_format_arguments.diff
+Patch71:	tetex-src-3.0-CVE-2010-XXX.diff
 #
 URL:		http://www.tug.org/teTeX/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -534,6 +535,7 @@ popd
 %patch68 -p1 -b .CVE-2010-0829
 %patch69 -p1 -b .CVE-2009-3608
 %patch70 -p1 -b .format_not_a_string_literal_and_no_format_arguments
+%patch71 -p0 -b .CVE-2010-XXX
 
 # cleaning old latin modern 0.92.
 (rm -f texmf/fonts/enc/dvips/lm/{cork-lm,qx-lm,qx-lmtt,texnansi-lm,ts1-lm}.enc

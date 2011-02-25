@@ -124,7 +124,7 @@ Requires:	dialog
 Requires:	ed
 Requires:	info-install
 Requires:	sam2p
-BuildRequires:	autoconf2.1
+BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	bison

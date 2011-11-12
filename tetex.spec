@@ -8,7 +8,7 @@
 %define docversion	3.0
 %define pkgversion      3.0
 %define tetexversion	3.0
-%define tetexrelease    55
+%define tetexrelease    56
 %define texmfversion    3.0
 %define texmfsrcversion	3.0
 %define texmfggversion	3.0n
@@ -38,6 +38,7 @@ Version:	%{version}
 Release:	%mkrel %{tetexrelease}
 License:	Distributable
 Group:		Publishing
+URL:		http://www.tug.org/teTeX/
 #
 Source0:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-src-%{tetexversion}.tar.bz2
 Source1:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmf-%{texmfversion}.tar.bz2
@@ -117,13 +118,12 @@ Patch69:	tetex-3.0-CVE-2009-3608.diff
 Patch70:	tetex-3.0-format_not_a_string_literal_and_no_format_arguments.diff
 Patch71:	tetex-src-3.0-CVE-2010-XXX.diff
 #
-URL:		http://www.tug.org/teTeX/
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires:	tmpwatch
 Requires:	dialog
 Requires:	ed
 Requires:	info-install
-Requires:	sam2p
+# Zé: currently sam2p doesnt exist
+#Requires:	sam2p
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
@@ -625,61 +625,61 @@ make CC="gcc $RPM_OPT_FLAGS"
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/texmf \
-	$RPM_BUILD_ROOT%{texmfsysvar} \
-	$RPM_BUILD_ROOT%{vartexfonts} \
-	$RPM_BUILD_ROOT/usr/local/share/texmf
+rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_datadir}/texmf \
+	%{buildroot}%{texmfsysvar} \
+	%{buildroot}%{vartexfonts} \
+	%{buildroot}/usr/local/share/texmf
 	
-tar cf - texmf | tar xf - -C $RPM_BUILD_ROOT%{_datadir}
+tar cf - texmf | tar xf - -C %{buildroot}%{_datadir}
 
-export TEXMFLOCAL=$RPM_BUILD_ROOT/usr/local/share/texmf
-export TEXMFSYSVAR=$RPM_BUILD_ROOT%{texmfsysvar}
-export TEXMFSYSCONFIG=$RPM_BUILD_ROOT%{texmfconfig}
-export VARTEXFONTS=$RPM_BUILD_ROOT%{vartexfonts}
-export PATH=$RPM_BUILD_ROOT/%{_bindir}:$PATH
-export TEXMF=$RPM_BUILD_ROOT%{_datadir}/texmf
-%makeinstall texmf=$RPM_BUILD_ROOT%{_datadir}/texmf
+export TEXMFLOCAL=%{buildroot}/usr/local/share/texmf
+export TEXMFSYSVAR=%{buildroot}%{texmfsysvar}
+export TEXMFSYSCONFIG=%{buildroot}%{texmfconfig}
+export VARTEXFONTS=%{buildroot}%{vartexfonts}
+export PATH=%{buildroot}%{_bindir}:$PATH
+export TEXMF=%{buildroot}%{_datadir}/texmf
+%makeinstall texmf=%{buildroot}%{_datadir}/texmf
 
 # clean initial %{vartexfonts}
-rm -rf $RPM_BUILD_ROOT%{vartexfonts}/*
+rm -rf %{buildroot}%{vartexfonts}/*
 
 # xdvi
-install -m 755 texk/xdvik/t1mapper $RPM_BUILD_ROOT%{_bindir}
-install -m 644 texk/xdvik/t1mapper.1 $RPM_BUILD_ROOT%{_mandir}/man1/
+install -m 755 texk/xdvik/t1mapper %{buildroot}%{_bindir}
+install -m 644 texk/xdvik/t1mapper.1 %{buildroot}%{_mandir}/man1/
 
 # csindex
 (cd csindex-%{csidxversion}
- install -c -s -m 0755 csindex $RPM_BUILD_ROOT%{_bindir}
+ install -c -s -m 0755 csindex %{buildroot}%{_bindir}
 )
 
 # jadetex man page
 (cd %{jadename}-%{jadeversion}
- install -m 644 jadetex.1 pdfjadetex.1 $RPM_BUILD_ROOT%{_mandir}/man1
+ install -m 644 jadetex.1 pdfjadetex.1 %{buildroot}%{_mandir}/man1
 )
 
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-#bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
+rm -f %{buildroot}%{_infodir}/dir
+#bzip2 -9f %{buildroot}%{_infodir}/*info* || true
 
 # these are links
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
-install -m 755 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
+mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
+install -m 755 %{SOURCE10} %{buildroot}%{_sysconfdir}/cron.daily
 
 #
 # Add TrueType Support ttf2pk (CJK extensions)
-cp -f ttf2pk/ttf2pk ttf2pk/ttf2tfm $RPM_BUILD_ROOT%{_bindir}
-cp -f ttf2pk/ttf2pk.1 ttf2pk/ttf2tfm.1 $RPM_BUILD_ROOT%{_mandir}/man1
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/texmf/ttf2pk
-cp -f ttf2pk/data/* $RPM_BUILD_ROOT%{_datadir}/texmf/ttf2pk
+cp -f ttf2pk/ttf2pk ttf2pk/ttf2tfm %{buildroot}%{_bindir}
+cp -f ttf2pk/ttf2pk.1 ttf2pk/ttf2tfm.1 %{buildroot}%{_mandir}/man1
+mkdir -p %{buildroot}%{_datadir}/texmf/ttf2pk
+cp -f ttf2pk/data/* %{buildroot}%{_datadir}/texmf/ttf2pk
 
 # Fix permission for directory "/usr/share/texmf/fonts/tfm/jknappen"
-find $RPM_BUILD_ROOT%{_datadir}/texmf -type d -print | xargs chmod 755
+find %{buildroot}%{_datadir}/texmf -type d -print | xargs chmod 755
 
 # We keep the .log files for format .fmt files (useful to know how
 # they are generated (included files, memory, etc.);
 # strip buildroot path from .log files.
-perl -pi -e "s@%{buildroot}@@g" $RPM_BUILD_ROOT%{texmfsysvar}/web2c/*.log
+perl -pi -e "s@%{buildroot}@@g" %{buildroot}%{texmfsysvar}/web2c/*.log
 
 # call the spec-helper before creating the file list
 # (thanks to Pixel).
@@ -687,8 +687,8 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 
 ### Files list
 rm -f filelist.*
-find $RPM_BUILD_ROOT -type f -or -type l | \
-	sed -e "s|$RPM_BUILD_ROOT||g" | \
+find %{buildroot} -type f -or -type l | \
+	sed -e "s|%{buildroot}||g" | \
 	grep -v "^/etc" | grep -v ".orig$" | \
 	sed -e "s|.*\.cnf$|%config(noreplace) &|" \
             -e "s|%{_datadir}/texmf/dvips/config/config\.ps$|%config(noreplace) &|" \
@@ -705,9 +705,9 @@ find $RPM_BUILD_ROOT -type f -or -type l | \
 %endif
 		> filelist.full
 
-find $RPM_BUILD_ROOT%{_datadir}/texmf* \
+find %{buildroot}%{_datadir}/texmf* \
 	-type d | \
-	sed "s|^$RPM_BUILD_ROOT|\%attr(-,root,root) \%dir |" >> filelist.full
+	sed "s|^%{buildroot}|\%attr(-,root,root) \%dir |" >> filelist.full
 
 # dir for TEXMFLOCAL
 #echo "%attr(755,root,root) %dir /usr/local/share/texmf" >> filelist.full
@@ -806,8 +806,8 @@ cat filelist.full \
 
 %if !%bootstrap
 %if %{mdkversion} >= 200610
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
-cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-%{name}.desktop << EOF
+mkdir -p %{buildroot}%{_datadir}/applications
+cat > %{buildroot}%{_datadir}/applications/mandriva-%{name}.desktop << EOF
 [Desktop Entry]
 Name=XDVI
 Comment=Viewer for TeX DVI files
@@ -822,30 +822,26 @@ desktop-file-install --vendor="" \
   --remove-category="Application" \
   --add-category="Office" \
   --add-category="X-MandrivaLinux-Office-Publishing" \
-  --dir $RPM_BUILD_ROOT%{_datadir}/applications $RPM_BUILD_ROOT%{_datadir}/applications/*
+  --dir %{buildroot}%{_datadir}/applications %{buildroot}%{_datadir}/applications/*
 %endif
 %endif
 
 # mdk icons
-install -d $RPM_BUILD_ROOT%{_iconsdir}
-tar xjvf %{SOURCE4} -C $RPM_BUILD_ROOT%{_iconsdir}
+install -d %{buildroot}%{_iconsdir}
+tar xjvf %{SOURCE4} -C %{buildroot}%{_iconsdir}
 
 # %_docdir link.
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/doc
-ln -sf ../../..%{_datadir}/texmf/doc $RPM_BUILD_ROOT%{_datadir}/doc/tetex-doc-%{docversion}
+mkdir -p %{buildroot}%{_datadir}/doc
+ln -sf ../../..%{_datadir}/texmf/doc %{buildroot}%{_datadir}/doc/tetex-doc-%{docversion}
 
 # add dvipdfpress
-bzip2 -cd %{SOURCE21} > $RPM_BUILD_ROOT%{_bindir}/dvipdfpress
+bzip2 -cd %{SOURCE21} > %{buildroot}%{_bindir}/dvipdfpress
 
 # fix permissions for files generated with fmtutil-sys --all in make install
 # stage
-find $RPM_BUILD_ROOT -type f -print0 | xargs -0 chmod u+rw,go+r
-find $RPM_BUILD_ROOT -type d -print0 | xargs -0 chmod u+rw,go+r
+find %{buildroot} -type f -print0 | xargs -0 chmod u+rw,go+r
+find %{buildroot} -type d -print0 | xargs -0 chmod u+rw,go+r
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-rm -f filelist.*
 
 # make sure ls-R used by teTeX is updated after an install
 %post
@@ -953,59 +949,44 @@ fi
 %_remove_install_info %{_infodir}/texi2html.info.*
 
 %files -f filelist.main
-%defattr(-,root,root)
 %attr(1777,root,root) %dir %{vartexfonts}
 %config %{_sysconfdir}/cron.daily/tetex.cron
 
 %files -f filelist.latex latex
-%defattr(-,root,root)
 
 %files -f filelist.xdvi xdvi
-%defattr(-,root,root)
 %{_iconsdir}/*
 %if !%bootstrap
 %{_datadir}/applications/*.desktop
 %endif
 
 %files -f filelist.dvips dvips
-%defattr(-,root,root)
 
 %files -f filelist.dvilj dvilj
-%defattr(-,root,root)
 
 %files -f filelist.afm afm
-%defattr(-,root,root)
 
 %files -f filelist.doc doc
-%defattr(-,root,root)
 %docdir %{_datadir}/doc/tetex-doc-%{docversion}
 %{_datadir}/doc/tetex-doc-%{docversion}
 
 %files -f filelist.dvipdfm dvipdfm
-%defattr(-,root,root)
 %attr(755,root,root) %{_bindir}/dvipdfpress
 
 %files -f filelist.mfwin mfwin
-%defattr(-,root,root)
 
 %files -f filelist.devel devel
-%defattr(-,root,root)
 
 %files -f filelist.jadetex -n %{jadename}
-%defattr(-,root,root)
 %doc %{jadename}-%{jadeversion}/doc/* %{jadename}-%{jadeversion}/ChangeLog
 
 %files -f filelist.xmltex -n %{xmltexname}
-%defattr(-,root,root)
 
 %files -f filelist.context context
-%defattr(-,root,root)
 
 %files -f filelist.texi2html texi2html
-%defattr(-,root,root)
 
 %files usrlocal
-%defattr(-,root,root)
 %dir /usr/local/share/texmf
 
 

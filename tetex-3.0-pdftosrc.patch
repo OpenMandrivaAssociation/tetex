@@ -1,0 +1,11 @@
+--- tetex-src-3.0/texk/web2c/Makefile.in.pdftosrc	2007-02-17 20:32:48.000000000 +0100
++++ tetex-src-3.0/texk/web2c/Makefile.in	2007-02-17 20:32:48.000000000 +0100
+@@ -565,7 +565,7 @@
+ # 
+ # Common
+ programs = bibtex ctangle ctie cweave dvicopy dvitomp dvitype gftodvi gftopk \
+- gftype mft $(odvicopy) $(odvitype) $(otangle) patgen pktogf pktype pltotf \
++ gftype mft $(odvicopy) $(odvitype) $(otangle) patgen $(pdftosrc) pktogf pktype pltotf \
+  pooltype tangle tftopl tie $(ttf2afm) vftovp vptovf weave
+ engines = $(tex) $(etex) $(mfw) $(mfn) $(mpost) \
+           $(omega) $(aleph) \

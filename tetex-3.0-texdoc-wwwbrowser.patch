@@ -1,0 +1,11 @@
+--- tetex-src-3.0/texk/tetex/texdoc.wwwbrowser	2004-12-02 15:31:00.000000000 +0100
++++ tetex-src-3.0/texk/tetex/texdoc	2005-09-18 10:46:05.000000000 +0200
+@@ -92,7 +92,7 @@
+ 	: ${TEXDOCVIEW_dvi='(xdvi %s) &'}
+ 	: ${TEXDOCVIEW_pdf='(acroread %s) &'}
+ 	: ${TEXDOCVIEW_ps='(gv %s) &'}
+-	: ${TEXDOCVIEW_html='mozilla -remote openURL'"'(%s)'"' 2>/dev/null || mozilla %s &'}
++	: ${TEXDOCVIEW_html='www-browser %s &'}
+ 	: ${TEXDOCVIEW_txt="${PAGER-more} %s"}
+ 	: ${TEXDOCVIEW_="${PAGER-more} %s"} # no extension, default to pager
+         extlist='.dvi .dvi.gz .dvi.bz2 .pdf .pdf.gz .pdf.bz2 .ps .ps.gz .ps.bz2 .txt .txt.gz .txt.bz2 .html'

@@ -1,0 +1,4717 @@
+--- tetex-src-3.0/texk/web2c/pdftexdir/tex.pch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/tex.pch	2007-01-21 16:43:39.000000000 +0100
+@@ -1,355 +0,0 @@
+-% Copyright (c) 1996-2005 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% Note: This file, pdftexdir/tex.pch, contains the web2c changes for the
+-% pdfTeX specific part of pdftex.web (defined in pdftexdir/pdftex.ch)
+-% and is used as follows to construct the web2c change file for pdfTeX:
+-%
+-%	pdftexdir/tex.ch0	)
+-%	   +			)
+-%	tex.ch			)
+-%	   +			)   =>   tie -c ...   =>   pdftex.ch
+-%	pdftexdir/tex.ch1	)
+-%	   +			)
+-%	pdftexdir/tex.pch	)
+-%
+-% In addition, this file is used to construct the web2c change file
+-% for pdfeTeX:
+-%
+-%	pdfetexdir/tex.ch0	)
+-%	   +			)
+-%	tex.ch			)
+-%	   +			)
+-%	etexdir/tex.ch1		)
+-%	   +			)   =>   tie -c ...   =>   pdfetex.ch
+-%	etexdir/tex.ech		)
+-%	   +			)
+-%	pdfetexdir/tex.ch1	)
+-%	   +			)
+-%	pdftexdir/tex.pch	)
+-%
+-% where the four (small) files pdf{,e}texdir/tex.ch[01] take care
+-% of interferences between web2c, e-Tex, pdfTeX changes.
+-% Consequently, changes in all these files have to be coordinated.
+-
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/tex.pch#26 $
+-% Change file containing web2c-specific or system-dependent changes to
+-% pdftex
+-
+-@x [1] m.2 l.188 - Web2C: extensions imply we're not pdfTeX
+-@d pdfTeX_banner=='This is pdfTeX, Version 3.141592',pdftex_version_string
+-@y
+-@d pdfTeX_banner_k=='This is pdfTeXk, Version 3.141592',pdftex_version_string
+-@d pdfTeX_banner=='This is pdfTeX, Version 3.141592',pdftex_version_string
+-@z
+-
+-@x (MLTeX)
+-      begin i := char_tag(char_info(f)(c));
+-@y
+-      begin i := char_tag(orig_char_info(f)(c));
+-@z
+-
+-@x (MLTeX)
+-@d is_valid_char(#)==((font_bc[f] <= #) and (# <= font_ec[f]) and 
+-                      char_exists(char_info(f)(#)))
+-@y
+-@d is_valid_char(#)==((font_bc[f] <= #) and (# <= font_ec[f]) and 
+-                      char_exists(orig_char_info(f)(#)))
+-@z
+-
+-@x (MLTeX)
+-function get_charwidth(f: internal_font_number; c: eight_bits): scaled;
+-begin
+-    if is_valid_char(c) then
+-        get_charwidth := char_width(f)(char_info(f)(c))
+-    else
+-        get_charwidth := 0;
+-end;
+-
+-function get_charheight(f: internal_font_number; c: eight_bits): scaled;
+-begin
+-    if is_valid_char(c) then
+-        get_charheight := char_height(f)(height_depth(char_info(f)(c)))
+-    else
+-        get_charheight := 0;
+-end;
+-
+-function get_chardepth(f: internal_font_number; c: eight_bits): scaled;
+-begin
+-    if is_valid_char(c) then
+-        get_chardepth := char_depth(f)(height_depth(char_info(f)(c)))
+-    else
+-        get_chardepth := 0;
+-end;
+-@y
+-function get_charwidth(f: internal_font_number; c: eight_bits): scaled;
+-begin
+-    if is_valid_char(c) then
+-        get_charwidth := char_width(f)(orig_char_info(f)(c))
+-    else
+-        get_charwidth := 0;
+-end;
+-
+-function get_charheight(f: internal_font_number; c: eight_bits): scaled;
+-begin
+-    if is_valid_char(c) then
+-        get_charheight := char_height(f)(height_depth(orig_char_info(f)(c)))
+-    else
+-        get_charheight := 0;
+-end;
+-
+-function get_chardepth(f: internal_font_number; c: eight_bits): scaled;
+-begin
+-    if is_valid_char(c) then
+-        get_chardepth := char_depth(f)(height_depth(orig_char_info(f)(c)))
+-    else
+-        get_chardepth := 0;
+-end;
+-@z
+-
+-@x (MLTeX)
+-label reswitch, move_past, fin_rule, next_p;
+-@y
+-label reswitch, move_past, fin_rule, next_p, found, continue;
+-@z
+-
+-@x (MLTeX)
+-  if is_valid_char(c) then 
+-      output_one_char(c)
+-  else
+-      char_warning(f, c);
+-  cur_h:=cur_h+char_width(f)(char_info(f)(c));
+-@y
+-  if is_valid_char(c) then begin
+-      output_one_char(c);
+-      cur_h:=cur_h+char_width(f)(char_info(f)(c));
+-      goto continue;
+-  end;
+-  if mltex_enabled_p then
+-    @<(\pdfTeX) Output a substitution, |goto continue| if not possible@>;
+-continue:
+-@z
+-
+-@x
+-@ The |pdf_vlist_out| routine is similar to |pdf_hlist_out|, but a bit simpler.
+-@y
+-@ @<(\pdfTeX) Output a substitution, |goto continue| if not possible@>=
+-  begin
+-  @<Get substitution information, check it, goto |found|
+-  if all is ok, otherwise goto |continue|@>;
+-found: @<Print character substition tracing log@>;
+-  @<(\pdfTeX) Rebuild character using substitution information@>;
+-  end
+-
+-@ @<(\pdfTeX) Rebuild character using substitution information@>=
+-  base_x_height:=x_height(f);
+-  base_slant:=slant(f)/float_constant(65536);
+-@^real division@>
+-  accent_slant:=base_slant; {slant of accent character font}
+-  base_width:=char_width(f)(ib_c);
+-  base_height:=char_height(f)(height_depth(ib_c));
+-  accent_width:=char_width(f)(ia_c);
+-  accent_height:=char_height(f)(height_depth(ia_c));
+-  @/{compute necessary horizontal shift (don't forget slant)}@/
+-  delta:=round((base_width-accent_width)/float_constant(2)+
+-            base_height*base_slant-base_x_height*accent_slant);
+-@^real multiplication@>
+-@^real addition@>
+-  @/{1. For centering/horizontal shifting insert a kern node.}@/
+-  cur_h:=cur_h+delta;
+-  @/{2. Then insert the accent character possibly shifted up or down.}@/
+-  if ((base_height<>base_x_height) and (accent_height>0)) then
+-    begin {the accent must be shifted up or down}
+-    cur_v:=base_line+(base_x_height-base_height);
+-    output_one_char(accent_c);
+-    cur_v:=base_line;
+-    end
+-  else begin
+-    output_one_char(accent_c);
+-    end;
+-  cur_h:=cur_h+accent_width;
+-  @/{3. For centering/horizontal shifting insert another kern node.}@/
+-  cur_h:=cur_h+(-accent_width-delta);
+-  @/{4. Output the base character.}@/
+-  output_one_char(base_c);
+-  cur_h:=cur_h+base_width;
+-
+-@ The |pdf_vlist_out| routine is similar to |pdf_hlist_out|, but a bit simpler.
+-@z
+-
+-@x [49.1259] 
+-    begin if s>0 then
+-      begin if s=font_size[f] then goto common_ending;
+-      end
+-    else if font_size[f]=xn_over_d(font_dsize[f],-s,1000) then
+-      goto common_ending;
+-    end
+-@y
+-    begin
+-    if pdf_font_step[f] = 0 then begin
+-       if s>0 then
+-         begin if s=font_size[f] then goto common_ending;
+-         end
+-       else if font_size[f]=xn_over_d(font_dsize[f],-s,1000) then
+-         goto common_ending;
+-       end
+-    end
+-@z
+-
+-@x (WEB2C!)
+-param_base:=xmalloc_array(integer, font_max);
+-
+-undump_things(font_check[null_font], font_ptr+1-null_font);
+-@y
+-param_base:=xmalloc_array(integer, font_max);
+-
+-pdf_char_used:=xmalloc_array(char_used_array, font_max);
+-pdf_char_map:=xmalloc_array(char_map_array, font_max);
+-pdf_font_size:=xmalloc_array(scaled, font_max);
+-pdf_font_num:=xmalloc_array(integer, font_max);
+-pdf_font_map:=xmalloc_array(fm_entry_ptr, font_max);
+-pdf_font_type:=xmalloc_array(eight_bits, font_max);
+-pdf_font_attr:=xmalloc_array(str_number, font_max);
+-pdf_font_blink:=xmalloc_array(internal_font_number, font_max);
+-pdf_font_elink:=xmalloc_array(internal_font_number, font_max);
+-pdf_font_stretch:=xmalloc_array(integer, font_max);
+-pdf_font_shrink:=xmalloc_array(integer, font_max);
+-pdf_font_step:=xmalloc_array(integer, font_max);
+-pdf_font_expand_ratio:=xmalloc_array(integer, font_max);
+-pdf_font_auto_expand:=xmalloc_array(boolean, font_max);
+-pdf_font_lp_base:=xmalloc_array(integer, font_max);
+-pdf_font_rp_base:=xmalloc_array(integer, font_max);
+-pdf_font_ef_base:=xmalloc_array(integer, font_max);
+-vf_packet_base:=xmalloc_array(integer, font_max);
+-vf_default_font:=xmalloc_array(internal_font_number, font_max);
+-vf_local_font_num:=xmalloc_array(internal_font_number, font_max);
+-vf_e_fnts:=xmalloc_array(integer, font_max);
+-vf_i_fnts:=xmalloc_array(internal_font_number, font_max);
+-
+-for font_k := font_base to font_max do begin
+-    for k := 0 to 31 do begin
+-        pdf_char_used[font_k, k] := 0;
+-        pdf_char_map[font_k, k] := k;
+-    end;
+-    pdf_char_map[font_k, 32] := 32;
+-    pdf_font_size[font_k] := 0;
+-    pdf_font_num[font_k] := 0;
+-    pdf_font_map[font_k] := 0;
+-    pdf_font_type[font_k] := new_font_type;
+-    pdf_font_attr[font_k] := "";
+-    pdf_font_blink[font_k] := null_font;
+-    pdf_font_elink[font_k] := null_font;
+-    pdf_font_stretch[font_k] := null_font;
+-    pdf_font_shrink[font_k] := null_font;
+-    pdf_font_step[font_k] := 0;
+-    pdf_font_expand_ratio[font_k] := 0;
+-    pdf_font_auto_expand[font_k] := false;
+-    pdf_font_lp_base[font_k] := 0;
+-    pdf_font_rp_base[font_k] := 0;
+-    pdf_font_ef_base[font_k] := 0;
+-end;
+-
+-make_pdftex_banner;
+-undump_things(font_check[null_font], font_ptr+1-null_font);
+-@z
+-
+-@x [51.1]
+-  setup_bound_var (0)('hash_extra')(hash_extra);
+-
+-@y
+-  setup_bound_var (0)('hash_extra')(hash_extra);
+-  setup_bound_var (65536)('obj_tab_size')(obj_tab_size);
+-  setup_bound_var (20000)('dest_names_size')(dest_names_size);
+-@z
+-
+-@x [51.2]
+-  const_chk (hash_extra);
+-  if error_line > ssup_error_line then error_line := ssup_error_line;
+-@y
+-  const_chk (hash_extra);
+-  const_chk (obj_tab_size);
+-  const_chk (pdf_mem_size);
+-  const_chk (dest_names_size);
+-  if error_line > ssup_error_line then error_line := ssup_error_line;
+-@z
+-
+-@x [51.3]
+-  hyph_link :=xmalloc_array (hyph_pointer, hyph_size);
+-@y
+-  hyph_link :=xmalloc_array (hyph_pointer, hyph_size);
+-  obj_tab:=xmalloc_array (obj_entry, obj_tab_size);
+-  pdf_mem:=xmalloc_array (integer, inf_pdf_mem_size); {will grow dynamically}
+-  dest_names:=xmalloc_array (dest_name_entry, dest_names_size);
+-@z
+-
+-@x (WEB2C!)
+-  param_base:=xmalloc_array(integer, font_max);
+-
+-  font_ptr:=null_font; fmem_ptr:=7;
+-@y
+-param_base:=xmalloc_array(integer, font_max);
+-
+-pdf_char_used:=xmalloc_array(char_used_array,font_max);
+-pdf_char_map:=xmalloc_array(char_map_array,font_max);
+-pdf_font_size:=xmalloc_array(scaled,font_max);
+-pdf_font_num:=xmalloc_array(integer,font_max);
+-pdf_font_map:=xmalloc_array(fm_entry_ptr,font_max);
+-pdf_font_type:=xmalloc_array(eight_bits,font_max);
+-pdf_font_attr:=xmalloc_array(str_number,font_max);
+-pdf_font_blink:=xmalloc_array(internal_font_number,font_max);
+-pdf_font_elink:=xmalloc_array(internal_font_number,font_max);
+-pdf_font_stretch:=xmalloc_array(integer,font_max);
+-pdf_font_shrink:=xmalloc_array(integer,font_max);
+-pdf_font_step:=xmalloc_array(integer,font_max);
+-pdf_font_expand_ratio:=xmalloc_array(integer,font_max);
+-pdf_font_auto_expand:=xmalloc_array(boolean,font_max);
+-pdf_font_lp_base:=xmalloc_array(integer,font_max);
+-pdf_font_rp_base:=xmalloc_array(integer,font_max);
+-pdf_font_ef_base:=xmalloc_array(integer,font_max);
+-vf_packet_base:=xmalloc_array(integer,font_max);
+-vf_default_font:=xmalloc_array(internal_font_number,font_max);
+-vf_local_font_num:=xmalloc_array(internal_font_number,font_max);
+-vf_e_fnts:=xmalloc_array(integer,font_max);
+-vf_i_fnts:=xmalloc_array(internal_font_number,font_max);
+-
+-for font_k := font_base to font_max do begin
+-    for k := 0 to 31 do begin
+-        pdf_char_used[font_k, k] := 0;
+-        pdf_char_map[font_k, k] := k;
+-    end;
+-    pdf_char_map[font_k, 32] := 32;
+-    pdf_font_size[font_k] := 0;
+-    pdf_font_num[font_k] := 0;
+-    pdf_font_map[font_k] := 0;
+-    pdf_font_type[font_k] := new_font_type;
+-    pdf_font_attr[font_k] := "";
+-    pdf_font_blink[font_k] := null_font;
+-    pdf_font_elink[font_k] := null_font;
+-    pdf_font_stretch[font_k] := null_font;
+-    pdf_font_shrink[font_k] := null_font;
+-    pdf_font_step[font_k] := 0;
+-    pdf_font_expand_ratio[font_k] := 0;
+-    pdf_font_auto_expand[font_k] := false;
+-    pdf_font_lp_base[font_k] := 0;
+-    pdf_font_rp_base[font_k] := 0;
+-    pdf_font_ef_base[font_k] := 0;
+-end;
+-
+-font_ptr:=null_font; fmem_ptr:=7;
+-make_pdftex_banner;
+-@z
+--- tetex-src-3.0/texk/web2c/pdftexdir/pdftex2.ch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/pdftex2.ch	2007-01-21 16:43:43.000000000 +0100
+@@ -1,89 +0,0 @@
+-% WEB change file containing pdftex codes that are conveninent to be here
+-% instead of pdftex.ch due to changes files coming after pdftex.ch (hz.ch &
+-% vadjust.ch)
+-%
+-% Copyright (c) 1996-2005 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/pdftex2.ch#5 $
+-
+-@x [230] - tagcode
+-@d ef_code_base == 4
+-@y
+-@d ef_code_base == 4
+-@d tag_code == 5
+-@z
+-
+-@x [230] - tagcode
+-    ef_code_base: scanned_result(get_ef_code(n, k))(int_val);
+-@y
+-    ef_code_base: scanned_result(get_ef_code(n, k))(int_val);
+-    tag_code: scanned_result(get_tag_code(n, k))(int_val);
+-@z
+-
+-@x [???] - tagcode
+-function init_font_base(v: integer): integer;
+-@y
+-procedure set_tag_code(f: internal_font_number; c: eight_bits; i: integer);
+-var fixedi:integer;
+-begin
+-    if is_valid_char(c) then
+-    begin fixedi := abs(fix_int(i,-7,0));
+-      if fixedi >= 4 then begin
+-          if char_tag(char_info(f)(c)) = ext_tag then
+-          op_byte(char_info(f)(c)) := (op_byte(char_info(f)(c))) - ext_tag;
+-        fixedi := fixedi - 4;
+-      end;
+-      if fixedi >= 2 then begin
+-        if char_tag(char_info(f)(c)) = list_tag then
+-          op_byte(char_info(f)(c)) := (op_byte(char_info(f)(c))) - list_tag;
+-        fixedi := fixedi - 2;
+-      end;
+-      if fixedi >= 1 then begin
+-        if char_tag(char_info(f)(c)) = lig_tag then
+-          op_byte(char_info(f)(c)) := (op_byte(char_info(f)(c))) - lig_tag;
+-    end;
+-  end;
+-end;
+-
+-function init_font_base(v: integer): integer;
+-@z
+-
+-@x [1253] - tagcode
+-    ef_code_base: set_ef_code(f, p, cur_val);
+-@y
+-    ef_code_base: set_ef_code(f, p, cur_val);
+-    tag_code: set_tag_code(f, p, cur_val);
+-@z
+-
+-@x [1254] - tagcode
+-primitive("efcode",assign_font_int,ef_code_base);
+-@!@:ef_code_}{\.{\\efcode} primitive@>
+-@y
+-primitive("efcode",assign_font_int,ef_code_base);
+-@!@:ef_code_}{\.{\\efcode} primitive@>
+-primitive("tagcode",assign_font_int,tag_code);
+-@!@:tag_code_}{\.{\\tagcode} primitive@>
+-@z
+-
+-@x [1255]
+-ef_code_base: print_esc("efcode");
+-@y
+-ef_code_base: print_esc("efcode");
+-tag_code: print_esc("tagcode");
+-@z
+--- tetex-src-3.0/texk/web2c/pdftexdir/misc.ch.pdf1401	2004-02-26 14:49:28.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/misc.ch	2007-01-21 16:43:48.000000000 +0100
+@@ -1,21 +0,0 @@
+-% WEB change file containing miscellany extensions for pdfTeX 
+-%
+-% Copyright (c) 1996-2002 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/misc.ch#5 $
+--- tetex-src-3.0/texk/web2c/pdftexdir/hz.ch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/hz.ch	2007-01-21 16:43:52.000000000 +0100
+@@ -1,1935 +0,0 @@
+-% WEB change file containing HZ extensions for pdfTeX 
+-%
+-% Copyright (c) 1996-2002 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/hz.ch#15 $
+-
+-@x [155] - margin kerning
+-@d acc_kern=2 {|subtype| of kern nodes from accents}
+-@y
+-@d acc_kern=2 {|subtype| of kern nodes from accents}
+-
+-@# {memory structure for marginal kerns}
+-@d margin_kern_node = 40
+-@d margin_kern_node_size = 3
+-@d margin_char(#) == info(# + 2)
+-
+-@# {|subtype| of marginal kerns}
+-@d left_side == 0 
+-@d right_side == 1
+-
+-@# {base for lp/rp/ef codes starts from 2: 
+-    0 for |hyphen_char|, 
+-    1 for |skew_char|}
+-@d lp_code_base == 2
+-@d rp_code_base == 3
+-@d ef_code_base == 4
+-
+-@d max_hlist_stack = 512 {maximum fill level for |hlist_stack|}
+-{maybe good if larger than |2 * max_quarterword|, so that box nesting level would overflow first}
+-@z
+-
+-@x [183] - margin kerning
+-  kern_node: @<Display kern |p|@>;
+-@y
+-  margin_kern_node: begin
+-    print_esc("kern");
+-    print_scaled(width(p));
+-    if subtype(p) = left_side then
+-        print(" (left margin)")
+-    else
+-        print(" (right margin)");
+-    end;
+-  kern_node: @<Display kern |p|@>;
+-@z
+-
+-@x [202] - margin kerning
+-    kern_node,math_node,penalty_node: do_nothing;
+-@y
+-    kern_node,math_node,penalty_node: do_nothing;
+-    margin_kern_node: begin
+-        free_avail(margin_char(p));
+-        free_node(p, margin_kern_node_size);
+-        goto done;
+-      end;
+-@z
+-
+-@x [206] - margin kerning
+-kern_node,math_node,penalty_node: begin r:=get_node(small_node_size);
+-  words:=small_node_size;
+-  end;
+-@y
+-kern_node,math_node,penalty_node: begin r:=get_node(small_node_size);
+-  words:=small_node_size;
+-  end;
+-margin_kern_node: begin
+-    r := get_node(margin_kern_node_size);
+-    fast_get_avail(margin_char(r));
+-    font(margin_char(r)) := font(margin_char(p));
+-    character(margin_char(r)) := character(margin_char(p));
+-    words := small_node_size;
+-  end;
+-@z
+-
+-@x [236]
+-@d pdf_int_pars=pdftex_first_integer_code + 17 {total number of \pdfTeX's integer parameters}
+-@y
+-@d pdf_adjust_spacing_code   = pdftex_first_integer_code + 17 {level of spacing adjusting}
+-@d pdf_protrude_chars_code   = pdftex_first_integer_code + 18 {protrude chars at left/right edge of paragraphs}
+-@d pdf_tracing_fonts_code    = pdftex_first_integer_code + 19 {level of font detail in log}
+-@d pdf_int_pars=pdftex_first_integer_code + 20 {total number of \pdfTeX's integer parameters}
+-@z
+-
+-@x [236]
+-@d error_context_lines==int_par(error_context_lines_code)
+-@y
+-@d error_context_lines==int_par(error_context_lines_code)
+-@#
+-@d pdf_adjust_spacing   == int_par(pdf_adjust_spacing_code)
+-@d pdf_protrude_chars   == int_par(pdf_protrude_chars_code)
+-@d pdf_tracing_fonts    == int_par(pdf_tracing_fonts_code)
+-@z
+-
+-@x [237]
+-error_context_lines_code:print_esc("errorcontextlines");
+-@y
+-error_context_lines_code:print_esc("errorcontextlines");
+-@#
+-pdf_adjust_spacing_code:   print_esc("pdfadjustspacing");
+-pdf_protrude_chars_code:   print_esc("pdfprotrudechars");
+-pdf_tracing_fonts_code:    print_esc("pdftracingfonts");
+-@z
+-
+-@x [238]
+-primitive("errorcontextlines",assign_int,int_base+error_context_lines_code);@/
+-@!@:error_context_lines_}{\.{\\errorcontextlines} primitive@>
+-@y
+-primitive("errorcontextlines",assign_int,int_base+error_context_lines_code);@/
+-@!@:error_context_lines_}{\.{\\errorcontextlines} primitive@>
+-primitive("pdfadjustspacing",assign_int,int_base+pdf_adjust_spacing_code);@/
+-@!@:pdf_adjust_spacing_}{\.{\\pdfadjustspacing} primitive@>
+-primitive("pdfprotrudechars",assign_int,int_base+pdf_protrude_chars_code);@/
+-@!@:pdf_protrude_chars_}{\.{\\pdfprotrudechars} primitive@>
+-primitive("pdftracingfonts",assign_int,int_base+pdf_tracing_fonts_code);@/
+-@!@:pdf_tracing_fonts_}{\.{\\pdftracingfonts} primitive@>
+-@z
+-
+-@x [267] - displaying fonts
+-@<Print the font identifier for |font(p)|@>=
+-print_esc(font_id_text(font(p)))
+-@y
+-@<Print the font identifier for |font(p)|@>=
+-begin
+-    print_esc(font_id_text(font(p)));
+-    if pdf_tracing_fonts > 0 then begin
+-        print(" (");
+-        print(font_name[font(p)]);
+-        if font_size[font(p)] <> font_dsize[font(p)] then begin
+-            print("@@");
+-            print_scaled(font_size[font(p)]);
+-            print("pt");
+-        end;
+-        print(")");
+-    end else
+-        if pdf_font_expand_ratio[font(p)] <> 0 then begin
+-            print(" (");
+-            if pdf_font_expand_ratio[font(p)] > 0 then
+-                print("+");
+-            print_int(pdf_font_expand_ratio[font(p)]);
+-            print(")");
+-	end;
+-end
+-@z
+-
+-@x [413] - font expansion
+-var m:halfword; {|chr_code| part of the operand token}
+-@y
+-var m:halfword; {|chr_code| part of the operand token}
+-    n, k: integer; {accumulators}
+-@z
+-
+-@x [426] - font expansion, margin kerning
+-begin scan_font_ident;
+-if m=0 then scanned_result(hyphen_char[cur_val])(int_val)
+-else scanned_result(skew_char[cur_val])(int_val);
+-@y
+-begin scan_font_ident;
+-if m=0 then scanned_result(hyphen_char[cur_val])(int_val)
+-else if m=1 then scanned_result(skew_char[cur_val])(int_val)
+-else begin
+-    n := cur_val;
+-    scan_char_num;
+-    k := cur_val;
+-    case m of 
+-    lp_code_base: scanned_result(get_lp_code(n, k))(int_val);
+-    rp_code_base: scanned_result(get_rp_code(n, k))(int_val);
+-    ef_code_base: scanned_result(get_ef_code(n, k))(int_val);
+-    end;
+-end;
+-@z
+-
+-@x [468]
+-@d pdftex_convert_codes     = pdftex_first_expand_code + 9 {end of \pdfTeX's command codes}
+-@y
+-@d left_margin_kern_code    = pdftex_first_expand_code + 9 {command code for \.{\\leftmarginkern}}
+-@d right_margin_kern_code   = pdftex_first_expand_code + 10 {command code for \.{\\rightmarginkern}}
+-@d pdftex_convert_codes     = pdftex_first_expand_code + 11 {end of \pdfTeX's command codes}
+-@z
+-
+-@x [468]
+-primitive("pdfpageref",convert,pdf_page_ref_code);@/
+-@!@:pdf_page_ref_}{\.{\\pdfpageref} primitive@>
+-@y
+-primitive("pdfpageref",convert,pdf_page_ref_code);@/
+-@!@:pdf_page_ref_}{\.{\\pdfpageref} primitive@>
+-primitive("leftmarginkern",convert,left_margin_kern_code);@/
+-@!@:left_margin_kern_}{\.{\\leftmarginkern} primitive@>
+-primitive("rightmarginkern",convert,right_margin_kern_code);@/
+-@!@:right_margin_kern_}{\.{\\rightmarginkern} primitive@>
+-@z
+-
+-@x [469]
+-  pdf_page_ref_code:    print_esc("pdfpageref");
+-@y
+-  pdf_page_ref_code:    print_esc("pdfpageref");
+-  left_margin_kern_code:    print_esc("leftmarginkern");
+-  right_margin_kern_code:   print_esc("rightmarginkern");
+-@z
+-
+-@x [470]
+-var old_setting:0..max_selector; {holds |selector| setting}
+-@y
+-var old_setting:0..max_selector; {holds |selector| setting}
+-p, q: pointer;
+-@z
+-
+-@x [471]
+-pdf_page_ref_code: begin
+-    scan_int;
+-    if cur_val <= 0 then
+-        pdf_error("pageref", "invalid page number");
+-end;
+-@y
+-pdf_page_ref_code: begin
+-    scan_int;
+-    if cur_val <= 0 then
+-        pdf_error("pageref", "invalid page number");
+-end;
+-left_margin_kern_code, right_margin_kern_code: begin
+-    scan_int;
+-    if (box(cur_val) = null) or (type(box(cur_val)) <> hlist_node) then
+-        pdf_error("marginkern", "a non-empty hbox expected")
+-end;
+-@z
+-
+-@x [472]
+-pdf_page_ref_code: print_int(get_obj(obj_type_page, cur_val, false));
+-@y
+-pdf_page_ref_code: print_int(get_obj(obj_type_page, cur_val, false));
+-left_margin_kern_code: begin
+-    p := list_ptr(box(cur_val));
+-    if (p <> null) and (not is_char_node(p)) and 
+-       (type(p) = glue_node) and (subtype(p) = left_skip_code + 1) then
+-       p := link(p);
+-    if (p <> null) and (not is_char_node(p)) and 
+-       (type(p) = margin_kern_node) and (subtype(p) = left_side) then
+-        print_scaled(width(p))
+-    else
+-        print("0");
+-    print("pt");
+-end;
+-right_margin_kern_code: begin
+-    q := list_ptr(box(cur_val));
+-    p := null;
+-    if q <> null then begin
+-        p := prev_rightmost(q, null);
+-        if (p <> null) and (not is_char_node(p)) and 
+-           (type(p) = glue_node) and (subtype(p) = right_skip_code + 1) then
+-           p := prev_rightmost(q, p);
+-    end;
+-    if (p <> null) and (not is_char_node(p)) and 
+-       (type(p) = margin_kern_node) and (subtype(p) = right_side) then
+-        print_scaled(width(p))
+-    else
+-        print("0");
+-    print("pt");
+-end;
+-@z
+-
+-@x [622] - margin kerning
+-glue_node: @<Move right or output leaders@>;
+-@y
+-glue_node: @<Move right or output leaders@>;
+-margin_kern_node,
+-@z
+-
+-
+-@x [???] - font expansion
+-@!tmp_f: internal_font_number; {for use with |pdf_init_font|}
+-
+-@y
+-@!tmp_f: internal_font_number; {for use with |pdf_init_font|}
+-@ Here come some subroutines to deal with expanded fonts for HZ-algorithm.
+-
+-@p
+-function init_font_base(v: integer): integer;
+-var i, j: integer;
+-begin
+-    i := pdf_get_mem(256);
+-    for j := 0 to 255 do
+-        pdf_mem[i + j] := v;
+-    init_font_base := i;
+-end;
+-
+-procedure set_lp_code(f: internal_font_number; c: eight_bits; i: integer);
+-begin
+-    if pdf_font_lp_base[f] = 0 then
+-        pdf_font_lp_base[f] := init_font_base(0);
+-    pdf_mem[pdf_font_lp_base[f] + c] := fix_int(i, -1000, 1000);
+-end;
+-
+-procedure set_rp_code(f: internal_font_number; c: eight_bits; i: integer);
+-begin
+-    if pdf_font_rp_base[f] = 0 then
+-        pdf_font_rp_base[f] := init_font_base(0);
+-    pdf_mem[pdf_font_rp_base[f] + c] := fix_int(i, -1000, 1000);
+-end;
+-
+-procedure set_ef_code(f: internal_font_number; c: eight_bits; i: integer);
+-begin
+-    if pdf_font_ef_base[f] = 0 then
+-        pdf_font_ef_base[f] := init_font_base(1000);
+-    pdf_mem[pdf_font_ef_base[f] + c] := fix_int(i, 0, 1000);
+-end;
+-
+-function expand_font_name(f: internal_font_number; e: integer): str_number;
+-var old_setting:0..max_selector; {holds |selector| setting}
+-begin
+-    old_setting:=selector; selector:=new_string;
+-    print(font_name[f]);
+-    if e > 0 then
+-        print("+"); {minus sign will be printed by |print_int|}
+-    print_int(e);
+-    selector:=old_setting;
+-    expand_font_name := make_string;
+-end;
+-
+-function auto_expand_font(f: internal_font_number; e: integer): internal_font_number;
+-{creates an expanded font from the base font; doesn't load expanded tfm at all}
+-var k: internal_font_number;
+-    nw, nk, ni, i, j: integer;
+-begin
+-    k := font_ptr + 1;
+-    incr(font_ptr);
+-    if (font_ptr >= font_max) then
+-        overflow("maximum internal font number (font_max)", font_max);
+-    font_name[k] := expand_font_name(f, e);
+-    font_area[k] := font_area[f];
+-    font_id_text(k) := font_id_text(f);
+-    hyphen_char[k] := hyphen_char[f];
+-    skew_char[k] := skew_char[f];
+-    font_bchar[k] := font_bchar[f];
+-    font_false_bchar[k] := font_false_bchar[f];
+-    font_bc[k] := font_bc[f];
+-    font_ec[k] := font_ec[f];
+-    font_size[k] := font_size[f];
+-    font_dsize[k] := font_dsize[f];
+-    font_params[k] := font_params[f];
+-    font_glue[k] := font_glue[f];
+-    bchar_label[k] := bchar_label[f];
+-
+-    char_base[k] := char_base[f];
+-    height_base[k] := height_base[f];
+-    depth_base[k] := depth_base[f];
+-    lig_kern_base[k] := lig_kern_base[f];
+-    exten_base[k] := exten_base[f];
+-    param_base[k] := param_base[f];
+-    
+-    nw := height_base[f] - width_base[f];
+-    ni := lig_kern_base[f] - italic_base[f];
+-    nk := exten_base[f] - (kern_base[f] + kern_base_offset);
+-    if (fmem_ptr + nw + ni + nk >= font_mem_size) then
+-        overflow("number of words of font memory (font_mem_size)", font_mem_size);
+-    width_base[k] := fmem_ptr;
+-    italic_base[k] := width_base[k] + nw;
+-    kern_base[k] := italic_base[k] + ni - kern_base_offset;
+-    fmem_ptr := fmem_ptr + nw + ni + nk;
+-
+-    for i := 0 to nw - 1 do
+-        font_info[width_base[k] + i].sc := 
+-           round_xn_over_d(font_info[width_base[f] + i].sc, 1000 + e, 1000);
+-    for i := 0 to ni - 1 do
+-        font_info[italic_base[k] + i].sc := 
+-           round_xn_over_d(font_info[italic_base[f] + i].sc, 1000 + e, 1000);
+-    for i := 0 to nk - 1 do
+-        font_info[kern_base[k] + kern_base_offset + i].sc := 
+-           round_xn_over_d(font_info[kern_base[f] + kern_base_offset + i].sc, 1000 + e, 1000);
+-    
+-    auto_expand_font := k;
+-end;
+-
+-procedure set_expand_param(k, f: internal_font_number; e: integer);
+-var i, j: integer;
+-begin
+-    if pdf_font_rp_base[f] = 0 then
+-        pdf_font_rp_base[f] := init_font_base(0);
+-    if pdf_font_lp_base[f] = 0 then
+-        pdf_font_lp_base[f] := init_font_base(0);
+-    if pdf_font_ef_base[f] = 0 then
+-        pdf_font_ef_base[f] := init_font_base(1000);
+-    pdf_font_expand_ratio[k] := e;
+-    pdf_font_step[k] := pdf_font_step[f];
+-    pdf_font_auto_expand[k] := pdf_font_auto_expand[f];
+-    pdf_font_blink[k] := f; {???}
+-    pdf_font_lp_base[k] := pdf_font_lp_base[f];
+-    pdf_font_rp_base[k] := pdf_font_rp_base[f];
+-    pdf_font_ef_base[k] := pdf_font_ef_base[f];
+-end;
+-
+-function tfm_lookup(s: str_number; fs: scaled): internal_font_number;
+-{looks up for a TFM with name |s| loaded at |fs| size; if found then flushes |s|}
+-var k: internal_font_number;
+-begin
+-    if fs <> 0 then begin
+-        for k := font_base + 1 to font_ptr do 
+-            if str_eq_str(font_name[k], s) and (font_size[k] = fs) then begin
+-                flush_str(s);
+-                tfm_lookup := k;
+-                return;
+-            end;
+-    end
+-    else begin
+-        for k := font_base + 1 to font_ptr do 
+-            if str_eq_str(font_name[k], s) then begin
+-                flush_str(s);
+-                tfm_lookup := k;
+-                return;
+-            end;
+-    end;
+-    tfm_lookup := null_font;
+-end;
+-
+-function load_expand_font(f: internal_font_number; e: integer): internal_font_number;
+-{loads font |f| expanded by |e| thousandths into font memory; |e| is nonzero
+-and is a multiple of |pdf_font_step[f]|}
+-label found;
+-var s: str_number; {font name}
+-    k: internal_font_number;
+-begin
+-    s := expand_font_name(f, e);
+-    k := tfm_lookup(s, font_size[f]);
+-    if k = null_font then begin
+-        if pdf_font_auto_expand[f] then 
+-            k := auto_expand_font(f, e)
+-        else
+-            k := read_font_info(null_cs, s, "", font_size[f]);
+-    end;
+-    set_expand_param(k, f, e);
+-    load_expand_font := k;
+-end;
+-
+-function auto_expand_vf(f: internal_font_number): boolean;
+-{check for a virtual auto-expanded font}
+-var save_f, bf, lf, k: internal_font_number;
+-    e: integer;
+-begin
+-    auto_expand_vf := false;
+-    if (not pdf_font_auto_expand[f]) or (pdf_font_blink[f] = null_font) then 
+-        return; {not an auto-expanded font}
+-    bf := pdf_font_blink[f];
+-    if pdf_font_type[bf] = new_font_type then {we must process the base font first}
+-    begin
+-        save_f := tmp_f;
+-        tmp_f := bf;
+-        do_vf; 
+-        tmp_f := save_f;
+-    end;
+-
+-    if pdf_font_type[bf] <> virtual_font_type then 
+-        return; {not a virtual font}
+-
+-    e := pdf_font_expand_ratio[f];
+-    for k := 0 to vf_local_font_num[bf] - 1 do begin
+-        lf := vf_default_font[bf] + k;
+-        vf_e_fnts[vf_nf] := vf_e_fnts[lf];
+-        vf_i_fnts[vf_nf] := auto_expand_font(vf_i_fnts[lf], e);
+-        set_expand_param(vf_i_fnts[vf_nf], vf_i_fnts[lf], e);
+-        incr(vf_nf);
+-    end;
+-    vf_packet_base[f] := vf_packet_base[bf];
+-    vf_local_font_num[f] := vf_local_font_num[bf];
+-    vf_default_font[f] := vf_nf - vf_local_font_num[f];
+-
+-    pdf_font_type[f] := virtual_font_type;
+-    auto_expand_vf := true;
+-end;
+-
+-function fix_expand_value(f: internal_font_number; e: integer): integer;
+-{return the multiple of |pdf_font_step[f]| that is nearest to |e|}
+-var step: integer;
+-    max_expand: integer;
+-    neg: boolean;
+-begin
+-    fix_expand_value := 0;
+-    if e = 0 then 
+-        return;
+-    if e < 0 then begin
+-        e := -e;
+-        neg := true;
+-        max_expand := -pdf_font_expand_ratio[pdf_font_shrink[f]];
+-    end
+-    else begin
+-        neg := false;
+-        max_expand := pdf_font_expand_ratio[pdf_font_stretch[f]];
+-    end;
+-    if e > max_expand then
+-        e :=  max_expand
+-    else begin
+-        step := pdf_font_step[f];
+-        if e mod step > 0 then
+-            e := step*round_xn_over_d(e, 1, step);
+-    end;
+-    if neg then
+-        e := -e;
+-    fix_expand_value := e;
+-end;
+-
+-function get_expand_font(f: internal_font_number; e: integer): internal_font_number;
+-{look up and create if not found an expanded version of |f|; |f| is an
+-expandable font; |e| is nonzero and is a multiple of |pdf_font_step[f]|}
+-var k: internal_font_number;
+-begin
+-    k := pdf_font_elink[f];
+-    while k <> null_font do begin
+-        if pdf_font_expand_ratio[k] = e then begin
+-            get_expand_font := k;
+-            return;
+-        end;
+-        k := pdf_font_elink[k];
+-    end;
+-    k := load_expand_font(f, e);
+-    pdf_font_elink[k] := pdf_font_elink[f];
+-    pdf_font_elink[f] := k;
+-    get_expand_font := k;
+-end;
+-
+-function expand_font(f: internal_font_number; e: integer): internal_font_number;
+-{looks up for font |f| expanded by |e| thousandths, |e| is an arbitrary value
+-between max stretch and max shrink of |f|; if not found then creates it}
+-var max_expand: integer;
+-begin
+-    expand_font := f;
+-    if e = 0 then
+-        return;
+-    e := fix_expand_value(f, e);
+-    if e = 0 then
+-        return;
+-    if pdf_font_elink[f] = null_font then
+-        pdf_error("font expansion", "uninitialized pdf_font_elink");
+-    expand_font := get_expand_font(f, e);
+-end;
+-
+-procedure read_expand_font; {read font expansion spec and load expanded font}
+-var font_shrink, font_stretch, font_step: integer;
+-    f: internal_font_number;
+-    auto_expand: boolean;
+-begin
+-    {read font expansion parameters}
+-    scan_font_ident;
+-    f := cur_val;
+-    if f = null_font then
+-        pdf_error("font expansion", "invalid font identifier");
+-    scan_optional_equals;
+-    scan_int;
+-    font_stretch := fix_int(cur_val, 0, 1000);
+-    scan_int;
+-    font_shrink := fix_int(cur_val, 0, 1000);
+-    scan_int;
+-    font_step := fix_int(cur_val, 0, 1000);
+-    if font_step = 0 then
+-        pdf_error("font expansion", "invalid step");
+-    font_stretch := font_stretch - font_stretch mod font_step;
+-    if font_stretch < 0 then
+-        font_stretch := 0;
+-    font_shrink := font_shrink - font_shrink mod font_step;
+-    if font_shrink < 0 then
+-        font_shrink := 0;
+-    if font_shrink = 1000 then
+-        font_shrink := font_shrink - font_step; {don't allow zero-width font}
+-    if (font_stretch = 0) and (font_shrink = 0) then
+-        pdf_error("font expansion", "invalid limit");
+-    auto_expand := false;
+-    if scan_keyword("autoexpand") then begin
+-        auto_expand := true;
+-        @<Scan an optional space@>; end;
+-
+-    {check if the font can be expanded}
+-    if (pdf_font_expand_ratio[f] <> 0) then
+-        pdf_error("font expansion", "this font has been expanded by another font so it cannot be used now");
+-    if (pdf_font_step[f] <> 0) then
+-    {this font has been expanded, ensure the expansion parameters are identical}
+-    begin
+-        if (pdf_font_step[f] <> font_step) or
+-           ((pdf_font_stretch[f] = null_font) and (font_stretch <> 0)) or
+-           ((pdf_font_stretch[f] <> null_font) and 
+-            (pdf_font_expand_ratio[pdf_font_stretch[f]] <> font_stretch)) or
+-           ((pdf_font_shrink[f] = null_font) and (font_shrink <> 0)) or
+-           ((pdf_font_shrink[f] <> null_font) and 
+-            (pdf_font_expand_ratio[pdf_font_shrink[f]] <> -font_shrink)) or
+-           (pdf_font_auto_expand[f] <> auto_expand) 
+-        then 
+-            pdf_error("font expansion", "font has been expanded with different parameters");
+-    end 
+-    else begin
+-        pdf_font_step[f] := font_step;
+-        pdf_font_auto_expand[f] := auto_expand;
+-        if font_stretch > 0 then
+-            pdf_font_stretch[f] := get_expand_font(f, font_stretch);
+-        if font_shrink > 0 then
+-            pdf_font_shrink[f] := get_expand_font(f, -font_shrink);
+-    end;
+-end;
+-@z
+-
+-@x [32f] - margin kerning
+-glue_node: @<(\pdfTeX) Move right or output leaders@>;
+-@y
+-glue_node: @<(\pdfTeX) Move right or output leaders@>;
+-margin_kern_node,
+-@z
+-
+-@x [649] - font expansion
+-@ Here now is |hpack|, which contains few if any surprises.
+-
+-@p function hpack(@!p:pointer;@!w:scaled;@!m:small_number):pointer;
+-@y 
+-@ @<Glob...@>=
+-@!pdf_font_blink: ^internal_font_number; {link to base font (used for expanded fonts only)}
+-@!pdf_font_elink: ^internal_font_number; {link to expanded fonts (used for base fonts only)}
+-@!pdf_font_stretch: ^integer; {limit of stretching}
+-@!pdf_font_shrink: ^integer; {limit of shrinking}
+-@!pdf_font_step: ^integer;  {amount of one step of expansion}
+-@!pdf_font_expand_ratio: ^integer; {expansion ratio of a particular font}
+-@!pdf_font_auto_expand: ^boolean; {this font is auto-expanded?}
+-@!pdf_font_lp_base: ^integer; {base of left-protruding factor}
+-@!pdf_font_rp_base: ^integer; {base of right-protruding factor}
+-@!pdf_font_ef_base: ^integer; {base of font expansion factor}
+-@!font_expand_ratio: integer; {current expansion ratio}
+-@!last_leftmost_char: pointer;
+-@!last_rightmost_char: pointer;
+-@!hlist_stack:array[0..max_hlist_stack] of pointer; {stack for |find_protchar_left()| and |find_protchar_right()|}
+-@!hlist_stack_level:0..max_hlist_stack; {fill level for |hlist_stack|}
+-
+-@ @d cal_margin_kern_var(#) ==
+-begin
+-    character(cp) := character(#);
+-    font(cp) := font(#);
+-    do_subst_font(cp, 1000);
+-    if font(cp) <> font(#) then
+-        margin_kern_stretch := margin_kern_stretch + left_pw(#) - left_pw(cp);
+-    font(cp) := font(#);
+-    do_subst_font(cp, -1000);
+-    if font(cp) <> font(#) then
+-        margin_kern_shrink := margin_kern_shrink + left_pw(cp) - left_pw(#);
+-end
+-    
+-@<Calculate variations of marginal kerns@>=
+-begin
+-    lp := last_leftmost_char;
+-    rp := last_rightmost_char;
+-    fast_get_avail(cp);
+-    if lp <> null then
+-        cal_margin_kern_var(lp);
+-    if rp <> null then
+-        cal_margin_kern_var(rp);
+-    free_avail(cp);
+-end
+-
+-@ Here is |hpack|, which is place where we do font substituting when
+-font expansion is being used. We define some constants used when calling
+-|hpack| to deal with font expansion.
+-
+-@d cal_expand_ratio    == 2 {calculate amount for font expansion after breaking
+-                             paragraph into lines}
+-@d subst_ex_font       == 3 {substitute fonts}
+-
+-@d substituted = 3 {|subtype| of kern nodes that should be substituted}
+-
+-@d left_pw(#) == char_pw(#, left_side)
+-@d right_pw(#) == char_pw(#, right_side)
+-
+-@p
+-function check_expand_pars(f: internal_font_number): boolean;
+-var k: internal_font_number;
+-begin
+-    check_expand_pars := false;
+-    if (pdf_font_step[f] = 0) or ((pdf_font_stretch[f] = null_font) and 
+-                                  (pdf_font_shrink[f] = null_font)) then
+-        return;
+-    if cur_font_step < 0 then
+-        cur_font_step := pdf_font_step[f]
+-    else if cur_font_step <> pdf_font_step[f] then
+-        pdf_error("font expansion", "using fonts with different step of expansion in one paragraph is not allowed");
+-    k := pdf_font_stretch[f];
+-    if k <> null_font then begin
+-        if max_stretch_ratio < 0 then
+-            max_stretch_ratio := pdf_font_expand_ratio[k]
+-        else if max_stretch_ratio <> pdf_font_expand_ratio[k] then
+-            pdf_error("font expansion", "using fonts with different limit of expansion in one paragraph is not allowed");
+-    end;
+-    k := pdf_font_shrink[f];
+-    if k <> null_font then begin
+-        if max_shrink_ratio < 0 then
+-            max_shrink_ratio := pdf_font_expand_ratio[k]
+-        else if max_shrink_ratio <> pdf_font_expand_ratio[k] then
+-            pdf_error("font expansion", "using fonts with different limit of expansion in one paragraph is not allowed");
+-    end;
+-    check_expand_pars := true;
+-end;
+-
+-function char_stretch(f: internal_font_number; c: eight_bits): scaled;
+-var k: internal_font_number;
+-    dw: scaled;
+-    ef: integer;
+-begin
+-    char_stretch := 0;
+-    k := pdf_font_stretch[f];
+-    ef := get_ef_code(f, c);
+-    if (k <> null_font) and (ef > 0) then begin
+-        dw := char_width(k)(char_info(k)(c)) - char_width(f)(char_info(f)(c));
+-        if dw > 0 then
+-            char_stretch := round_xn_over_d(dw, ef, 1000);
+-    end;
+-end;
+-
+-function char_shrink(f: internal_font_number; c: eight_bits): scaled;
+-var k: internal_font_number;
+-    dw: scaled;
+-    ef: integer;
+-begin
+-    char_shrink := 0;
+-    k := pdf_font_shrink[f];
+-    ef := get_ef_code(f, c);
+-    if (k <> null_font) and (ef > 0) then begin
+-        dw := char_width(f)(char_info(f)(c)) - char_width(k)(char_info(k)(c));
+-        if dw > 0 then
+-            char_shrink := round_xn_over_d(dw, ef, 1000);
+-    end;
+-end;
+-
+-function get_kern(f: internal_font_number; lc, rc: eight_bits): scaled;
+-label continue;
+-var i: four_quarters;
+-    j: four_quarters;
+-    k: font_index;
+-    p: pointer;
+-    s: integer;
+-begin
+-    get_kern := 0;
+-    i := char_info(f)(lc);
+-    if char_tag(i) <> lig_tag then
+-        return;
+-    k := lig_kern_start(f)(i);
+-    j := font_info[k].qqqq;
+-    if skip_byte(j) <= stop_flag then
+-        goto continue + 1;
+-    k := lig_kern_restart(f)(j);
+-continue:
+-    j := font_info[k].qqqq;
+-continue + 1:
+-    if (next_char(j) = rc) and (skip_byte(j) <= stop_flag) and 
+-       (op_byte(j) >= kern_flag)
+-    then begin
+-        get_kern := char_kern(f)(j);
+-        return;
+-    end;
+-    if skip_byte(j) = qi(0) then
+-        incr(k)
+-    else begin
+-        if skip_byte(j) >= stop_flag then
+-            return;
+-        k := k + qo(skip_byte(j)) + 1;
+-    end;
+-    goto continue;
+-end;
+-
+-function kern_stretch(p: pointer): scaled;
+-var l, r: pointer;
+-    d: scaled;
+-begin
+-    kern_stretch := 0;
+-    if (prev_char_p = null) or (link(prev_char_p) <> p) or (link(p) = null)
+-    then
+-        return;
+-    l := prev_char_p;
+-    r := link(p);
+-    if type(l) = ligature_node then
+-        l := lig_char(l);
+-    if type(r) = ligature_node then
+-        r := lig_char(r);
+-    if not (is_char_node(l) and is_char_node(r) and 
+-            (font(l) = font(r)) and 
+-            (pdf_font_stretch[font(l)] <> null_font))
+-    then
+-        return;
+-    d := get_kern(pdf_font_stretch[font(l)], character(l), character(r));
+-    kern_stretch := round_xn_over_d(d - width(p), 
+-                                    get_ef_code(font(l), character(l)), 1000);
+-end;
+-
+-function kern_shrink(p: pointer): scaled;
+-var l, r: pointer;
+-    d: scaled;
+-begin
+-    kern_shrink := 0;
+-    if (prev_char_p = null) or (link(prev_char_p) <> p) or (link(p) = null)
+-    then
+-        return;
+-    l := prev_char_p;
+-    r := link(p);
+-    if type(l) = ligature_node then
+-        l := lig_char(l);
+-    if type(r) = ligature_node then
+-        r := lig_char(r);
+-    if not (is_char_node(l) and is_char_node(r) and 
+-            (font(l) = font(r)) and 
+-            (pdf_font_shrink[font(l)] <> null_font))
+-    then
+-        return;
+-    d := get_kern(pdf_font_shrink[font(l)], character(l), character(r));
+-    kern_shrink := round_xn_over_d(width(p) - d, 
+-                                    get_ef_code(font(l), character(l)), 1000);
+-end;
+-
+-procedure do_subst_font(p: pointer; ex_ratio: integer);
+-var f, k: internal_font_number;
+-    r: pointer;
+-    ef: integer;
+-begin
+-    if not is_char_node(p) and (type(p) = disc_node) then begin
+-        r := pre_break(p);
+-        while r <> null do begin
+-            if is_char_node(r) or (type(r) = ligature_node) then
+-                do_subst_font(r, ex_ratio);
+-            r := link(r);
+-        end;
+-        r := post_break(p);
+-        while r <> null do begin
+-            if is_char_node(r) or (type(r) = ligature_node) then
+-                do_subst_font(r, ex_ratio);
+-            r := link(r);
+-        end;
+-        return;
+-    end;
+-    if is_char_node(p) then
+-        r := p
+-    else if type(p) = ligature_node then
+-        r := lig_char(p)
+-    else begin
+-        {|short_display_n(p, 5);|}
+-        pdf_error("font expansion", "invalid node type");
+-    end;
+-    f := font(r);
+-    ef := get_ef_code(f, character(r));
+-    if ef = 0 then
+-        return;
+-    if (pdf_font_stretch[f] <> null_font) and (ex_ratio > 0) then
+-        k := expand_font(f, divide_scaled(ex_ratio*
+-                                pdf_font_expand_ratio[pdf_font_stretch[f]]*ef,
+-                                1000000, 0))
+-    else if (pdf_font_shrink[f] <> null_font) and (ex_ratio < 0) then
+-        k := expand_font(f, -divide_scaled(ex_ratio*
+-                                pdf_font_expand_ratio[pdf_font_shrink[f]]*ef,
+-                                1000000, 0))
+-    else
+-        k := f;
+-    if k <> f then begin
+-        font(r) := k;
+-        if not is_char_node(p) then begin
+-            r := lig_ptr(p);
+-            while r <> null do begin
+-                font(r) := k;
+-                r := link(r);
+-            end;
+-        end;
+-    end;
+-end;
+-
+-function char_pw(p: pointer; side: small_number): scaled;
+-var f: internal_font_number;
+-    c: integer;
+-begin
+-    char_pw := 0;
+-    if side = left_side then
+-        last_leftmost_char := null
+-    else
+-        last_rightmost_char := null;
+-    if p = null then
+-        return;
+-    if not is_char_node(p) then begin
+-        if type(p) = ligature_node then
+-            p := lig_char(p)
+-        else 
+-            return;
+-    end;
+-    f := font(p);
+-    if side = left_side then begin
+-        c := get_lp_code(f, character(p));
+-        last_leftmost_char := p;
+-    end
+-    else begin
+-        c := get_rp_code(f, character(p));
+-        last_rightmost_char := p;
+-    end;
+-    if c = 0 then
+-        return;
+-    char_pw := 
+-        round_xn_over_d(quad(f), c, 1000);
+-end;
+-
+-function new_margin_kern(w: scaled; p: pointer; side: small_number): pointer;
+-var k: pointer;
+-begin
+-    k := get_node(margin_kern_node_size);
+-    type(k) := margin_kern_node;
+-    subtype(k) := side;
+-    width(k) := w;
+-    if p = null then
+-        pdf_error("margin kerning", "invalid pointer to marginal char node");
+-    fast_get_avail(margin_char(k));
+-    character(margin_char(k)) := character(p);
+-    font(margin_char(k)) := font(p);
+-    new_margin_kern := k;
+-end;
+-
+-function hpack(@!p:pointer;@!w:scaled;@!m:small_number):pointer;
+-@z
+-
+-@x [649] - font expansion
+-begin last_badness:=0; r:=get_node(box_node_size); type(r):=hlist_node;
+-subtype(r):=min_quarterword; shift_amount(r):=0;
+-q:=r+list_offset; link(q):=p;@/
+-@y
+-font_stretch: scaled;
+-font_shrink: scaled;
+-k: scaled;
+-begin last_badness:=0; r:=get_node(box_node_size); type(r):=hlist_node;
+-subtype(r):=min_quarterword; shift_amount(r):=0;
+-q:=r+list_offset; link(q):=p;@/
+-if m = cal_expand_ratio then begin
+-    prev_char_p := null;
+-    font_stretch := 0;
+-    font_shrink := 0;
+-    font_expand_ratio := 0;
+-end;
+-@z
+-
+-@x [649] - font expansion
+-hpack:=r;
+-@y
+-if (m = cal_expand_ratio) and (font_expand_ratio <> 0) then begin
+-    font_expand_ratio := fix_int(font_expand_ratio, -1000, 1000);
+-    q := list_ptr(r);
+-    free_node(r, box_node_size);
+-    r := hpack(q, w, subst_ex_font);
+-end;
+-hpack:=r;
+-@z
+-
+-@x [651] - font expansion
+-  kern_node: x:=x+width(p);
+-@y
+-  margin_kern_node: begin
+-    if m = cal_expand_ratio then begin
+-        f := font(margin_char(p));
+-        do_subst_font(margin_char(p), 1000);
+-        if f <> font(margin_char(p)) then
+-            font_stretch := font_stretch - width(p) - 
+-                char_pw(margin_char(p), subtype(p));
+-        font(margin_char(p)) := f;
+-        do_subst_font(margin_char(p), -1000);
+-        if f <> font(margin_char(p)) then
+-            font_shrink := font_shrink - width(p) -
+-                char_pw(margin_char(p), subtype(p));
+-        font(margin_char(p)) := f;
+-      end
+-    else if m = subst_ex_font then begin
+-            do_subst_font(margin_char(p), font_expand_ratio);
+-            width(p) := -char_pw(margin_char(p), subtype(p));
+-      end;
+-    x := x + width(p);
+-    end;
+-  kern_node: begin
+-    if (m = cal_expand_ratio) and (subtype(p) = normal) then begin
+-        k := kern_stretch(p);
+-        if k <> 0 then begin
+-            subtype(p) := substituted;
+-            font_stretch := font_stretch + k;
+-        end;
+-        k := kern_shrink(p);
+-        if k <> 0 then begin
+-            subtype(p) := substituted;
+-            font_shrink := font_shrink + k;
+-        end;
+-      end
+-    else if (m = subst_ex_font) and (subtype(p) = substituted) then begin
+-        if type(link(p)) = ligature_node then
+-            width(p) := get_kern(font(prev_char_p),
+-                                 character(prev_char_p),
+-                                 character(lig_char(link(p))))
+-        else 
+-            width(p) := get_kern(font(prev_char_p),
+-                                 character(prev_char_p),
+-                                 character(link(p)))
+-      end;
+-    x := x + width(p);
+-    end;
+-@z
+-
+-@x [651] - font expansion
+-  ligature_node: @<Make node |p| look like a |char_node|
+-    and |goto reswitch|@>;
+-@y
+-  ligature_node: begin
+-      if m = subst_ex_font then
+-          do_subst_font(p, font_expand_ratio);
+-      @<Make node |p| look like a |char_node| and |goto reswitch|@>;
+-    end;
+-  disc_node:
+-      if m = subst_ex_font then
+-          do_subst_font(p, font_expand_ratio);
+-@z
+-
+-@x [654] - font expansion
+-begin f:=font(p); i:=char_info(f)(character(p)); hd:=height_depth(i);
+-@y
+-begin
+-if m >= cal_expand_ratio then begin
+-    prev_char_p := p;
+-    case m of
+-    cal_expand_ratio: begin
+-        f := font(p);
+-        add_char_stretch(font_stretch)(character(p));
+-        add_char_shrink(font_shrink)(character(p));
+-    end;
+-    subst_ex_font:
+-        do_subst_font(p, font_expand_ratio);
+-    endcases;
+-end;
+-f:=font(p); i:=char_info(f)(character(p)); hd:=height_depth(i);
+-@z
+-
+-@x [658] - font expansion
+-@ @<Determine horizontal glue stretch setting...@>=
+-begin @<Determine the stretch order@>;
+-@y
+-@ If |hpack| is called with |m=cal_expand_ratio| we calculate
+-|font_expand_ratio| and return without checking for overfull or underfull box.
+-
+-@<Determine horizontal glue stretch setting...@>=
+-begin @<Determine the stretch order@>;
+-if (m = cal_expand_ratio) and (o = normal) and (font_stretch > 0) then begin
+-    font_expand_ratio := divide_scaled(x, font_stretch, 3);
+-    return;
+-end;
+-@z
+-
+-@x [664] - font expansion
+-@ @<Determine horizontal glue shrink setting...@>=
+-begin @<Determine the shrink order@>;
+-@y
+-@ @<Determine horizontal glue shrink setting...@>=
+-begin @<Determine the shrink order@>;
+-if (m = cal_expand_ratio) and (o = normal) and (font_shrink > 0) then begin
+-    font_expand_ratio := divide_scaled(x, font_shrink, 3);
+-    return;
+-end;
+-@z
+-
+-@x [822] - font expansion
+-@d delta_node_size=7 {number of words in a delta node}
+-@y
+-@d delta_node_size=9 {number of words in a delta node}
+-@z
+-
+-@x [823] - font expansion, margin kerning, avoiding overfull boxes
+-@<Glo...@>=
+-@!active_width:array[1..6] of scaled;
+-  {distance from first active node to~|cur_p|}
+-@!cur_active_width:array[1..6] of scaled; {distance from current active node}
+-@!background:array[1..6] of scaled; {length of an ``empty'' line}
+-@!break_width:array[1..6] of scaled; {length being computed after current break}
+-@y
+-@d do_seven_eight(#) == if pdf_adjust_spacing > 1 then begin #(7);#(8); end
+-@d do_all_eight(#) == do_all_six(#); do_seven_eight(#)
+-@d do_one_seven_eight(#) == #(1); do_seven_eight(#)
+-
+-@d total_font_stretch == cur_active_width[7] 
+-@d total_font_shrink == cur_active_width[8] 
+-
+-@d save_active_width(#) == prev_active_width[#] := active_width[#]
+-@d restore_active_width(#) == active_width[#] := prev_active_width[#]
+-
+-@<Glo...@>=
+-@!active_width:array[1..8] of scaled;
+-  {distance from first active node to~|cur_p|}
+-@!cur_active_width:array[1..8] of scaled; {distance from current active node}
+-@!background:array[1..8] of scaled; {length of an ``empty'' line}
+-@!break_width:array[1..8] of scaled; {length being computed after current break}
+-@#
+-@!auto_breaking: boolean; {make |auto_breaking| accessible out of |line_break|}
+-@!prev_p: pointer; {make |prev_p| accessible out of |line_break|}
+-@!first_p: pointer; {to access the first node of the paragraph}
+-@!prev_char_p: pointer; {pointer to the previous char of an implicit kern}
+-@!next_char_p: pointer; {pointer to the next char of an implicit kern}
+-@# 
+-@!try_prev_break: boolean; {force break at the previous legal breakpoint?}
+-@!prev_legal: pointer; {the previous legal breakpoint}
+-@!prev_prev_legal: pointer; {to save |prev_p| corresponding to |prev_legal|}
+-@!prev_auto_breaking: boolean; {to save |auto_breaking| corresponding to |prev_legal|}
+-@!prev_active_width: array[1..8] of scaled; {to save |active_width| corresponding to |prev_legal|}
+-@!rejected_cur_p: pointer; {the last |cur_p| that has been rejected}
+-@!before_rejected_cur_p: boolean; {|cur_p| is still before |rejected_cur_p|?}
+-@#
+-@!max_stretch_ratio: integer; {maximal stretch ratio of expanded fonts}
+-@!max_shrink_ratio: integer; {maximal shrink ratio of expanded fonts}
+-@!cur_font_step: integer; {the current step of expanded fonts}
+-@z
+-
+-@x [827] - font expansion
+-background[6]:=shrink(q)+shrink(r);
+-@y
+-background[6]:=shrink(q)+shrink(r);
+-if pdf_adjust_spacing > 1 then begin
+-    background[7] := 0;
+-    background[8] := 0;
+-    max_stretch_ratio := -1;
+-    max_shrink_ratio := -1;
+-    cur_font_step := -1;
+-    prev_char_p := null;
+-end;
+-@z
+-
+-@x [829] - margin kerning
+-@<Declare subprocedures for |line_break|@>=
+-procedure try_break(@!pi:integer;@!break_type:small_number);
+-@y
+-@d cp_skipable(#) == {skipable nodes at the margins during character protrusion}
+-(
+-    not is_char_node(#) and 
+-    (
+-        (type(#) = ins_node)
+-        or (type(#) = mark_node)
+-        or (type(#) = adjust_node)
+-        or (type(#) = penalty_node)
+-        or ((type(#) = whatsit_node) and 
+-            (subtype(#) <> pdf_refximage_node) and
+-            (subtype(#) <> pdf_refxform_node)) {reference to an image or XObject form}
+-        or ((type(#) = disc_node) and 
+-            (pre_break(#) = null) and
+-            (post_break(#) = null) and 
+-            (replace_count(#) = 0)) {an empty |disc_node|}
+-        or ((type(#) = math_node) and (width(#) = 0))
+-        or ((type(#) = kern_node) and 
+-            ((width(#) = 0) or (subtype(#) = normal)))
+-        or ((type(#) = glue_node) and (glue_ptr(#) = zero_glue))
+-        or ((type(#) = hlist_node) and (width(#) = 0) and (height(#) = 0) and 
+-            (depth(#) = 0) and (list_ptr(#) = null))
+-    )
+-)
+-
+-
+-@<Declare subprocedures for |line_break|@>=
+-procedure push_node(p: pointer);
+-begin
+-    if hlist_stack_level > max_hlist_stack then
+-        pdf_error("push_node", "stack overflow");
+-    hlist_stack[hlist_stack_level] := p;
+-    hlist_stack_level := hlist_stack_level + 1;
+-end;
+-
+-function pop_node: pointer;
+-begin
+-    hlist_stack_level := hlist_stack_level - 1;
+-    if hlist_stack_level < 0 then {would point to some bug}
+-        pdf_error("pop_node", "stack underflow (internal error)");
+-    pop_node := hlist_stack[hlist_stack_level];
+-end;
+-
+-function find_protchar_left(l: pointer; d: boolean): pointer;
+-{searches left to right from list head |l|, returns 1st non-skipable item}
+-var t: pointer;
+-    run: boolean;
+-begin
+-    if (link(l) <> null) and (type(l) = hlist_node) and (width(l) = 0)
+-        and (height(l) = 0) and (depth(l) = 0) and (list_ptr(l) = null) then
+-        l := link(l) {for paragraph start with \.{\\parindent = 0pt}}
+-    else if d then
+-            while (link(l) <> null) and (not (is_char_node(l) or non_discardable(l))) do
+-                l := link(l); {std.\ discardables at line break, \TeX book, p 95}
+-    hlist_stack_level := 0;
+-    run := true;
+-    repeat
+-        t := l;
+-        while run and (type(l) = hlist_node) and (list_ptr(l) <> null) do begin
+-            push_node(l);
+-            l := list_ptr(l);
+-        end;
+-        while run and cp_skipable(l) do begin
+-            while (link(l) = null) and (hlist_stack_level > 0) do begin
+-                l := pop_node; {don't visit this node again}
+-            end;
+-            if link(l) <> null then
+-                l := link(l)
+-            else if hlist_stack_level = 0 then run := false
+-        end;
+-    until t = l;
+-    find_protchar_left := l;
+-end;
+-
+-function find_protchar_right(l, r: pointer): pointer;
+-{searches right to left from list tail |r| to head |l|, returns 1st non-skipable item}
+-var t: pointer;
+-    run: boolean;
+-begin
+-    find_protchar_right := null;
+-    if r = null then return;
+-    hlist_stack_level := 0;
+-    run := true;
+-    repeat
+-        t := r;
+-        while run and (type(r) = hlist_node) and (list_ptr(r) <> null) do begin
+-            push_node(l);
+-            push_node(r);
+-            l := list_ptr(r);
+-            r := l;
+-            while link(r) <> null do
+-                r := link(r);
+-        end;
+-        while run and cp_skipable(r) do begin
+-            while (r = l) and (hlist_stack_level > 0) do begin
+-                r := pop_node; {don't visit this node again}
+-                l := pop_node;
+-            end;
+-            if (r <> l) and (r <> null) then
+-                r := prev_rightmost(l, r)
+-            else if (r = l) and (hlist_stack_level = 0) then run := false
+-        end;
+-    until t = r;
+-    find_protchar_right := r;
+-end;
+-
+-function total_pw(q, p: pointer): scaled;
+-{returns the total width of character protrusion of a line;
+-|cur_break(break_node(q))| and |p| is the leftmost resp. rightmost node in the
+-horizontal list representing the actual line}
+-var l, r, s: pointer;
+-    n: integer;
+-begin
+-    if break_node(q) = null then
+-        l := first_p
+-    else
+-        l := cur_break(break_node(q));
+-    r := prev_rightmost(prev_p, p); {get |link(r)=p|}
+-    {let's look at the right margin first}
+-    {|
+-    short_display_n(r, 2);
+-    print("&");
+-    short_display_n(p, 2);
+-    print_ln;
+-    |}
+-    if (p <> null) and (type(p) = disc_node) and (pre_break(p) <> null) then  
+-    {a |disc_node| with non-empty |pre_break|, protrude the last char of |pre_break|}
+-    begin
+-        r := pre_break(p);
+-        while link(r) <> null do
+-            r := link(r);
+-    end else r := find_protchar_right(l, r);
+-    {now the left margin}
+-    {|
+-        short_display_n(l, 2);
+-        print_ln;
+-        breadth_max := 10;
+-        depth_threshold := 2;
+-        show_node_list(l);
+-        print_ln;
+-    |}
+-    if (l <> null) and (type(l) = disc_node) then begin
+-        if post_break(l) <> null then begin
+-            l := post_break(l); {protrude the first char}
+-            goto done;
+-        end else {discard |replace_count(l)| nodes}
+-        begin
+-            n := replace_count(l);
+-            l := link(l);
+-            while n > 0 do begin 
+-                if link(l) <> null then 
+-                    l := link(l);
+-                decr(n);
+-            end;
+-        end;
+-    end;
+-    l := find_protchar_left(l, true);
+-done:
+-    total_pw := left_pw(l) + right_pw(r);
+-end;
+-
+-procedure try_break(@!pi:integer;@!break_type:small_number);
+-@z
+-
+-@x
+-var r:pointer; {runs through the active list}
+-@y
+-var r:pointer; {runs through the active list}
+-@!margin_kern_stretch: scaled;
+-@!margin_kern_shrink: scaled;
+-@!lp, rp, cp: pointer;
+-@z
+-
+-
+-@x [829] - font expansion
+-do_all_six(copy_to_cur_active);
+-@y
+-do_all_eight(copy_to_cur_active);
+-@z
+-
+-@x [832] - font expansion
+-  begin do_all_six(update_width);
+-@y
+-  begin do_all_eight(update_width);
+-@z
+-
+-@x [837] - font expansion
+-begin no_break_yet:=false; do_all_six(set_break_width_to_background);
+-@y
+-begin no_break_yet:=false; do_all_eight(set_break_width_to_background);
+-@z
+-
+-@x [839] - font expansion
+-@<Glob...@>=
+-@!disc_width:scaled; {the length of discretionary material preceding a break}
+-@y
+-@d reset_disc_width(#) == disc_width[#] := 0
+-
+-@d add_disc_width_to_break_width(#) ==  
+-    break_width[#] := break_width[#] + disc_width[#]
+-
+-@d add_disc_width_to_active_width(#) ==  
+-    active_width[#] := active_width[#] + disc_width[#]
+-
+-@d sub_disc_width_from_active_width(#) ==  
+-    active_width[#] := active_width[#] - disc_width[#]
+-
+-@d add_char_stretch_end(#) == char_stretch(f, #)
+-@d add_char_stretch(#) == # := # + add_char_stretch_end
+-
+-@d add_char_shrink_end(#) == char_shrink(f, #)
+-@d add_char_shrink(#) == # := # + add_char_shrink_end
+-
+-@d sub_char_stretch_end(#) == char_stretch(f, #)
+-@d sub_char_stretch(#) == # := # - sub_char_stretch_end
+-
+-@d sub_char_shrink_end(#) == char_shrink(f, #)
+-@d sub_char_shrink(#) == # := # - sub_char_shrink_end
+-
+-@d add_kern_stretch_end(#) == kern_stretch(#)
+-@d add_kern_stretch(#) == # := # + add_kern_stretch_end
+-
+-@d add_kern_shrink_end(#) == kern_shrink(#)
+-@d add_kern_shrink(#) == # := # + add_kern_shrink_end
+-
+-@d sub_kern_stretch_end(#) == kern_stretch(#)
+-@d sub_kern_stretch(#) == # := # - sub_kern_stretch_end
+-
+-@d sub_kern_shrink_end(#) == kern_shrink(#)
+-@d sub_kern_shrink(#) == # := # - sub_kern_shrink_end
+-
+-@<Glob...@>=
+-@!disc_width: array[1..8] of scaled; {the length of discretionary material preceding a break}
+-@z
+-
+-@x [840] - font expansion
+-break_width[1]:=break_width[1]+disc_width;
+-@y
+-do_one_seven_eight(add_disc_width_to_break_width);
+-@z
+-
+-@x [841] - font expansion
+-  break_width[1]:=break_width[1]-char_width(f)(char_info(f)(character(v)));
+-@y
+-  break_width[1]:=break_width[1]-char_width(f)(char_info(f)(character(v)));
+-  if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-      prev_char_p := v;
+-      sub_char_stretch(break_width[7])(character(v));
+-      sub_char_shrink(break_width[8])(character(v));
+-  end;
+-@z
+-
+-@x [841] - font expansion
+-    break_width[1]:=@|break_width[1]-
+-      char_width(f)(char_info(f)(character(lig_char(v))));
+-@y
+-    break_width[1]:=@|break_width[1]-
+-      char_width(f)(char_info(f)(character(lig_char(v))));
+-    if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-        prev_char_p := v;
+-        sub_char_stretch(break_width[7])(character(lig_char(v)));
+-        sub_char_shrink(break_width[8])(character(lig_char(v)));
+-    end;
+-@z
+-
+-@x [841] - font expansion
+-  hlist_node,vlist_node,rule_node,kern_node:
+-    break_width[1]:=break_width[1]-width(v);
+-@y
+-  hlist_node,vlist_node,rule_node,kern_node: begin
+-    break_width[1]:=break_width[1]-width(v);
+-    if (type(v) = kern_node) and
+-       (pdf_adjust_spacing > 1) and (subtype(v) = normal)
+-    then begin
+-        sub_kern_stretch(break_width[7])(v);
+-        sub_kern_shrink(break_width[8])(v);
+-    end;
+-  end;
+-@z
+-
+-@x [842] - font expansion
+-  break_width[1]:=@|break_width[1]+char_width(f)(char_info(f)(character(s)));
+-@y
+-  break_width[1]:=@|break_width[1]+char_width(f)(char_info(f)(character(s)));
+-  if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-      prev_char_p := s;
+-      add_char_stretch(break_width[7])(character(s));
+-      add_char_shrink(break_width[8])(character(s));
+-  end;
+-@z
+-
+-@x [842] - font expansion
+-    break_width[1]:=break_width[1]+
+-      char_width(f)(char_info(f)(character(lig_char(s))));
+-@y
+-    break_width[1]:=break_width[1]+
+-      char_width(f)(char_info(f)(character(lig_char(s))));
+-    if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-        prev_char_p := s;
+-        add_char_stretch(break_width[7])(character(lig_char(s)));
+-        add_char_shrink(break_width[8])(character(lig_char(s)));
+-    end;
+-@z
+-
+-@x [842] - font expansion
+-  hlist_node,vlist_node,rule_node,kern_node:
+-    break_width[1]:=break_width[1]+width(s);
+-@y
+-  hlist_node,vlist_node,rule_node,kern_node: begin
+-    break_width[1]:=break_width[1]+width(s);
+-    if (type(s) = kern_node) and
+-       (pdf_adjust_spacing > 1) and (subtype(s) = normal)
+-    then begin
+-        add_kern_stretch(break_width[7])(s);
+-        add_kern_shrink(break_width[8])(s);
+-    end;
+-  end;
+-@z
+-
+-@x [843] - font expansion
+-  begin do_all_six(convert_to_break_width);
+-@y
+-  begin do_all_eight(convert_to_break_width);
+-@z
+-
+-@x [843] - font expansion
+-  begin do_all_six(store_break_width);
+-@y
+-  begin do_all_eight(store_break_width);
+-@z
+-
+-@x [843] - font expansion
+-  do_all_six(new_delta_to_break_width);
+-@y
+-  do_all_eight(new_delta_to_break_width);
+-@z
+-
+-@x [844] - font expansion
+-  do_all_six(new_delta_from_break_width);
+-@y
+-  do_all_eight(new_delta_from_break_width);
+-@z
+-
+-@x [851] - font expansion, margin kerning
+-shortfall:=line_width-cur_active_width[1]; {we're this much too short}
+-@y
+-shortfall:=line_width-cur_active_width[1]; {we're this much too short}
+-
+-{|
+-if pdf_output > 2 then begin
+-print_ln;
+-if (r <> null) and (break_node(r) <> null) then
+-    short_display_n(cur_break(break_node(r)), 5);
+-print_ln;
+-short_display_n(cur_p, 5);
+-print_ln;
+-end;
+-|}
+-
+-if pdf_protrude_chars > 1 then
+-    shortfall := shortfall + total_pw(r, cur_p);
+-if (pdf_adjust_spacing > 1) and (shortfall <> 0) then begin
+-    margin_kern_stretch := 0;
+-    margin_kern_shrink := 0;
+-    if pdf_protrude_chars > 1 then 
+-        @<Calculate variations of marginal kerns@>;
+-    if (shortfall > 0) and ((total_font_stretch + margin_kern_stretch) > 0) 
+-    then begin
+-        if (total_font_stretch + margin_kern_stretch) > shortfall then
+-            shortfall := ((total_font_stretch + margin_kern_stretch) div 
+-                          (max_stretch_ratio div cur_font_step)) div 2
+-        else
+-            shortfall := shortfall - (total_font_stretch + margin_kern_stretch);
+-    end
+-    else if (shortfall < 0) and ((total_font_shrink + margin_kern_shrink) > 0) 
+-    then begin
+-        if (total_font_shrink + margin_kern_shrink) > -shortfall then
+-            shortfall := -((total_font_shrink + margin_kern_shrink) div 
+-                           (max_shrink_ratio div cur_font_step)) div 2
+-        else
+-            shortfall := shortfall + (total_font_shrink + margin_kern_shrink);
+-    end;
+-end;
+-@z
+-
+-@x [860] - font expansion
+-    begin do_all_six(downdate_width);
+-@y
+-    begin do_all_eight(downdate_width);
+-@z
+-
+-@x [860] - font expansion
+-    begin do_all_six(update_width);
+-    do_all_six(combine_two_deltas);
+-@y
+-    begin do_all_eight(update_width);
+-    do_all_eight(combine_two_deltas);
+-@z
+-
+-@x [861] - font expansion
+-  begin do_all_six(update_active);
+-  do_all_six(copy_to_cur_active);
+-@y
+-  begin do_all_eight(update_active);
+-  do_all_eight(copy_to_cur_active);
+-@z
+-
+-@x [862] - margin kerning, avoiding overfull boxes
+-@!auto_breaking:boolean; {is node |cur_p| outside a formula?}
+-@!prev_p:pointer; {helps to determine when glue nodes are breakpoints}
+-@y
+-@z
+-
+-@x [863] - margin kerning, avoiding overfull boxes
+-  while (cur_p<>null)and(link(active)<>last_active) do
+-@y
+-  prev_char_p := null;
+-  prev_legal := null;
+-  rejected_cur_p := null;
+-  try_prev_break := false;
+-  before_rejected_cur_p := false;
+-  first_p := cur_p; {to access the first node of paragraph as the first active
+-                     node has |break_node=null|}
+-  while (cur_p<>null)and(link(active)<>last_active) do
+-@z
+-
+-@x [864] - font expansion
+-do_all_six(store_background);@/
+-@y
+-do_all_eight(store_background);@/
+-@z
+-
+-@x [666] - font expansion
+-  else act_width:=act_width+width(cur_p);
+-@y
+-  else begin
+-    act_width:=act_width+width(cur_p);
+-    if (pdf_adjust_spacing > 1) and (subtype(cur_p) = normal) then begin
+-        add_kern_stretch(active_width[7])(cur_p);
+-        add_kern_shrink(active_width[8])(cur_p);
+-    end;
+-  end;
+-@z
+-
+-@x [866] - font expansion
+-  act_width:=act_width+char_width(f)(char_info(f)(character(lig_char(cur_p))));
+-@y
+-  act_width:=act_width+char_width(f)(char_info(f)(character(lig_char(cur_p))));
+-  if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-      prev_char_p := cur_p;
+-      add_char_stretch(active_width[7])(character(lig_char(cur_p)));
+-      add_char_shrink(active_width[8])(character(lig_char(cur_p)));
+-  end;
+-@z
+-
+-@x [867] - font expansion
+-act_width:=act_width+char_width(f)(char_info(f)(character(cur_p)));
+-@y
+-act_width:=act_width+char_width(f)(char_info(f)(character(cur_p)));
+-if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-    prev_char_p := cur_p;
+-    add_char_stretch(active_width[7])(character(cur_p));
+-    add_char_shrink(active_width[8])(character(cur_p));
+-end;
+-@z
+-
+-@x [869] - font expansion
+-begin s:=pre_break(cur_p); disc_width:=0;
+-@y
+-begin s:=pre_break(cur_p);
+-do_one_seven_eight(reset_disc_width);
+-@z
+-
+-@x [869] - font expansion
+-  act_width:=act_width+disc_width;
+-  try_break(hyphen_penalty,hyphenated);
+-  act_width:=act_width-disc_width;
+-@y
+-  do_one_seven_eight(add_disc_width_to_active_width);
+-  try_break(hyphen_penalty,hyphenated);
+-  do_one_seven_eight(sub_disc_width_from_active_width);
+-@z
+-
+-@x [870] - font expansion
+-  disc_width:=disc_width+char_width(f)(char_info(f)(character(s)));
+-@y
+-  disc_width[1]:=disc_width[1]+char_width(f)(char_info(f)(character(s)));
+-  if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-      prev_char_p := s;
+-      add_char_stretch(disc_width[7])(character(s));
+-      add_char_shrink(disc_width[8])(character(s));
+-  end;
+-@z
+-
+-@x [870] - font expansion
+-    disc_width:=disc_width+
+-      char_width(f)(char_info(f)(character(lig_char(s))));
+-@y
+-    disc_width[1]:=disc_width[1]+
+-      char_width(f)(char_info(f)(character(lig_char(s))));
+-    if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-        prev_char_p := s;
+-        add_char_stretch(disc_width[7])(character(lig_char(s)));
+-        add_char_shrink(disc_width[8])(character(lig_char(s)));
+-    end;
+-@z
+-
+-@x [870] - font expansion
+-  hlist_node,vlist_node,rule_node,kern_node:
+-    disc_width:=disc_width+width(s);
+-@y
+-  hlist_node,vlist_node,rule_node,kern_node: begin
+-    disc_width[1]:=disc_width[1]+width(s);
+-    if (type(s) = kern_node) and
+-       (pdf_adjust_spacing > 1) and (subtype(s) = normal)
+-    then begin
+-        add_kern_stretch(disc_width[7])(s);
+-        add_kern_shrink(disc_width[8])(s);
+-    end;
+-  end;
+-@z
+-
+-@x [871] - font expansion
+-  act_width:=act_width+char_width(f)(char_info(f)(character(s)));
+-@y
+-  act_width:=act_width+char_width(f)(char_info(f)(character(s)));
+-  if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-      prev_char_p := s;
+-      add_char_stretch(active_width[7])(character(s));
+-      add_char_shrink(active_width[8])(character(s));
+-  end;
+-@z
+-
+-@x [871] - font expansion
+-    act_width:=act_width+
+-      char_width(f)(char_info(f)(character(lig_char(s))));
+-@y
+-    act_width:=act_width+
+-      char_width(f)(char_info(f)(character(lig_char(s))));
+-    if (pdf_adjust_spacing > 1) and check_expand_pars(f) then begin
+-        prev_char_p := s;
+-        add_char_stretch(active_width[7])(character(lig_char(s)));
+-        add_char_shrink(active_width[8])(character(lig_char(s)));
+-    end;
+-@z
+-
+-@x [871] - font expansion
+-  hlist_node,vlist_node,rule_node,kern_node:
+-    act_width:=act_width+width(s);
+-@y
+-  hlist_node,vlist_node,rule_node,kern_node: begin
+-    act_width:=act_width+width(s);
+-    if (type(s) = kern_node) and
+-       (pdf_adjust_spacing > 1) and (subtype(s) = normal)
+-    then begin
+-        add_kern_stretch(active_width[7])(s);
+-        add_kern_shrink(active_width[8])(s);
+-    end;
+-  end;
+-@z
+-
+-@x [877] - margin kerning
+-var q,@!r,@!s:pointer; {temporary registers for list manipulation}
+-@y
+-var q,@!r,@!s:pointer; {temporary registers for list manipulation}
+-    p, k: pointer; 
+-    w: scaled;
+-    glue_break: boolean; {was a break at glue?}
+-    ptmp: pointer;
+-@z
+-
+-@x [881] - margin kerning
+-q:=cur_break(cur_p); disc_break:=false; post_disc_break:=false;
+-@y
+-q:=cur_break(cur_p); disc_break:=false; post_disc_break:=false;
+-glue_break := false;
+-@z
+-
+-@x [881] - margin kerning
+-    subtype(q):=right_skip_code+1; add_glue_ref(right_skip);
+-    goto done;
+-@y
+-    subtype(q):=right_skip_code+1; add_glue_ref(right_skip);
+-    glue_break := true;
+-    goto done;
+-@z
+-
+-@x [881] - margin kerning
+-@<Put the \(r)\.{\\rightskip} glue after node |q|@>;
+-done:
+-@y
+-done:
+-
+-{at this point |q| is the rightmost breakpoint; the only exception is the case
+-of a discretionary break with non-empty |pre_break|, then |q| has been changed
+-to the last node of the |pre_break| list}
+-
+-if pdf_protrude_chars > 0 then begin
+-    if disc_break and (is_char_node(q) or (type(q) <> disc_node))
+-    {|q| has been reset to the last node of |pre_break|}
+-    then begin
+-        p := q;
+-        ptmp := p;
+-    end else begin
+-        p := prev_rightmost(temp_head, q); {get |link(p) = q|}
+-        ptmp := p;
+-        p := find_protchar_right(temp_head, p);
+-    end;
+-    {|
+-    short_display_n(p, 1);
+-    print_ln;
+-    |}
+-    w := right_pw(p);
+-    if w <> 0 then {we have found a marginal kern, append it after |ptmp|}
+-    begin
+-        k := new_margin_kern(-w, last_rightmost_char, right_side);
+-        link(k) := link(ptmp);
+-        link(ptmp) := k;
+-        if (ptmp = q) then
+-            q := link(q);
+-    end;
+-end;
+-
+-{if |q| was not a breakpoint at glue and has been reset to |rightskip| then
+- we append |rightskip| after |q| now}
+-if not glue_break then begin
+-    @<Put the \(r)\.{\\rightskip} glue after node |q|@>;
+-end;
+-@z
+-
+-@x [887] - margin kerning
+-if left_skip<>zero_glue then
+-@y
+-{at this point |q| is the leftmost node; all discardable nodes have been discarded}
+-if pdf_protrude_chars > 0 then begin
+-    p := q;
+-    p := find_protchar_left(p, false); {no more discardables}
+-    w := left_pw(p);
+-    if w <> 0 then begin
+-        k := new_margin_kern(-w, last_leftmost_char, left_side);
+-        link(k) := q;
+-        q := k;
+-    end;
+-end;
+-if left_skip<>zero_glue then
+-@z
+-
+-@x [889] - font expansion, pre vadjust
+-just_box:=hpack(q,cur_width,exactly);
+-@y
+-if pdf_adjust_spacing > 0 then
+-    just_box := hpack(q, cur_width, cal_expand_ratio)
+-else
+-    just_box := hpack(q, cur_width, exactly);
+-@z
+-
+-@x [1110] - margin kerning
+-var p:pointer; {the box}
+-@y
+-var p:pointer; {the box}
+-    r: pointer; {to remove marginal kern nodes}
+-@z
+-
+-@x [1110] - margin kerning
+-while link(tail)<>null do tail:=link(tail);
+-@y
+-while link(tail) <> null do begin
+-    r := link(tail);
+-    if not is_char_node(r) and (type(r) = margin_kern_node) then begin
+-        link(tail) := link(r);
+-        free_avail(margin_char(r));
+-        free_node(r, margin_kern_node_size);
+-    end;
+-    tail:=link(tail);
+-end;
+-@z
+-
+-@x [1147] - margin kerning
+-ligature_node:@<Make node |p| look like a |char_node|...@>;
+-@y
+-ligature_node:@<Make node |p| look like a |char_node|...@>;
+-margin_kern_node: d:=width(p);
+-@z
+-
+-@x [1253] - font expansion
+-assign_font_int: begin n:=cur_chr; scan_font_ident; f:=cur_val;
+-  scan_optional_equals; scan_int;
+-  if n=0 then hyphen_char[f]:=cur_val@+else skew_char[f]:=cur_val;
+-  end;
+-@y
+-assign_font_int: begin n:=cur_chr; scan_font_ident; f:=cur_val;
+-  if n < lp_code_base then begin
+-    scan_optional_equals; scan_int;
+-    if n=0 then hyphen_char[f]:=cur_val@+else skew_char[f]:=cur_val;
+-  end
+-  else begin
+-    scan_char_num; p := cur_val;
+-    scan_optional_equals; scan_int;
+-    case n of 
+-    lp_code_base: set_lp_code(f, p, cur_val);
+-    rp_code_base: set_rp_code(f, p, cur_val);
+-    ef_code_base: set_ef_code(f, p, cur_val);
+-    end;
+-  end;
+-end;
+-@z
+-
+-@x [1254] - font expansion
+-primitive("skewchar",assign_font_int,1);
+-@!@:skew_char_}{\.{\\skewchar} primitive@>
+-@y
+-primitive("skewchar",assign_font_int,1);
+-@!@:skew_char_}{\.{\\skewchar} primitive@>
+-primitive("lpcode",assign_font_int,lp_code_base);
+-@!@:lp_code_}{\.{\\lpcode} primitive@>
+-primitive("rpcode",assign_font_int,rp_code_base);
+-@!@:rp_code_}{\.{\\rpcode} primitive@>
+-primitive("efcode",assign_font_int,ef_code_base);
+-@!@:ef_code_}{\.{\\efcode} primitive@>
+-@z
+-
+-@x [1255] - font expansion
+-assign_font_int: if chr_code=0 then print_esc("hyphenchar")
+-  else print_esc("skewchar");
+-@y
+-assign_font_int: case chr_code of
+-0: print_esc("hyphenchar");
+-1: print_esc("skewchar");
+-lp_code_base: print_esc("lpcode");
+-rp_code_base: print_esc("rpcode");
+-ef_code_base: print_esc("efcode");
+-endcases;
+-@z
+-
+-@x [1344]
+-@d pdftex_last_extension_code  == pdftex_first_extension_code + 27
+-@y
+-@d pdf_font_expand_code        == pdftex_first_extension_code + 28
+-@d pdftex_last_extension_code  == pdftex_first_extension_code + 28
+-@z
+-
+-@x [1344]
+-primitive("setlanguage",extension,set_language_code);@/
+-@!@:set_language_}{\.{\\setlanguage} primitive@>
+-@y
+-primitive("setlanguage",extension,set_language_code);@/
+-@!@:set_language_}{\.{\\setlanguage} primitive@>
+-primitive("pdffontexpand",extension,pdf_font_expand_code);@/
+-@!@:pdf_font_expand_}{\.{\\pdffontexpand} primitive@>
+-@z
+-
+-@x [1346]
+-  immediate_code:print_esc("immediate");
+-  set_language_code:print_esc("setlanguage");
+-@y
+-  immediate_code:print_esc("immediate");
+-  set_language_code:print_esc("setlanguage");
+-  pdf_font_expand_code: print_esc("pdffontexpand");
+-@z
+-
+-@x [1348]
+-set_language_code:@<Implement \.{\\setlanguage}@>;
+-@y
+-set_language_code:@<Implement \.{\\setlanguage}@>;
+-pdf_font_expand_code: @<Implement \.{\\pdffontexpand}@>;
+-@z
+-
+-@x [1354]
+-@<Implement \.{\\special}@>=
+-begin new_whatsit(special_node,write_node_size); write_stream(tail):=null;
+-p:=scan_toks(false,true); write_tokens(tail):=def_ref;
+-end
+-@y
+-@<Implement \.{\\special}@>=
+-begin new_whatsit(special_node,write_node_size); write_stream(tail):=null;
+-p:=scan_toks(false,true); write_tokens(tail):=def_ref;
+-end
+-
+-@ @<Implement \.{\\pdffontexpand}@>= 
+-    read_expand_font
+-@z
+-
+-@x [15??]
+-@<Declare procedures that need to be declared forward for pdftex@>=
+-@y
+-@<Declare procedures that need to be declared forward for pdftex@>=
+-function prev_rightmost(s, e: pointer): pointer;
+-{finds the node preceding the rightmost node |e|; |s| is some node 
+-before |e|}
+-var p: pointer;
+-begin
+-    prev_rightmost := null;
+-    p := s;
+-    if p = null then
+-        return;
+-    while link(p) <> e do begin
+-        p := link(p);
+-        if p = null then
+-            return;
+-    end;
+-    prev_rightmost := p;
+-end;
+-@z
+-
+--- tetex-src-3.0/texk/web2c/pdftexdir/noligatures.ch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/noligatures.ch	2007-01-21 16:43:56.000000000 +0100
+@@ -1,116 +0,0 @@
+-% Copyright (c) 2005 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/pdftex.ch#163 $
+-@ This change file creates an extra primitive named \.{\\pdfnoligatures}, allowing
+-you to destroy all ligatures of a loaded font. The command code is
+-|assign_font_int|, with the new modifier value |no_lig_code|.
+-
+-Nothing other than the |char_tag| value is changed, and nothing is saved. 
+-The primitive works directly on |font_info|, so all changes are global,
+-the same as for the other font assignment primitives. Usage is quite
+-straightforward: \.{\\pdfnoligatures \\f } disables ligatures for font \.{\\f}.
+-The expansion of \.{\\pdfnoligatures \\f } is either |1|, when the font has
+-no ligatures, or |0|, when the font does have ligatures.
+-
+-Thanh: this patch uses |orig_char_info| because it is to be inserted
+-after tex.pch. If you merge this into pdftex.ch, you may want to change
+-back to |char_info|. It would not compile without using the 
+-|orig| trick because |effective_char| is not yet known at the spot 
+-where |test_no_ligatures| is used. sigh.
+-
+-@x [230]
+-@d ef_code_base == 4
+-@y
+-@d ef_code_base == 4
+-@d no_lig_code == 6 {|tag_code| is 5 }
+-@z
+-
+-@x [230]
+-begin scan_font_ident;
+-if m=0 then scanned_result(hyphen_char[cur_val])(int_val)
+-else if m=1 then scanned_result(skew_char[cur_val])(int_val)
+-@y
+-begin scan_font_ident;
+-if m=0 then scanned_result(hyphen_char[cur_val])(int_val)
+-else if m=1 then scanned_result(skew_char[cur_val])(int_val)
+-else if m=no_lig_code then scanned_result(test_no_ligatures(cur_val))(int_val)
+-@z
+-
+-@x [577]
+-@<Declare procedures that scan font-related stuff@>=
+-function get_tag_code(f: internal_font_number; c: eight_bits): integer;
+-@y
+-@<Declare procedures that scan font-related stuff@>=
+-function test_no_ligatures(f: internal_font_number): integer;
+-label exit;
+-var c:integer; 
+-begin
+- test_no_ligatures:= 1;
+- for c := font_bc[f] to font_ec[f] do
+-    if char_exists(orig_char_info(f)(c)) then
+-      if odd(char_tag(orig_char_info(f)(c))) then begin
+-        test_no_ligatures:= 0;
+-        return;
+-      end;
+- exit:
+-end; 
+-
+-function get_tag_code(f: internal_font_number; c: eight_bits): integer;
+-@z
+-
+-@x [???]
+-function init_font_base(v: integer): integer;
+-@y
+-procedure set_no_ligatures(f: internal_font_number);
+-var c:integer; 
+-begin
+-    for c := font_bc[f] to font_ec[f] do
+-        if char_exists(orig_char_info(f)(c)) then
+-            if char_tag(orig_char_info(f)(c))=lig_tag then
+-                op_byte(orig_char_info(f)(c)) := (op_byte(orig_char_info(f)(c))) - lig_tag;
+-end;
+-
+-function init_font_base(v: integer): integer;
+-@z
+-
+-@x [1253]
+-assign_font_int: begin n:=cur_chr; scan_font_ident; f:=cur_val;
+-  if n < lp_code_base then begin
+-@y
+-assign_font_int: begin n:=cur_chr; scan_font_ident; f:=cur_val;
+-  if n = no_lig_code then set_no_ligatures(f)
+-  else if n < lp_code_base then begin
+-@z
+-
+-@x [1254]
+-primitive("efcode",assign_font_int,ef_code_base);
+-@!@:ef_code_}{\.{\\efcode} primitive@>
+-@y
+-primitive("efcode",assign_font_int,ef_code_base);
+-@!@:ef_code_}{\.{\\efcode} primitive@>
+-primitive("pdfnoligatures",assign_font_int,no_lig_code);
+-@!@:no_lig_code_}{\.{\\pdfnoligatures} primitive@>
+-@z
+-
+-@x [1255]
+-ef_code_base: print_esc("efcode");
+-@y
+-ef_code_base: print_esc("efcode");
+-no_lig_code: print_esc("pdfnoligatures");
+-@z
+--- tetex-src-3.0/texk/web2c/pdftexdir/pdftosrc.1.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/pdftosrc.1	2007-01-21 16:44:00.000000000 +0100
+@@ -1,219 +0,0 @@
+-.\" Process this file with
+-.\" groff -man -Tascii pdftosrc.1
+-.\"
+-.\" $Id: pdftosrc.1,v 1.3 2005/11/04 18:55:24 hhenkel Exp $
+-.\"
+-.TH pdftosrc 1 "3 November 2005" "User Manuals"
+-.SH NAME
+-pdftosrc \- extract source file or stream from PDF file
+-.SH SYNOPSIS
+-.B pdftosrc
+-.I PDF-file
+-.R [
+-.I stream-object-number
+-.R ]
+-.SH DESCRIPTION
+-If only
+-.I PDF-file
+-is given as argument,
+-.B pdftosrc
+-extracts the embedded source file
+-from the first found stream object
+-with /Type /SourceFile within the
+-.I PDF-file
+-and writes it to a file with the name /SourceName
+-as defined in that PDF stream object
+-(see application example below).
+-
+-If both
+-.I PDF-file
+-and
+-.I stream-object-number
+-are given as arguments,
+-.B pdftosrc
+-extracts and uncompresses the PDF stream of the object
+-given by its
+-.I stream-object-number
+-from the
+-.I PDF-file
+-and writes it to a file named
+-.IR PDF-file . stream-object-number
+-with the ending
+-.I .pdf
+-or
+-.I .PDF
+-stripped from the original
+-.I PDF-file
+-name.
+-
+-In either case
+-an existing file with the output file name will be overwritten.
+-.SH OPTIONS
+-None.
+-.SH FILES
+-Just the executable
+-.BR pdftosrc .
+-.SH ENVIRONMENT
+-None.
+-.SH DIAGNOSTICS
+-At success the exit code of
+-.B pdftosrc
+-is 0, else 1.
+-
+-All messages go to stderr.
+-At program invocation,
+-.B pdftosrc
+-issues the current version number of the program
+-.BR xpdf ,
+-on which
+-.B pdftosrc
+-is based:
+-
+-.RS
+-pdftosrc version 3.00
+-
+-.RE
+-When
+-.B pdftosrc
+-was successful with the output file writing,
+-one of the following messages will be issued:
+-
+-.RS
+-Source file extracted to
+-.I source-file-name
+-
+-.RE
+-or
+-
+-.RS
+-Stream object extracted to
+-.IR PDF-file . stream-object-number
+-
+-.RE
+-
+-.RE
+-When the object given by the
+-.I stream-object-number
+-does not contain a stream,
+-.B pdftosrc
+-issues the following error message:
+-
+-.RS
+-Not a Stream object
+-
+-.RE
+-When the
+-.I PDF-file
+-can't be opened, the error message is:
+-
+-.RS
+-Error: Couldn't open file
+-.RI ' PDF-file '.
+-
+-.RE
+-When
+-.B pdftosrc
+-encounters an invalid PDF file,
+-the error message (several lines) is:
+-
+-.RS
+-Error: May not be a PDF file (continuing anyway)
+-.RE
+-.RS
+-(more lines)
+-.RE
+-.RS
+-Invalid PDF file
+-
+-.RE
+-There are also more error messages from
+-.B pdftosrc
+-for various kinds of broken PDF files.
+-.SH NOTES
+-An embedded source file will be written out unchanged,
+-i. e. it will not be uncompressed in this process.
+-
+-Only the stream of the object will be written,
+-i. e. not the dictionary of that object.
+-
+-Knowing which
+-.I stream-object-number
+-to query requires information about the PDF file
+-that has to be gained elsewhere,
+-e. g. by looking into the PDF file with an editor.
+-
+-The stream extraction capabilities of
+-.B pdftosrc
+-(e. g. regarding understood PDF versions and filter types)
+-follow the capabilities of the underlying
+-.B xpdf
+-program version.
+-
+-Currently the generation number of the stream object
+-is not supported.
+-The default value 0 (zero) is taken.
+-
+-The wording
+-.I stream-object-number
+-has nothing to do with the `object streams' introduced
+-by the Adobe PDF Reference,
+-5th edition, version 1.6.
+-.SH EXAMPLES
+-When using pdftex or pdfetex,
+-a source file can be embedded into some
+-.I PDF-file
+-by using pdftex primitives,
+-as illustrated by the following example:
+-
+-\\immediate\\pdfobj
+-.RE
+-    stream attr {/Type /SourceFile /SourceName (myfile.zip)}
+-.RS
+-.RE
+-    file{myfile.zip}
+-.RS
+-.RE
+-\\pdfcatalog{/SourceObject \\the\\pdflastobj\\space 0 R}
+-
+-Then this zip file can be extracted from the
+-.I PDF-file
+-by calling
+-.B pdftosrc
+-.IR PDF-file .
+-.SH BUGS
+-Not all embedded source files will be extracted,
+-only the first found one.
+-
+-Email bug reports to
+-.B pdftex@tug.org.
+-.SH SEE ALSO
+-.BR xpdf (1),
+-.BR pdfimages (1),
+-.BR pdftotext (1),
+-.BR pdftex (1),
+-.BR pdfetex (1).
+-.SH AUTHORS
+-.B pdftosrc
+-written by Han The Thanh, using
+-.B xpdf
+-functionality from Derek Noonburg.
+-
+-Man page written by Hartmut Henkel.
+-.SH COPYRIGHT
+-Copyright (c) 1996-2002 Han The Thanh, <thanh@pdftex.org>
+-
+-This file is part of pdfTeX.
+-
+-pdfTeX is free software; you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation; either version 2 of the License, or
+-(at your option) any later version.
+-
+-pdfTeX is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with pdfTeX; if not, write to the Free Software
+-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+--- tetex-src-3.0/texk/web2c/pdftexdir/vadjust.ch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/vadjust.ch	2007-01-21 16:44:03.000000000 +0100
+@@ -1,273 +0,0 @@
+-% WEB change file containing vadjust extension for pdfTeX 
+-%
+-% Copyright (c) 1996-2004 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: vadjust.ch,v 1.2 2004/08/01 12:12:23 olaf Exp $
+-
+-@x [142] - pre-vadjust
+-@d adjust_node=5 {|type| of an adjust node}
+-@y
+-@d adjust_node=5 {|type| of an adjust node}
+-@d adjust_pre == subtype  {pre-adjustment?}
+-@#{|append_list| is used to append a list to |tail|}
+-@d append_list(#) == begin link(tail) := link(#); append_list_end
+-@d append_list_end(#) == tail := #; end
+-
+-@z
+-
+-@x [162] - pre-vadjust
+-@d backup_head==mem_top-13 {head of token list built by |scan_keyword|}
+-@d hi_mem_stat_min==mem_top-13 {smallest statically allocated word in
+-  the one-word |mem|}
+-@d hi_mem_stat_usage=14 {the number of one-word nodes always present}
+-@y
+-@d backup_head==mem_top-13 {head of token list built by |scan_keyword|}
+-@d pre_adjust_head==mem_top-14  {head of pre-adjustment list returned by |hpack|}
+-@d hi_mem_stat_min==mem_top-14 {smallest statically allocated word in
+-  the one-word |mem|}
+-@d hi_mem_stat_usage=15 {the number of one-word nodes always present}
+-@z
+-
+-@x [197] - pre-vadjust
+-begin print_esc("vadjust"); node_list_display(adjust_ptr(p)); {recursive call}
+-@y
+-begin print_esc("vadjust"); if adjust_pre(p) <> 0 then print(" pre ");
+-node_list_display(adjust_ptr(p)); {recursive call}
+-@z
+-
+-@x [649] - pre-vadjust
+-if adjust_tail<>null then link(adjust_tail):=null;
+-@y
+-if adjust_tail<>null then link(adjust_tail):=null;
+-if pre_adjust_tail<>null then link(pre_adjust_tail):=null;
+-@z
+-
+-@x [655] - pre-vadjust
+-@<Transfer node |p| to the adjustment list@>=
+-begin while link(q)<>p do q:=link(q);
+-if type(p)=adjust_node then
+-  begin link(adjust_tail):=adjust_ptr(p);
+-  while link(adjust_tail)<>null do adjust_tail:=link(adjust_tail);
+-  p:=link(p); free_node(link(q),small_node_size);
+-  end
+-@y
+-@<Glob...@>=
+-@!pre_adjust_tail: pointer;
+-
+-@ @<Set init...@>=
+-pre_adjust_tail := null;
+-
+-@ Materials in \.{\\vadjust} used with \.{pre} keyword will be appended to
+-|pre_adjust_tail| instead of |adjust_tail|.
+-
+-@d update_adjust_list(#) == begin
+-    link(#) := adjust_ptr(p);
+-    while link(#) <> null do 
+-        # := link(#);
+-end
+-
+-@<Transfer node |p| to the adjustment list@>=
+-begin while link(q)<>p do q:=link(q);
+-    if type(p) = adjust_node then begin
+-        if adjust_pre(p) <> 0 then
+-            update_adjust_list(pre_adjust_tail)
+-        else
+-            update_adjust_list(adjust_tail);
+-        p := link(p); free_node(link(q), small_node_size);
+-    end
+-@z
+-
+-@x [770] - pre-vadjust
+-@d align_stack_node_size=5 {number of |mem| words to save alignment states}
+-@y
+-@d align_stack_node_size=6 {number of |mem| words to save alignment states}
+-@z
+-
+-@x [770] - pre-vadjust
+-@!cur_head,@!cur_tail:pointer; {adjustment list pointers}
+-@y
+-@!cur_head,@!cur_tail:pointer; {adjustment list pointers}
+-@!cur_pre_head,@!cur_pre_tail:pointer; {pre-adjustment list pointers}
+-@z
+-
+-@x [771] - pre-vadjust
+-cur_head:=null; cur_tail:=null;
+-@y
+-cur_head:=null; cur_tail:=null;
+-cur_pre_head:=null; cur_pre_tail:=null;
+-@z
+-
+-@x [772] - pre-vadjust
+-info(p+4):=cur_head; link(p+4):=cur_tail;
+-@y
+-info(p+4):=cur_head; link(p+4):=cur_tail;
+-info(p+5):=cur_pre_head; link(p+5):=cur_pre_tail;
+-@z
+-
+-@x [771] - pre-vadjust
+-cur_tail:=link(p+4); cur_head:=info(p+4);
+-@y
+-cur_tail:=link(p+4); cur_head:=info(p+4);
+-cur_pre_tail:=link(p+5); cur_pre_head:=info(p+5);
+-@z
+-
+-@x [786] - pre-vadjust
+-cur_align:=link(preamble); cur_tail:=cur_head; init_span(cur_align);
+-@y
+-cur_align:=link(preamble); cur_tail:=cur_head; cur_pre_tail:=cur_pre_head;
+-init_span(cur_align);
+-@z
+-
+-@x [791] - pre-vadjust
+-  begin adjust_tail:=cur_tail; u:=hpack(link(head),natural); w:=width(u);
+-  cur_tail:=adjust_tail; adjust_tail:=null;
+-  end
+-@y
+-  begin adjust_tail:=cur_tail; pre_adjust_tail:=cur_pre_tail;
+-  u:=hpack(link(head),natural); w:=width(u);
+-  cur_tail:=adjust_tail; adjust_tail:=null;
+-  cur_pre_tail:=pre_adjust_tail; pre_adjust_tail:=null;
+-  end
+-@z
+-
+-@x [799] - pre-vadjust
+-  pop_nest; append_to_vlist(p);
+-  if cur_head<>cur_tail then
+-    begin link(tail):=link(cur_head); tail:=cur_tail;
+-    end;
+-@y
+-  pop_nest;
+-  if cur_pre_head <> cur_pre_tail then
+-      append_list(cur_pre_head)(cur_pre_tail);
+-  append_to_vlist(p);
+-  if cur_head <> cur_tail then
+-      append_list(cur_head)(cur_tail);
+-@z
+-
+-@x [888] - pre-vadjust
+-append_to_vlist(just_box);
+-if adjust_head<>adjust_tail then
+-  begin link(tail):=link(adjust_head); tail:=adjust_tail;
+-   end;
+-adjust_tail:=null
+-@y
+-if pre_adjust_head <> pre_adjust_tail then
+-    append_list(pre_adjust_head)(pre_adjust_tail);
+-pre_adjust_tail := null;
+-append_to_vlist(just_box);
+-if adjust_head <> adjust_tail then
+-    append_list(adjust_head)(adjust_tail);
+-adjust_tail := null
+-@z
+-
+-@x
+-adjust_tail:=adjust_head;
+-@y
+-adjust_tail:=adjust_head;
+-pre_adjust_tail := pre_adjust_head;
+-@z
+-
+-@x [1076] - pre-vadjust
+-    begin append_to_vlist(cur_box);
+-    if adjust_tail<>null then
+-      begin if adjust_head<>adjust_tail then
+-        begin link(tail):=link(adjust_head); tail:=adjust_tail;
+-        end;
+-      adjust_tail:=null;
+-      end;
+-@y
+-    begin 
+-        if pre_adjust_tail <> null then begin
+-            if pre_adjust_head <> pre_adjust_tail then
+-                append_list(pre_adjust_head)(pre_adjust_tail);
+-            pre_adjust_tail := null;
+-        end;
+-        append_to_vlist(cur_box);
+-        if adjust_tail <> null then begin
+-            if adjust_head <> adjust_tail then
+-                append_list(adjust_head)(adjust_tail);
+-            adjust_tail := null;
+-        end;
+-@z
+-
+-@x [1085] - pre-vadjust
+-adjusted_hbox_group: begin adjust_tail:=adjust_head; package(0);
+-@y
+-adjusted_hbox_group: begin adjust_tail:=adjust_head; 
+-    pre_adjust_tail:=pre_adjust_head; package(0);
+-@z
+-
+-@x [1099] - pre-vadjust
+-saved(0):=cur_val; incr(save_ptr);
+-new_save_level(insert_group); scan_left_brace; normal_paragraph;
+-push_nest; mode:=-vmode; prev_depth:=ignore_depth;
+-end;
+-@y
+-saved(0) := cur_val;
+-if (cur_cmd = vadjust) and scan_keyword("pre") then
+-    saved(1) := 1
+-else
+-    saved(1) := 0;
+-save_ptr := save_ptr + 2;
+-new_save_level(insert_group); scan_left_brace; normal_paragraph;
+-push_nest; mode:=-vmode; prev_depth:=ignore_depth;
+-end;
+-@z
+-
+-@x [1100] - pre-vadjust
+-  d:=split_max_depth; f:=floating_penalty; unsave; decr(save_ptr);
+-@y
+-  d:=split_max_depth; f:=floating_penalty; unsave; save_ptr := save_ptr - 2;
+-@z
+-
+-@x [1100] - pre-vadjust
+-    subtype(tail):=0; {the |subtype| is not used}
+-@y
+-    adjust_pre(tail) := saved(1); {the |subtype| is used for |adjust_pre|}
+-@z
+-
+-@x [1198] - pre-vadjust
+-@!t:pointer; {tail of adjustment list}
+-@y
+-@!t:pointer; {tail of adjustment list}
+-@!pre_t:pointer; {tail of pre-adjustment list}
+-@z
+-
+-@x [1199] - pre-vadjust
+-adjust_tail:=adjust_head; b:=hpack(p,natural); p:=list_ptr(b);
+-t:=adjust_tail; adjust_tail:=null;@/
+-@y
+-adjust_tail:=adjust_head; pre_adjust_tail:=pre_adjust_head;
+-b:=hpack(p,natural); p:=list_ptr(b);
+-t:=adjust_tail; adjust_tail:=null;@/
+-pre_t:=pre_adjust_tail; pre_adjust_tail:=null;@/
+-@z
+-
+-@x [1205] - pre-vadjust
+-if t<>adjust_head then {migrating material comes after equation number}
+-  begin link(tail):=link(adjust_head); tail:=t;
+-  end;
+-@y
+-if t<>adjust_head then {migrating material comes after equation number}
+-  begin link(tail):=link(adjust_head); tail:=t;
+-  end;
+-if pre_t<>pre_adjust_head then
+-  begin link(tail):=link(pre_adjust_head); tail:=pre_t;
+-  end;
+-@z
+--- tetex-src-3.0/texk/web2c/pdftexdir/randoms.ch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/randoms.ch	2007-01-21 16:44:08.000000000 +0100
+@@ -1,569 +0,0 @@
+-% randoms.ch
+-% Copyright (c) 2005 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/pdftex.ch#163 $
+-%
+-% This is a WEB change file for pseudo-random numbers in pdftex 1.30 and above.
+-%
+-% There are four new primitives:
+-%
+-% \pdfuniformdeviate <count>
+-%   Generates a uniformly distributed random integer value
+-%   between 0 (inclusive) and <count> (exclusive).
+-%   This primitive expands to a list of tokens.
+-%
+-% \pdfnormaldeviate
+-%   Expands to a random integer value with a mean of 0 and a 
+-%   unit of 65536. 
+-%   This primitive expands to a list of tokens.
+-%
+-% \pdfrandomseed 
+-%   You can use \the\pdfrandomseed to query the current seed value,
+-%   so you can e.g. the value to the log file.
+-%
+-%   The initial value of the seed is derived from the system time, 
+-%   and is not more than 1,000,999,999 (this ensures that the value
+-%   can be used with commands like \count).
+-%
+-% \pdfsetrandomseed <count>
+-%   This sets the random seed to a specific value, allowing you
+-%   to re-play sequences of semi-randoms at a later moment. 
+-%
+-% Most of the actual code is taken from metapost, and originally
+-% written by Knuth, for Metafont. Glue to make it work in TeX is
+-% by me. If you find an error, it is bound to be in my code,
+-% not Knuth's :-)
+-% 
+-% Taco Hoekwater (taco@metatex.org), june 27, 2005. No restrictions.
+-
+-@x
+-@* \[8] Packed data.
+-@y
+-@* \[7b] Random numbers.
+-
+-\font\tenlogo=logo10 % font used for the METAFONT logo
+-\def\MP{{\tenlogo META}\-{\tenlogo POST}}
+-
+-This section is (almost) straight from MetaPost. I had to change
+-the types (use |integer| instead of |fraction|), but that should
+-not have any influence on the actual calculations (the original
+-comments refer to quantities like |fraction_four| ($2^{30}$), and 
+-that is the same as the numeric representation of |maxdimen|).
+-
+-I've copied the low-level variables and routines that are needed, but 
+-only those (e.g. |m_log|), not the accompanying ones like |m_exp|. Most
+-of the following low-level numeric routines are only needed within the
+-calculation of |norm_rand|. I've been forced to rename |make_fraction|
+-to |make_frac| because TeX already has a routine by that name with
+-a wholly different function (it creates a |fraction_noad| for math
+-typesetting) -- Taco
+-
+-And now let's complete our collection of numeric utility routines
+-by considering random number generation.
+-\MP\ generates pseudo-random numbers with the additive scheme recommended
+-in Section 3.6 of {\sl The Art of Computer Programming}; however, the
+-results are random fractions between 0 and |fraction_one-1|, inclusive.
+-
+-There's an auxiliary array |randoms| that contains 55 pseudo-random
+-fractions. Using the recurrence $x_n=(x_{n-55}-x_{n-31})\bmod 2^{28}$,
+-we generate batches of 55 new $x_n$'s at a time by calling |new_randoms|.
+-The global variable |j_random| tells which element has most recently
+-been consumed.
+-
+-@<Glob...@>=
+-@!randoms:array[0..54] of integer; {the last 55 random values generated}
+-@!j_random:0..54; {the number of unused |randoms|}
+-@!random_seed:scaled; {the default random seed}
+-
+-@ A small bit of metafont is needed.
+-
+-@d fraction_half==@'1000000000 {$2^{27}$, represents 0.50000000}
+-@d fraction_one==@'2000000000 {$2^{28}$, represents 1.00000000}
+-@d fraction_four==@'10000000000 {$2^{30}$, represents 4.00000000}
+-@d el_gordo == @'17777777777 {$2^{31}-1$, the largest value that \MP\ likes}
+-@d halfp(#)==(#) div 2
+-@d double(#) == #:=#+# {multiply a variable by two}
+-
+-@ The |make_frac| routine produces the |fraction| equivalent of
+-|p/q|, given integers |p| and~|q|; it computes the integer
+-$f=\lfloor2^{28}p/q+{1\over2}\rfloor$, when $p$ and $q$ are
+-positive. If |p| and |q| are both of the same scaled type |t|,
+-the ``type relation'' |make_frac(t,t)=fraction| is valid;
+-and it's also possible to use the subroutine ``backwards,'' using
+-the relation |make_frac(t,fraction)=t| between scaled types.
+-
+-If the result would have magnitude $2^{31}$ or more, |make_frac|
+-sets |arith_error:=true|. Most of \MP's internal computations have
+-been designed to avoid this sort of error.
+-
+-If this subroutine were programmed in assembly language on a typical
+-machine, we could simply compute |(@t$2^{28}$@>*p)div q|, since a
+-double-precision product can often be input to a fixed-point division
+-instruction. But when we are restricted to \PASCAL\ arithmetic it
+-is necessary either to resort to multiple-precision maneuvering
+-or to use a simple but slow iteration. The multiple-precision technique
+-would be about three times faster than the code adopted here, but it
+-would be comparatively long and tricky, involving about sixteen
+-additional multiplications and divisions.
+-
+-This operation is part of \MP's ``inner loop''; indeed, it will
+-consume nearly 10\pct! of the running time (exclusive of input and output)
+-if the code below is left unchanged. A machine-dependent recoding
+-will therefore make \MP\ run faster. The present implementation
+-is highly portable, but slow; it avoids multiplication and division
+-except in the initial stage. System wizards should be careful to
+-replace it with a routine that is guaranteed to produce identical
+-results in all cases.
+-@^system dependencies@>
+-
+-As noted below, a few more routines should also be replaced by machine-dependent
+-code, for efficiency. But when a procedure is not part of the ``inner loop,''
+-such changes aren't advisable; simplicity and robustness are
+-preferable to trickery, unless the cost is too high.
+-@^inner loop@>
+-
+-@p function make_frac(@!p,@!q:integer):integer;
+-var @!f:integer; {the fraction bits, with a leading 1 bit}
+-@!n:integer; {the integer part of $\vert p/q\vert$}
+-@!negative:boolean; {should the result be negated?}
+-@!be_careful:integer; {disables certain compiler optimizations}
+-begin if p>=0 then negative:=false
+-else  begin negate(p); negative:=true;
+-  end;
+-if q<=0 then
+-  begin debug if q=0 then confusion("/");@;@+gubed@;@/
+-@:this can't happen /}{\quad \./@>
+-  negate(q); negative:=not negative;
+-  end;
+-n:=p div q; p:=p mod q;
+-if n>=8 then
+-  begin arith_error:=true;
+-  if negative then make_frac:=-el_gordo@+else make_frac:=el_gordo;
+-  end
+-else  begin n:=(n-1)*fraction_one;
+-  @<Compute $f=\lfloor 2^{28}(1+p/q)+{1\over2}\rfloor$@>;
+-  if negative then make_frac:=-(f+n)@+else make_frac:=f+n;
+-  end;
+-end;
+-
+-@ The |repeat| loop here preserves the following invariant relations
+-between |f|, |p|, and~|q|:
+-(i)~|0<=p<q|; (ii)~$fq+p=2^k(q+p_0)$, where $k$ is an integer and
+-$p_0$ is the original value of~$p$.
+-
+-Notice that the computation specifies
+-|(p-q)+p| instead of |(p+p)-q|, because the latter could overflow.
+-Let us hope that optimizing compilers do not miss this point; a
+-special variable |be_careful| is used to emphasize the necessary
+-order of computation. Optimizing compilers should keep |be_careful|
+-in a register, not store it in memory.
+-@^inner loop@>
+-
+-@<Compute $f=\lfloor 2^{28}(1+p/q)+{1\over2}\rfloor$@>=
+-f:=1;
+-repeat be_careful:=p-q; p:=be_careful+p;
+-if p>=0 then f:=f+f+1
+-else  begin double(f); p:=p+q;
+-  end;
+-until f>=fraction_one;
+-be_careful:=p-q;
+-if be_careful+p>=0 then incr(f)
+-
+-@ 
+-
+-@p function take_frac(@!q:integer;@!f:integer):integer;
+-var @!p:integer; {the fraction so far}
+-@!negative:boolean; {should the result be negated?}
+-@!n:integer; {additional multiple of $q$}
+-@!be_careful:integer; {disables certain compiler optimizations}
+-begin @<Reduce to the case that |f>=0| and |q>0|@>;
+-if f<fraction_one then n:=0
+-else  begin n:=f div fraction_one; f:=f mod fraction_one;
+-  if q<=el_gordo div n then n:=n*q
+-  else  begin arith_error:=true; n:=el_gordo;
+-    end;
+-  end;
+-f:=f+fraction_one;
+-@<Compute $p=\lfloor qf/2^{28}+{1\over2}\rfloor-q$@>;
+-be_careful:=n-el_gordo;
+-if be_careful+p>0 then
+-  begin arith_error:=true; n:=el_gordo-p;
+-  end;
+-if negative then take_frac:=-(n+p)
+-else take_frac:=n+p;
+-end;
+-
+-@ @<Reduce to the case that |f>=0| and |q>0|@>=
+-if f>=0 then negative:=false
+-else  begin negate(f); negative:=true;
+-  end;
+-if q<0 then
+-  begin negate(q); negative:=not negative;
+-  end;
+-
+-@ The invariant relations in this case are (i)~$\lfloor(qf+p)/2^k\rfloor
+-=\lfloor qf_0/2^{28}+{1\over2}\rfloor$, where $k$ is an integer and
+-$f_0$ is the original value of~$f$; (ii)~$2^k\L f<2^{k+1}$.
+-@^inner loop@>
+-
+-@<Compute $p=\lfloor qf/2^{28}+{1\over2}\rfloor-q$@>=
+-p:=fraction_half; {that's $2^{27}$; the invariants hold now with $k=28$}
+-if q<fraction_four then
+-  repeat if odd(f) then p:=halfp(p+q)@+else p:=halfp(p);
+-  f:=halfp(f);
+-  until f=1
+-else  repeat if odd(f) then p:=p+halfp(q-p)@+else p:=halfp(p);
+-  f:=halfp(f);
+-  until f=1
+-
+-@ The subroutines for logarithm and exponential involve two tables.
+-The first is simple: |two_to_the[k]| equals $2^k$. The second involves
+-a bit more calculation, which the author claims to have done correctly:
+-|spec_log[k]| is $2^{27}$ times $\ln\bigl(1/(1-2^{-k})\bigr)=
+-2^{-k}+{1\over2}2^{-2k}+{1\over3}2^{-3k}+\cdots\,$, rounded to the
+-nearest integer.
+-
+-@<Glob...@>=
+-@!two_to_the:array[0..30] of integer; {powers of two}
+-@!spec_log:array[1..28] of integer; {special logarithms}
+-
+-
+-@ @<Set init...@>=
+-two_to_the[0]:=1;
+-for k:=1 to 30 do two_to_the[k]:=2*two_to_the[k-1];
+-spec_log[1]:=93032640;
+-spec_log[2]:=38612034;
+-spec_log[3]:=17922280;
+-spec_log[4]:=8662214;
+-spec_log[5]:=4261238;
+-spec_log[6]:=2113709;
+-spec_log[7]:=1052693;
+-spec_log[8]:=525315;
+-spec_log[9]:=262400;
+-spec_log[10]:=131136;
+-spec_log[11]:=65552;
+-spec_log[12]:=32772;
+-spec_log[13]:=16385;
+-for k:=14 to 27 do spec_log[k]:=two_to_the[27-k];
+-spec_log[28]:=1;
+-
+-@ 
+-
+-@p function m_log(@!x:integer):integer;
+-var @!y,@!z:integer; {auxiliary registers}
+-@!k:integer; {iteration counter}
+-begin if x<=0 then @<Handle non-positive logarithm@>
+-else  begin y:=1302456956+4-100; {$14\times2^{27}\ln2\approx1302456956.421063$}
+-  z:=27595+6553600; {and $2^{16}\times .421063\approx 27595$}
+-  while x<fraction_four do
+-    begin double(x); y:=y-93032639; z:=z-48782;
+-    end; {$2^{27}\ln2\approx 93032639.74436163$
+-      and $2^{16}\times.74436163\approx 48782$}
+-  y:=y+(z div unity); k:=2;
+-  while x>fraction_four+4 do
+-    @<Increase |k| until |x| can be multiplied by a
+-      factor of $2^{-k}$, and adjust $y$ accordingly@>;
+-  m_log:=y div 8;
+-  end;
+-end;
+-
+-@ @<Increase |k| until |x| can...@>=
+-begin z:=((x-1) div two_to_the[k])+1; {$z=\lceil x/2^k\rceil$}
+-while x<fraction_four+z do
+-  begin z:=halfp(z+1); k:=k+1;
+-  end;
+-y:=y+spec_log[k]; x:=x-z;
+-end
+-
+-@ @<Handle non-positive logarithm@>=
+-begin print_err("Logarithm of ");
+-@.Logarithm...replaced by 0@>
+-print_scaled(x); print(" has been replaced by 0");
+-help2("Since I don't take logs of non-positive numbers,")@/
+-  ("I'm zeroing this one. Proceed, with fingers crossed.");
+-error; m_log:=0;
+-end
+-
+-@ The following somewhat different subroutine tests rigorously if $ab$ is
+-greater than, equal to, or less than~$cd$,
+-given integers $(a,b,c,d)$. In most cases a quick decision is reached.
+-The result is $+1$, 0, or~$-1$ in the three respective cases.
+-
+-@d return_sign(#)==begin ab_vs_cd:=#; return;
+-  end
+-
+-@p function ab_vs_cd(@!a,b,c,d:integer):integer;
+-label exit;
+-var @!q,@!r:integer; {temporary registers}
+-begin @<Reduce to the case that |a,c>=0|, |b,d>0|@>;
+-loop@+  begin q := a div d; r := c div b;
+-  if q<>r then
+-    if q>r then return_sign(1)@+else return_sign(-1);
+-  q := a mod d; r := c mod b;
+-  if r=0 then
+-    if q=0 then return_sign(0)@+else return_sign(1);
+-  if q=0 then return_sign(-1);
+-  a:=b; b:=q; c:=d; d:=r;
+-  end; {now |a>d>0| and |c>b>0|}
+-exit:end;
+-
+-@ @<Reduce to the case that |a...@>=
+-if a<0 then
+-  begin negate(a); negate(b);
+-  end;
+-if c<0 then
+-  begin negate(c); negate(d);
+-  end;
+-if d<=0 then
+-  begin if b>=0 then
+-    if ((a=0)or(b=0))and((c=0)or(d=0)) then return_sign(0)
+-    else return_sign(1);
+-  if d=0 then
+-    if a=0 then return_sign(0)@+else return_sign(-1);
+-  q:=a; a:=c; c:=q; q:=-b; b:=-d; d:=q;
+-  end
+-else if b<=0 then
+-  begin if b<0 then if a>0 then return_sign(-1);
+-  if c=0 then return_sign(0) else return_sign(-1);
+-  end
+-
+-@ To consume a random integer, the program below will say `|next_random|'
+-and then it will fetch |randoms[j_random]|.
+-
+-@d next_random==if j_random=0 then new_randoms
+-  else decr(j_random)
+-
+-@p procedure new_randoms;
+-var @!k:0..54; {index into |randoms|}
+-@!x:integer; {accumulator}
+-begin for k:=0 to 23 do
+-  begin x:=randoms[k]-randoms[k+31];
+-  if x<0 then x:=x+fraction_one;
+-  randoms[k]:=x;
+-  end;
+-for k:=24 to 54 do
+-  begin x:=randoms[k]-randoms[k-24];
+-  if x<0 then x:=x+fraction_one;
+-  randoms[k]:=x;
+-  end;
+-j_random:=54;
+-end;
+-
+-@ To initialize the |randoms| table, we call the following routine.
+-
+-@p procedure init_randoms(@!seed:integer);
+-var @!j,@!jj,@!k:integer; {more or less random integers}
+-@!i:0..54; {index into |randoms|}
+-begin j:=abs(seed);
+-while j>=fraction_one do j:=halfp(j);
+-k:=1;
+-for i:=0 to 54 do
+-  begin jj:=k; k:=j-k; j:=jj;
+-  if k<0 then k:=k+fraction_one;
+-  randoms[(i*21)mod 55]:=j;
+-  end;
+-new_randoms; new_randoms; new_randoms; {``warm up'' the array}
+-end;
+-
+-@ To produce a uniform random number in the range |0<=u<x| or |0>=u>x|
+-or |0=u=x|, given a |scaled| value~|x|, we proceed as shown here.
+-
+-Note that the call of |take_frac| will produce the values 0 and~|x|
+-with about half the probability that it will produce any other particular
+-values between 0 and~|x|, because it rounds its answers.
+-
+-@p function unif_rand(@!x:integer):integer;
+-var @!y:integer; {trial value}
+-begin next_random; y:=take_frac(abs(x),randoms[j_random]);
+-if y=abs(x) then unif_rand:=0
+-else if x>0 then unif_rand:=y
+-else unif_rand:=-y;
+-end;
+-
+-@ Finally, a normal deviate with mean zero and unit standard deviation
+-can readily be obtained with the ratio method (Algorithm 3.4.1R in
+-{\sl The Art of Computer Programming\/}).
+-
+-@p function norm_rand:integer;
+-var @!x,@!u,@!l:integer; {what the book would call $2^{16}X$, $2^{28}U$,
+-  and $-2^{24}\ln U$}
+-begin repeat
+-  repeat next_random;
+-  x:=take_frac(112429,randoms[j_random]-fraction_half);
+-    {$2^{16}\sqrt{8/e}\approx 112428.82793$}
+-  next_random; u:=randoms[j_random];
+-  until abs(x)<u;
+-x:=make_frac(x,u);
+-l:=139548960-m_log(u); {$2^{24}\cdot12\ln2\approx139548959.6165$}
+-until ab_vs_cd(1024,l,x,x)>=0;
+-norm_rand:=x;
+-end;
+-
+-@* \[8] Packed data.
+-@z
+-
+-@x l.388
+-@d pdftex_last_item_codes     = pdftex_first_rint_code + 11 {end of \pdfTeX's command codes}
+-@y
+-@d random_seed_code           = pdftex_first_rint_code + 12 {code for \.{\\pdfrandomseed}}
+-@d pdftex_last_item_codes     = pdftex_first_rint_code + 12 {end of \pdfTeX's command codes}
+-@z
+-
+-@x  l.417
+-primitive("pdfelapsedtime",last_item,elapsed_time_code);
+-@!@:elapsed_time_}{\.{\\pdfelapsedtime} primitive@>
+-@y
+-primitive("pdfelapsedtime",last_item,elapsed_time_code);
+-@!@:elapsed_time_}{\.{\\pdfelapsedtime} primitive@>
+-primitive("pdfrandomseed",last_item,random_seed_code);
+-@!@:random_seed_}{\.{\\pdfrandomseed} primitive@>
+-@z
+-
+-@x l.434
+-  elapsed_time_code: print_esc("pdfelapsedtime");
+-@y
+-  elapsed_time_code: print_esc("pdfelapsedtime");
+-  random_seed_code: print_esc("pdfrandomseed");
+-@z
+-
+-@x l.461
+-  elapsed_time_code: cur_val := get_microinterval;
+-@y
+-  elapsed_time_code: cur_val := get_microinterval;
+-  random_seed_code:  cur_val := random_seed;
+-@z
+-
+-@x
+-@d pdftex_convert_codes     = pdftex_first_expand_code + 21 {end of \pdfTeX's command codes}
+-@y
+-@d uniform_deviate_code     = pdftex_first_expand_code + 21 {end of \pdfTeX's command codes}
+-@d normal_deviate_code      = pdftex_first_expand_code + 22 {end of \pdfTeX's command codes}
+-@d pdftex_convert_codes     = pdftex_first_expand_code + 23 {end of \pdfTeX's command codes}
+-@z
+-
+-@x
+-primitive("jobname",convert,job_name_code);@/
+-@y
+-primitive("pdfuniformdeviate",convert,uniform_deviate_code);@/
+-@!@:uniform_deviate_}{\.{\\pdfuniformdeviate} primitive@>
+-primitive("pdfnormaldeviate",convert,normal_deviate_code);@/
+-@!@:normal_deviate_}{\.{\\pdfnormaldeviate} primitive@>
+-primitive("jobname",convert,job_name_code);@/
+-@z
+-
+-@x
+-  othercases print_esc("jobname")
+-@y
+-  uniform_deviate_code:     print_esc("pdfuniformdeviate");
+-  normal_deviate_code:      print_esc("pdfnormaldeviate");
+-  othercases print_esc("jobname")
+-@z
+-
+-@x
+-pdf_strcmp_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    compare_strings;
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-  end;
+-job_name_code: if job_name=0 then open_log_file;
+-@y
+-pdf_strcmp_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    compare_strings;
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-  end;
+-job_name_code: if job_name=0 then open_log_file;
+-uniform_deviate_code:     scan_int;
+-normal_deviate_code:      do_nothing;
+-@z
+-
+-@x
+-job_name_code: print(job_name);
+-@y
+-uniform_deviate_code:     print_int(unif_rand(cur_val));
+-normal_deviate_code:      print_int(norm_rand);
+-job_name_code: print(job_name);
+-@z
+-
+-
+-@x
+-@<Compute the magic offset@>;
+-@y
+-random_seed :=(microseconds*1000)+(epochseconds mod 1000000);@/
+-init_randoms(random_seed);@/
+-@<Compute the magic offset@>;
+-@z
+-
+-@x l. 4562
+-@d pdftex_last_extension_code  == pdftex_first_extension_code + 25
+-@y
+-@d set_random_seed_code        == pdftex_first_extension_code + 26
+-@d pdftex_last_extension_code  == pdftex_first_extension_code + 26
+-@z
+-
+-@x l.4625
+-primitive("pdfresettimer",extension,reset_timer_code);@/
+-@!@:reset_timer_}{\.{\\pdfresettimer} primitive@>
+-@y
+-primitive("pdfresettimer",extension,reset_timer_code);@/
+-@!@:reset_timer_}{\.{\\pdfresettimer} primitive@>
+-primitive("pdfsetrandomseed",extension,set_random_seed_code);@/
+-@!@:set_random_seed_code}{\.{\\pdfsetrandomseed} primitive@>
+-@z
+-
+-@x
+-  reset_timer_code: print_esc("pdfresettimer");
+-@y
+-  reset_timer_code: print_esc("pdfresettimer");
+-  set_random_seed_code: print_esc("pdfsetrandomseed");
+-@z
+-
+-@x
+-reset_timer_code: @<Implement \.{\\pdfresettimer}@>;
+-@y
+-reset_timer_code: @<Implement \.{\\pdfresettimer}@>;
+-set_random_seed_code: @<Implement \.{\\pdfsetrandomseed}@>;
+-@z
+-
+-@x
+-@ @<Implement \.{\\pdfresettimer}@>=
+-@y
+-@ Negative random seed values are silently converted to positive ones
+-
+-@<Implement \.{\\pdfsetrandomseed}@>=
+-begin
+-  scan_int;
+-  if cur_val<0 then negate(cur_val); 
+-  random_seed := cur_val;
+-  init_randoms(random_seed);
+-end
+-
+-@ @<Implement \.{\\pdfresettimer}@>=
+-@z
+-
+--- tetex-src-3.0/texk/web2c/pdftexdir/pdftex.mak.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/pdftex.mak	2007-01-21 16:44:13.000000000 +0100
+@@ -1,199 +0,0 @@
+-################################################################################
+-#
+-# Makefile  : pdftex, web2c win32.mak fragment to build pdfTeX
+-# Author    : Fabrice Popineau <Fabrice.Popineau@supelec.fr>
+-# Platform  : Win32, Microsoft VC++ 6.0, depends upon fpTeX 0.5 sources
+-# Time-stamp: <04/03/20 16:40:35 popineau>
+-#
+-################################################################################
+-
+-# The libraries are not mentioned.  As the matter stands, a change in their
+-# number or how they are configured requires changes to the main distribution
+-# anyway.
+-
+-Makefile: pdftexdir\pdftex.mk
+-
+-pdftex_bin = $(objdir)\pdftex.exe $(objdir)\pdfetex.exe $(objdir)\ttf2afm.exe $(objdir)\pdftosrc.exe
+-# pdftex_exe = pdftex.exe pdfetex.exe ttf2afm.exe pdftosrc.exe
+-pdftex_pool = pdftex.pool pdfetex.pool
+-# linux_build_dir = $(HOME)\pdftex\build\linux\texk\web2c
+-
+-# We build pdftex
+-pdftex = $(objdir)\pdftex.exe
+-!ifdef TEX_DLL
+-pdftex = $(pdftex) $(objdir)\$(library_prefix)pdftex.dll
+-!endif
+-
+-# The C sources.
+-pdftex_c = pdftex.c
+-pdftex_o = $(objdir)\pdftex.obj
+-
+-# Making pdftex
+-!ifdef TEX_DLL
+-$(objdir)\$(library_prefix)pdftex.exp: $(objdir)\$(library_prefix)pdftex.lib
+-
+-$(objdir)\$(library_prefix)pdftex.lib: $(pdftex_o)
+-	$(archive) /DEF $(pdftex_o)
+-
+-$(objdir)\$(library_prefix)pdftex.dll: $(pdftex_o) $(objdir)\$(library_prefix)pdftex.exp $(objdir)\pdftex.res $(pdftexlibs) $(kpathsealib) $(proglib)
+-	$(link_dll) $(**) $(socketlibs) $(conlibs)
+-
+-$(objdir)\pdftex.exe: $(objdir)\win32main.obj $(objdir)\$(library_prefix)pdftex.lib $(kpathsealib) $(proglib)
+-	$(link) $(**) $(conlibs)
+-!else
+-$(objdir)\pdftex.exe: $(pdftex_o) $(objdir)\win32main.obj $(objdir)\pdftex.res $(pdftexlibs) $(kpathsealib) $(proglib)
+-	$(link) $(**) $(socketlibs) $(conlibs)
+-!endif
+-
+-# C file dependencies.
+-$(pdftex_c) pdftexcoerce.h pdftexd.h: pdftex.p $(web2c_texmf)
+-	$(web2c) pdftex
+-
+-# Tangling.
+-pdftex.p pdftex.pool: .\$(objdir)\tangle.exe pdftex.web pdftex.ch
+-	.\$(objdir)\tangle pdftex.web pdftex.ch
+-
+-# Generation of the web and ch files.
+-pdftex.web: $(objdir)\tie.exe \
+-	tex.web \
+-        pdftexdir/pdftex.ch \
+-        pdftexdir/hz.ch \
+-        pdftexdir/misc.ch \
+-	# pdftexdir\pdftex.mak
+-	.\$(objdir)\tie -m pdftex.web tex.web \
+-	pdftexdir\pdftex.ch \
+-	$(srcdir)/pdftexdir/hz.ch  \
+-	$(srcdir)/pdftexdir/misc.ch
+-
+-pdftex.ch: $(objdir)\tie.exe pdftex.web	\
+-	   pdftexdir\tex.ch0		\
+-	   tex.ch			\
+-	   tex-supp-w32.ch		\
+-	   pdftexdir\tex.ch1		\
+-	   pdftexdir\tex.pch		\
+-	   pdftexdir\tex.ch2
+-#	   pdftexdir\pdftex.mak
+-	.\$(objdir)\tie -c pdftex.ch    \
+-	   pdftex.web 			\
+-	   $(srcdir)\pdftexdir\tex.ch0	\
+-	   tex.ch			\
+-	   tex-supp-w32.ch		\
+-	   $(srcdir)\pdftexdir\tex.ch1	\
+-	   $(srcdir)\pdftexdir\tex.pch	\
+-	   $(srcdir)\pdftexdir\tex.ch2
+-
+-# Tests...
+-check: pdftex-check
+-pdftex-check: pdftex pdftex.fmt
+-
+-# Cleaning up.
+-clean:: pdftex-clean
+-pdftex-clean:
+-#	$(LIBTOOL) --mode=clean $(RM) pdftex
+-	-@echo $(verbose) & ( \
+-		for %%i in ($(pdftex_o) $(pdftex_c) pdftexextra.c pdftexcoerce.h \
+-			    pdftexd.h pdftex.p pdftex.pool pdftex.web pdftex.ch \
+-                            pdftex.fmt pdftex.log) do $(del) %%i $(redir_stderr) \
+-	)
+-
+-# Dumps.
+-# all_pdffmts = pdftex.fmt $(pdffmts)
+-
+-# dumps: pdffmts
+-# pdffmts: $(all_pdffmts)
+-# pdftex.fmt: $(pdftex)
+-# 	$(dumpenv) $(make) progname=pdftex files="plain.tex cmr10.tfm" prereq-check
+-# 	$(dumpenv) .\$(objdir)\pdftex --progname=pdftex --jobname=pdftex --ini "\pdfoutput=1 \input plain \dump" <nul
+-# 
+-# pdfolatex.fmt: $(pdftex)
+-# 	$(dumpenv) $(make) progname=pdfolatex files="latex.ltx" prereq-check
+-# 	$(dumpenv) .\$(objdir)\pdftex --progname=pdfolatex --jobname=pdfolatex --ini "\pdfoutput=1 \input latex.ltx" <nul
+-# 
+-# pdflatex.fmt: $(pdftex)
+-# 	$(dumpenv) $(make) progname=pdflatex files="latex.ltx" prereq-check
+-# 	$(dumpenv) .\$(objdir)\pdftex --progname=pdflatex --jobname=pdflatex --ini "\pdfoutput=1 \input latex.ltx" <nul
+-# 
+-# 
+-# Installation.
+-install-pdftex: install-pdftex-exec install-pdftex-data
+-install-pdftex-exec: install-pdftex-links
+-# install-pdftex-data: install-pdftex-dumps
+-install-pdftex-dumps: install-pdftex-fmts
+-
+-# The actual binary executables and pool files.
+-install-programs: install-pdftex-programs
+-install-pdftex-programs: $(pdftex) $(bindir)
+-	-@echo $(verbose) & ( \
+-	  for %%p in ($(pdftex)) do $(copy) %%p $(bindir) \
+-	) $(redir_stdout)
+-
+-# install-links: install-pdftex-links
+-install-pdftex-links: install-pdftex-programs
+-# 	-@echo $(verbose) & ( \
+-# 	  pushd $(bindir) & \
+-# 	    $(del) .\pdfinitex.exe .\pdfvirtex.exe & \
+-# 	    $(lnexe) .\pdftex.exe $(bindir)\pdfinitex.exe & \
+-# 	    $(lnexe) .\pdftex.exe $(bindir)\pdfvirtex.exe & \
+-# 	 popd \
+-# 	) $(redir_stdout)
+-	-@echo $(verbose) & ( \
+-	  if not "$(pdffmts)"=="" \
+-	    for %%i in ($(pdffmts)) do \
+-              pushd $(bindir) & \
+-                $(del) .\%%~ni.exe & \
+-	        $(lnexe) .\pdftex.exe $(bindir)\%%~ni.exe & \
+-	      popd \
+-	) $(redir_stdout)
+-
+-# install-fmts: install-pdftex-fmts
+-install-pdftex-fmts: pdffmts $(fmtdir)
+-	-@echo $(verbose) & ( \
+-	  for %%f in ($(all_pdffmts)) \
+-	    do $(copy) %%f $(fmtdir)\%%f \
+-	) $(redir_stdout)
+-
+-# Auxiliary files.
+-install-data:: install-pdftex-data
+-install-pdftex-data: $(texpooldir)
+-	@$(copy) pdftex.pool $(texpooldir)\pdftex.pool $(redir_stdout)
+-
+-# 
+-# ttf2afm
+-ttf2afm = $(objdir)\ttf2afm.exe
+-
+-$(objdir)\ttf2afm.exe: $(objdir)\ttf2afm.obj
+-	$(link) $(**) $(kpathsealib) $(proglib) $(conlibs)
+-
+-$(objdir)\ttf2afm.obj: pdftexdir\ttf2afm.c pdftexdir\macnames.c
+-	$(compile) -I.\pdftexdir pdftexdir\ttf2afm.c
+-check: ttf2afm-check
+-ttf2afm-check: $(objdir)\ttf2afm.exe
+-clean:: ttf2afm-clean
+-ttf2afm-clean:
+-#	$(LIBTOOL) --mode=clean $(RM) ttf2afm
+-	-@echo $(verbose) & ( \
+-		for %%i in ($(objdir)\ttf2afm.obj $(objdir)\macnames.obj \
+-			    ttf2afm.c macnames.c) do $(del) %%i $(redir_stderr) \
+-	)
+-# 
+-# pdftosrc
+-pdftosrc = $(objdir)\pdftosrc.exe
+-
+-$(objdir)\pdftosrc.exe: $(objdir)\pdftosrc.obj $(xpdflib)
+-	$(link) $(objdir)\pdftosrc.obj $(xpdflib) $(kpathsealib) $(proglib) $(conlibs)
+-
+-$(objdir)\pdftosrc.obj: pdftexdir\pdftosrc.cc
+-	$(compile) /Tp $(**)
+-check: pdftosrc-check
+-pdftosrc-check: $(objdir)\pdftosrc.exe
+-clean:: pdftosrc-clean
+-pdftosrc-clean:
+-#	$(LIBTOOL) --mode=clean $(RM) pdftosrc
+-	-@$(del) $(objdir)\pdftosrc.obj $(redir_stderr)
+-
+-# end of pdftex.mak
+-#  
+-# Local variables:
+-# page-delimiter: "^# \f"
+-# mode: Makefile
+-# End:
+--- tetex-src-3.0/texk/web2c/pdftexdir/tex.ch1.pdf1401	2004-07-30 14:35:17.000000000 +0200
++++ tetex-src-3.0/texk/web2c/pdftexdir/tex.ch1	2007-01-21 16:44:17.000000000 +0100
+@@ -1,39 +0,0 @@
+-%
+-% Copyright (c) 1996-2002 Han The Thanh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/tex.ch1#11 $
+-%
+-% Change file to assist in creating the web2c-specific change file.
+-% This one resolves inconsistencies between tex.ch and tex.pch.
+-
+-@x [1] m.2 l.188 - banner
+-@d banner==TeX_banner
+-@d banner_k==TeX_banner_k
+-@y
+-@d banner==pdfTeX_banner
+-@d banner_k==pdfTeX_banner_k
+-@z
+-
+-@x [17.236] l.4960 - first web2c, then pdfTeX additional integer parameters
+-@d int_pars=web2c_int_pars {total number of integer parameters}
+-@#
+-@d pdftex_first_integer_code = tex_int_pars {base for \pdfTeX's integer parameters}
+-@y
+-@d pdftex_first_integer_code = web2c_int_pars {base for \pdfTeX's integer parameters}
+-@z
+--- tetex-src-3.0/texk/web2c/pdftexdir/pdfstrcmp.ch.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/pdfstrcmp.ch	2007-01-21 16:44:23.000000000 +0100
+@@ -1,609 +0,0 @@
+-% Copyright (c) 2005 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh, <thanh@pdftex.org>
+-%
+-% This file is part of pdfTeX.
+-%
+-% pdfTeX is free software; you can redistribute it and/or modify
+-% it under the terms of the GNU General Public License as published by
+-% the Free Software Foundation; either version 2 of the License, or
+-% (at your option) any later version.
+-%
+-% pdfTeX is distributed in the hope that it will be useful,
+-% but WITHOUT ANY WARRANTY; without even the implied warranty of
+-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-% GNU General Public License for more details.
+-%
+-% You should have received a copy of the GNU General Public License
+-% along with pdfTeX; if not, write to the Free Software
+-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-%
+-% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/pdftex.ch#163 $
+-%
+-% experimental patch to make \pdfstrcmp expandable
+-%
+-% put it after tex.pch
+-%
+-% x line numbers of file pdfetex-org.web before patch
+-%
+-%***********************************************************************
+-
+-@x 9388
+-@d pdftex_last_item_codes     = pdftex_first_rint_code + 10 {end of \pdfTeX's command codes}
+-@y
+-@d pdf_shell_escape_code      = pdftex_first_rint_code + 11 {code for \.{\\pdfshellescape}}
+-@d pdftex_last_item_codes     = pdftex_first_rint_code + 11 {end of \pdfTeX's command codes}
+-@z
+-
+-@x 9442
+-primitive("pdfelapsedtime",last_item,elapsed_time_code);
+-@!@:elapsed_time_}{\.{\\pdfelapsedtime} primitive@>
+-@y
+-primitive("pdfelapsedtime",last_item,elapsed_time_code);
+-@!@:elapsed_time_}{\.{\\pdfelapsedtime} primitive@>
+-primitive("pdfshellescape",last_item,pdf_shell_escape_code);
+-@!@:elapsed_time_}{\.{\\pdfshellescape} primitive@>
+-@z
+-
+-@x 9470
+-  elapsed_time_code: print_esc("pdfelapsedtime");
+-@y
+-  elapsed_time_code: print_esc("pdfelapsedtime");
+-  pdf_shell_escape_code: print_esc("pdfshellescape");
+-@z
+-
+-@x 9561
+-  elapsed_time_code: cur_val := get_microinterval;
+-@y
+-  elapsed_time_code: cur_val := get_microinterval;
+-  pdf_shell_escape_code:
+-    begin
+-    if shell_enabled_p then cur_val := 1
+-    else cur_val := 0;
+-    end;
+-@z    
+-
+-@x 10332
+-@d pdf_last_escaped_string_code = pdftex_first_expand_code + 7 {command code for \.{\\pdflastescapedstring}}
+-@d pdf_last_escaped_name_code = pdftex_first_expand_code + 8 {command code for \.{\\pdflastescapename}}
+-@y
+-@d pdf_escape_string_code   = pdftex_first_expand_code + 7 {command code for \.{\\pdfescapestring}}
+-@d pdf_escape_name_code     = pdftex_first_expand_code + 8 {command code for \.{\\pdfescapename}}
+-@z
+-
+-@x 10336
+-@d pdftex_convert_codes     = pdftex_first_expand_code + 11 {end of \pdfTeX's command codes}
+-@y
+-@d pdf_strcmp_code          = pdftex_first_expand_code + 11 {command code for \.{\\pdfstrcmp}}
+-@d pdf_escape_hex_code      = pdftex_first_expand_code + 12 {command code for \.{\\pdfescapehex}}
+-@d pdf_unescape_hex_code    = pdftex_first_expand_code + 13 {command code for \.{\\pdfunescapehex}}
+-@d pdf_creation_date_code   = pdftex_first_expand_code + 14 {command code for \.{\\pdfcreationdate}}
+-@d pdf_file_mod_date_code   = pdftex_first_expand_code + 15 {command code for \.{\\pdffilemoddate}}
+-@d pdf_file_size_code       = pdftex_first_expand_code + 16 {command code for \.{\\pdffilesize}}
+-@d pdf_mdfive_sum_code      = pdftex_first_expand_code + 17 {command code for \.{\\pdfmdfivesum}}
+-@d pdf_file_dump_code       = pdftex_first_expand_code + 18 {command code for \.{\\pdffiledump}}
+-@d pdf_match_code           = pdftex_first_expand_code + 19 {command code for \.{\\pdfmatch}}
+-@d pdf_last_match_code      = pdftex_first_expand_code + 20 {command code for \.{\\pdflastmatch}}
+-@d pdftex_convert_codes     = pdftex_first_expand_code + 21 {end of \pdfTeX's command codes}
+-@z
+-
+-%***********************************************************************
+-
+-@x 10369
+-primitive("pdflastescapedstring",convert,pdf_last_escaped_string_code);@/
+-@!@:pdf_last_escaped_string_}{\.{\\pdflastescapedstring} primitive@>
+-primitive("pdflastescapedname",convert,pdf_last_escaped_name_code);@/
+-@!@:pdf_last_escaped_name_}{\.{\\pdflastescapedname} primitive@>
+-@y
+-primitive("pdfescapestring",convert,pdf_escape_string_code);@/
+-@!@:pdf_escape_string_}{\.{\\pdfescapestring} primitive@>
+-primitive("pdfescapename",convert,pdf_escape_name_code);@/
+-@!@:pdf_escape_name_}{\.{\\pdfescapename} primitive@>
+-primitive("pdfescapehex",convert,pdf_escape_hex_code);@/
+-@!@:pdf_escape_hex_}{\.{\\pdfescapehex} primitive@>
+-primitive("pdfunescapehex",convert,pdf_unescape_hex_code);@/
+-@!@:pdf_unescape_hex_}{\.{\\pdfunescapehex} primitive@>
+-primitive("pdfcreationdate",convert,pdf_creation_date_code);@/
+-@!@:pdf_creation_date_}{\.{\\pdfcreationdate} primitive@>
+-primitive("pdffilemoddate",convert,pdf_file_mod_date_code);@/
+-@!@:pdf_file_mod_date_}{\.{\\pdffilemoddate} primitive@>
+-primitive("pdffilesize",convert,pdf_file_size_code);@/
+-@!@:pdf_file_size_}{\.{\\pdffilesize} primitive@>
+-primitive("pdfmdfivesum",convert,pdf_mdfive_sum_code);@/
+-@!@:pdf_mdfive_sum_}{\.{\\pdfmdfivesum} primitive@>
+-primitive("pdffiledump",convert,pdf_file_dump_code);@/
+-@!@:pdf_file_dump_}{\.{\\pdffiledump} primitive@>
+-primitive("pdfmatch",convert,pdf_match_code);@/
+-@!@:pdf_match_}{\.{\\pdfmatch} primitive@>
+-primitive("pdflastmatch",convert,pdf_last_match_code);@/
+-@!@:pdf_last_match_}{\.{\\pdflastmatch} primitive@>
+-primitive("pdfstrcmp",convert,pdf_strcmp_code);@/
+-@!@:pdf_strcmp_}{\.{\\pdfstrcmp} primitive@>
+-@z
+-
+-%***********************************************************************
+-
+-@x 10394
+-  pdf_last_escaped_string_code:    print_esc("pdflastescapedstring");
+-  pdf_last_escaped_name_code:      print_esc("pdflastescapedname");
+-@y
+-  pdf_escape_string_code: print_esc("pdfescapestring");
+-  pdf_escape_name_code:   print_esc("pdfescapename");
+-  pdf_escape_hex_code:    print_esc("pdfescapehex");
+-  pdf_unescape_hex_code:  print_esc("pdfunescapehex");
+-  pdf_creation_date_code: print_esc("pdfcreationdate");
+-  pdf_file_mod_date_code: print_esc("pdffilemoddate");
+-  pdf_file_size_code:     print_esc("pdffilesize");
+-  pdf_mdfive_sum_code:    print_esc("pdfmdfivesum");
+-  pdf_file_dump_code:     print_esc("pdffiledump");
+-  pdf_match_code:         print_esc("pdfmatch");
+-  pdf_last_match_code:    print_esc("pdflastmatch");
+-  pdf_strcmp_code:        print_esc("pdfstrcmp");
+-@z
+-
+-%***********************************************************************
+-
+-@x 10403
+-@p procedure conv_toks;
+-var old_setting:0..max_selector; {holds |selector| setting}
+-p, q: pointer;
+-@!c:number_code..job_name_code; {desired type of conversion}
+-@!save_scanner_status:small_number; {|scanner_status| upon entry}
+-@!b:pool_pointer; {base of temporary string}
+-@!i, l: integer; {index to access escaped string or name}
+-begin c:=cur_chr; @<Scan the argument for command |c|@>;
+-old_setting:=selector; selector:=new_string; b:=pool_ptr;
+-@<Print the result of command |c|@>;
+-selector:=old_setting; link(garbage):=str_toks(b); ins_list(link(temp_head));
+-end;
+-@y
+-@p procedure conv_toks;
+-label exit;
+-var old_setting:0..max_selector; {holds |selector| setting}
+-p, q: pointer;
+-@!c:number_code..job_name_code; {desired type of conversion}
+-@!save_scanner_status:small_number; {|scanner_status| upon entry}
+-@!save_def_ref: pointer; {|def_ref| upon entry, important if inside `\.{\\message}'}
+-@!save_warning_index: pointer;
+-@!bool: boolean; {temp boolean}
+-@!i: integer; {first temp integer}
+-@!j: integer; {second temp integer}
+-@!b:pool_pointer; {base of temporary string}
+-@!s: str_number; {first temp string}
+-@!t: str_number; {second temp string}
+-begin c:=cur_chr; @<Scan the argument for command |c|@>;
+-old_setting:=selector; selector:=new_string; b:=pool_ptr;
+-@<Print the result of command |c|@>;
+-selector:=old_setting; link(garbage):=str_toks(b); ins_list(link(temp_head));
+-exit:end;
+-@z
+-
+-@x 10450
+-pdf_last_escaped_string_code: do_nothing;
+-pdf_last_escaped_name_code: do_nothing;
+-job_name_code: if job_name=0 then open_log_file;
+-@y
+-pdf_escape_string_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    escapestring(str_start[s]);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_escape_name_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    escapename(str_start[s]);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_escape_hex_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    escapehex(str_start[s]);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_unescape_hex_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    unescapehex(str_start[s]);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_creation_date_code:
+-  begin
+-    b := pool_ptr;
+-    getcreationdate;
+-    link(garbage) := str_toks(b);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_file_mod_date_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    getfilemoddate(s);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_file_size_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    getfilesize(s);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_mdfive_sum_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    bool := scan_keyword("file");
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    getmd5sum(s, bool);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_file_dump_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    {scan offset}
+-    cur_val := 0;
+-    if (scan_keyword("offset")) then begin
+-      scan_int;
+-      if (cur_val < 0) then begin
+-        print_err("Bad file offset");
+-@.Bad file offset@>
+-        help2("A file offset must be between 0 and 2^{31}-1,")@/
+-          ("I changed this one to zero.");
+-        int_error(cur_val);
+-        cur_val := 0;
+-      end;
+-    end;
+-    i := cur_val;
+-    {scan length}
+-    cur_val := 0;
+-    if (scan_keyword("length")) then begin
+-      scan_int;
+-      if (cur_val < 0) then begin
+-        print_err("Bad dump length");
+-@.Bad dump length@>
+-        help2("A dump length must be between 0 and 2^{31}-1,")@/
+-          ("I changed this one to zero.");
+-        int_error(cur_val);
+-        cur_val := 0;
+-      end;
+-    end;
+-    j := cur_val;
+-    {scan file name}
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    getfiledump(s, i, j);
+-    link(garbage) := str_toks(b);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_match_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    {scan for icase}
+-    bool := scan_keyword("icase");
+-    {scan for subcount}
+-    i := -1; {default for subcount}
+-    if scan_keyword("subcount") then begin
+-      scan_int;
+-      i := cur_val;
+-    end;
+-    scan_pdf_ext_toks;
+-    s := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    scan_pdf_ext_toks;
+-    t := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-    b := pool_ptr;
+-    matchstrings(s, t, i, bool);
+-    link(garbage) := str_toks(b);
+-    flush_str(t);
+-    flush_str(s);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_last_match_code:
+-  begin
+-    scan_int;
+-    if cur_val < 0 then begin
+-      print_err("Bad match number");
+-@.Bad match number@>
+-      help2("Since I expected zero or a positive number,")@/
+-      ("I changed this one to zero.");
+-      int_error(cur_val);
+-      cur_val := 0;
+-    end;
+-    b := pool_ptr;
+-    getmatch(cur_val);
+-    link(garbage) := str_toks(b);
+-    ins_list(link(temp_head));
+-    return;
+-  end;
+-pdf_strcmp_code:
+-  begin
+-    save_scanner_status := scanner_status;
+-    save_warning_index := warning_index;
+-    save_def_ref := def_ref;
+-    compare_strings;
+-    def_ref := save_def_ref;
+-    warning_index := save_warning_index;
+-    scanner_status := save_scanner_status;
+-  end;
+-job_name_code: if job_name=0 then open_log_file;
+-@z
+-
+-%***********************************************************************
+-
+-@x 10512
+-pdf_last_escaped_string_code: begin
+-    l := escapedstrlen;
+-    for i := 0 to l - 1 do
+-        print_char(getescapedstrchar(i));
+-end;
+-pdf_last_escaped_name_code: begin
+-    l := escapednamelen;
+-    for i := 0 to l - 1 do
+-        print_char(getescapednamechar(i));
+-end;
+-job_name_code: print(job_name);
+-@y
+-pdf_strcmp_code: print_int(cur_val);
+-job_name_code: print(job_name);
+-@z
+-
+-%***********************************************************************
+-
+-@x 32168
+-@d pdf_strcmp_code             == pdftex_first_extension_code + 24
+-@d pdf_escape_string_code      == pdftex_first_extension_code + 25
+-@d pdf_escape_name_code        == pdftex_first_extension_code + 26
+-@d reset_timer_code            == pdftex_first_extension_code + 27
+-@d pdf_font_expand_code        == pdftex_first_extension_code + 28
+-@d pdftex_last_extension_code  == pdftex_first_extension_code + 28
+-@y
+-@d reset_timer_code            == pdftex_first_extension_code + 24
+-@d pdf_font_expand_code        == pdftex_first_extension_code + 25
+-@d pdftex_last_extension_code  == pdftex_first_extension_code + 25
+-@z
+-
+-%***********************************************************************
+-
+-@x 32239
+-primitive("pdfstrcmp",extension,pdf_strcmp_code);@/
+-@!@:pdf_strcmp_}{\.{\\pdfstrcmp} primitive@>
+-primitive("pdfescapestring",extension,pdf_escape_string_code);@/
+-@!@:pdf_escape_string_}{\.{\\pdfescapestring} primitive@>
+-primitive("pdfescapename",extension,pdf_escape_name_code);@/
+-@!@:pdf_escape_name_}{\.{\\pdfescapename} primitive@>
+-@y
+-@z
+-
+-%***********************************************************************
+-
+-@x 32287
+-  pdf_strcmp_code: print_esc("pdfstrcmp");
+-  pdf_escape_string_code: print_esc("pdfescapestring");
+-  pdf_escape_name_code: print_esc("pdfescapename");
+-@y
+-@z
+-
+-%***********************************************************************
+-
+-@x 32337
+-pdf_strcmp_code: @<Implement \.{\\pdfstrcmp}@>;
+-pdf_escape_string_code: @<Implement \.{\\pdfescapestring}@>;
+-pdf_escape_name_code: @<Implement \.{\\pdfescapename}@>;
+-@y
+-@z
+-
+-%***********************************************************************
+-
+-@x 32463
+-procedure compare_strings; {to implement \.{\\pdfstrcmp}}
+-label done;
+-var s1, s2: str_number;
+-    i1, i2, j1, j2: pool_pointer;
+-    result: integer;
+-begin
+-    call_func(scan_toks(false, true));
+-    s1 := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    call_func(scan_toks(false, true));
+-    s2 := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    i1 := str_start[s1];
+-    j1 := str_start[s1 + 1];
+-    i2 := str_start[s2];
+-    j2 := str_start[s2 + 1];
+-    while (i1 < j1) and (i2 < j2) do begin
+-        if str_pool[i1] < str_pool[i2] then begin
+-            result := -1;
+-            goto done;
+-        end;
+-        if str_pool[i1] > str_pool[i2] then begin
+-            result := 1;
+-            goto done;
+-        end;
+-        incr(i1);
+-        incr(i2);
+-    end;
+-    if (i1 = j1) and (i2 = j2) then
+-        result := 0
+-    else if i1 < j1 then
+-        result := 1
+-    else
+-        result := -1;
+-done:
+-    pdf_retval := result;
+-    flush_str(s2);
+-    flush_str(s1);
+-end;
+-@y
+-procedure compare_strings; {to implement \.{\\pdfstrcmp}}
+-label done;
+-var s1, s2: str_number;
+-    i1, i2, j1, j2: pool_pointer;
+-begin
+-    call_func(scan_toks(false, true));
+-    s1 := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    call_func(scan_toks(false, true));
+-    s2 := tokens_to_string(def_ref);
+-    delete_token_ref(def_ref);
+-    i1 := str_start[s1];
+-    j1 := str_start[s1 + 1];
+-    i2 := str_start[s2];
+-    j2 := str_start[s2 + 1];
+-    while (i1 < j1) and (i2 < j2) do begin
+-        if str_pool[i1] < str_pool[i2] then begin
+-            cur_val := -1;
+-            goto done;
+-        end;
+-        if str_pool[i1] > str_pool[i2] then begin
+-            cur_val := 1;
+-            goto done;
+-        end;
+-        incr(i1);
+-        incr(i2);
+-    end;
+-    if (i1 = j1) and (i2 = j2) then
+-        cur_val := 0
+-    else if i1 < j1 then
+-        cur_val := 1
+-    else
+-        cur_val := -1;
+-done:
+-    flush_str(s2);
+-    flush_str(s1);
+-    cur_val_level := int_val;
+-end;
+-@z
+-
+-%***********************************************************************
+-
+-@x 33387
+-@ @<Implement \.{\\pdfescapestring}@>=
+-begin
+-    scan_pdf_ext_toks;
+-    escapestr(tokens_to_string(def_ref));
+-    flush_str(last_tokens_string);
+-    delete_token_ref(def_ref);
+-end
+-
+-@ @<Implement \.{\\pdfescapename}@>=
+-begin
+-    scan_pdf_ext_toks;
+-    escapename(tokens_to_string(def_ref));
+-    flush_str(last_tokens_string);
+-    delete_token_ref(def_ref);
+-end
+-@y
+-@z
+-
+-@x 33406
+-@ @<Implement \.{\\pdfstrcmp}@>=
+-compare_strings
+-@y
+-@z
+-
+-@x 33409
+-@ @<Set initial values of key variables@>=
+-  seconds_and_micros(epochseconds,microseconds);
+-@y
+-@ @<Set initial values of key variables@>=
+-  seconds_and_micros(epochseconds,microseconds);
+-  init_start_time;
+-@z
+-
+-%***********************************************************************
+--- tetex-src-3.0/texk/web2c/pdftexdir/win32.mak.pdf1401	2004-04-15 12:35:33.000000000 +0200
++++ tetex-src-3.0/texk/web2c/pdftexdir/win32.mak	2007-01-21 16:44:53.000000000 +0100
+@@ -1,71 +0,0 @@
+-################################################################################
+-#
+-# Makefile  : Web2C / pdftexdir
+-# Author    : Fabrice Popineau <Fabrice.Popineau@supelec.fr>
+-# Platform  : Win32, Microsoft VC++ 6.0, depends upon fpTeX 0.5 sources
+-# Time-stamp: <04/03/13 13:12:08 popineau>
+-#
+-################################################################################
+-root_srcdir = ..\..\..
+-!ifdef DEVELOPMENT
+-INCLUDE=$(INCLUDE);$(root_srcdir)\texk.development
+-!else
+-INCLUDE=$(INCLUDE);$(root_srcdir)\texk
+-!endif
+-
+-
+-USE_XPDF = 1
+-USE_ZLIB = 1
+-USE_PNG = 1
+-USE_JPEG = 1
+-USE_TEX = 1
+-USE_MD5 = 1
+-USE_GNUW32 = 1
+-USE_KPATHSEA = 1
+-
+-!include <msvc/common.mak>
+-
+-DEFS = -I.. -I$(top_srcdir) $(DEFS) -DMAKE_TEX_DLL -DHAVE_CONFIG_H -DpdfeTeX
+-
+-objects = $(objdir)\avl.obj $(objdir)\avlstuff.obj $(objdir)\epdf.obj 	     \
+-	$(objdir)\mapfile.obj                              		     \
+-	$(objdir)\utils.obj $(objdir)\vfpacket.obj			     \
+-	$(objdir)\pkin.obj $(objdir)\writefont.obj $(objdir)\writet1.obj     \
+-	$(objdir)\writet3.obj $(objdir)\writezip.obj $(objdir)\writeenc.obj  \
+-	$(objdir)\writettf.obj $(objdir)\writejpg.obj $(objdir)\writepng.obj \
+-	$(objdir)\writeimg.obj \
+-	$(objdir)\pdftoepdf.obj
+-
+-default: all
+-
+-all: $(objdir) libpdftoepdf $(objdir)\libpdf.lib
+-
+-$(objdir)\libpdf.lib: $(objdir) $(objects) $(md5lib)
+-	$(archive) $(objects) $(md5lib)
+-
+-libpdftoepdf: $(objdir) $(objdir)\libpdftoepdf.lib
+-
+-$(objdir)\libpdftoepdf.lib: $(objdir)\pdftoepdf.obj $(xpdflib)
+-	$(archive) $(objdir)\pdftoepdf.obj $(xpdflib)
+-
+-$(objdir)\pdftoepdf.obj: pdftoepdf.cc # $(xpdf)
+-
+-ptexlib.h: ..\pdftexd.h
+-
+-..\pdftexd.h:
+-	-@echo $(verbose) & ( \
+-		pushd .. & $(make) pdftexd.h & popd \
+-	)
+-
+-!include <msvc/config.mak>
+-!include <msvc/install.mak>
+-
+-!include <msvc/clean.mak>
+-!include <msvc/rdepend.mak>
+-
+-!include "./depend.mak"
+-
+-#
+-# Local Variables:
+-# mode: makefile
+-# End:
+--- tetex-src-3.0/texk/web2c/pdftexdir/TODO.pdf1401	2004-08-25 12:03:47.000000000 +0200
++++ tetex-src-3.0/texk/web2c/pdftexdir/TODO	2007-01-21 16:44:57.000000000 +0100
+@@ -1,10 +0,0 @@
+-TODO for pdfTeX:
+-- enable pdfTeX to output PDF/X-3 compliant PDF
+-- allow access to the object number of the current page
+-- document the sources
+-- PDF 1.5
+-- colorstack
+-- access to the ctcm
+-
+-$Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/TODO#7 $
+-// vim: tw=79
+--- tetex-src-3.0/texk/web2c/pdftexdir/pdftex-syntax.txt.pdf1401	2007-01-21 15:14:26.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/pdftex-syntax.txt	2007-01-21 16:45:01.000000000 +0100
+@@ -1,170 +0,0 @@
+-%% This is the list of new or extended primitives provided by pdftex.
+-%% Don't edit this file, as it is now auto-generated from the
+-%% pdfTeX documentation file pdftex-t.tex by script syntaxform.awk.
+-%% Used convention for syntax rules is borrowed from `TeXbook naruby'
+-%% by Petr Olsak.
+-%% $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/pdftex-syntax.txt#20 $
+-
+-%% integer registers:
+-\pdfoutput                                              (integer)
+-\pdfminorversion                                        (integer)
+-\pdfcompresslevel                                       (integer)
+-\pdfdecimaldigits                                       (integer)
+-\pdfimageresolution                                     (integer)
+-\pdfpkresolution                                        (integer)
+-\pdftracingfonts                                        (integer)
+-\pdfuniqueresname                                       (integer)
+-\pdfadjustspacing                                       (integer)
+-\pdfprotrudechars                                       (integer)
+-\efcode <font> <8-bit number>                           (integer)
+-\lpcode <font> <8-bit number>                           (integer)
+-\rpcode <font> <8-bit number>                           (integer)
+-\pdfforcepagebox                                        (integer)
+-\pdfoptionalwaysusepdfpagebox                           (integer)
+-\pdfinclusionerrorlevel                                 (integer)
+-\pdfoptionpdfinclusionerrorlevel                        (integer)
+-\pdfimagehicolor                                        (integer)
+-\pdfimageapplygamma                                     (integer)
+-\pdfgamma                                               (integer)
+-\pdfimagegamma                                          (integer)
+-
+-%% dimen registers:
+-\pdfhorigin                                             (dimen)
+-\pdfvorigin                                             (dimen)
+-\pdfpagewidth                                           (dimen)
+-\pdfpageheight                                          (dimen)
+-\pdflinkmargin                                          (dimen)
+-\pdfdestmargin                                          (dimen)
+-\pdfthreadmargin                                        (dimen)
+-
+-%% token registers:
+-\pdfpagesattr                                           (tokens)
+-\pdfpageattr                                            (tokens)
+-\pdfpageresources                                       (tokens)
+-\pdfpkmode                                              (tokens)
+-
+-%% expandable commands:
+-\pdftexrevision                                         (expandable)
+-\pdftexbanner                                           (expandable)
+-\pdfcreationdate                                        (expandable)
+-\pdfpageref <page number>                               (expandable)
+-\pdfxformname <object number>                           (expandable)
+-\pdffontname <font>                                     (expandable)
+-\pdffontobjnum <font>                                   (expandable)
+-\pdffontsize <font>                                     (expandable)
+-\pdfincludechars <font> <general text>                  (expandable)
+-\leftmarginkern <box number>                            (expandable)
+-\rightmarginkern <box number>                           (expandable)
+-\pdfescapestring <general text>                         (expandable)
+-\pdfescapename <general text>                           (expandable)
+-\pdfescapehex <general text>                            (expandable)
+-\pdfunescapehex <general text>                          (expandable)
+-\pdfstrcmp <general text> <general text>                (expandable)
+-\pdfuniformdeviate <number>                             (expandable)
+-\pdfnormaldeviate                                       (expandable)
+-\pdfmdfivesum [file] <general text>                     (expandable)
+-\pdffilemoddate <general text>                          (expandable)
+-\pdffilesize <general text>                             (expandable)
+-\pdffiledump [offset <number>] [length <number>] <general text>
+-                                                        (expandable)
+-
+-%% read-only integers:
+-\pdftexversion                                          (read-only integer)
+-\pdflastobj                                             (read-only integer)
+-\pdflastxform                                           (read-only integer)
+-\pdflastximage                                          (read-only integer)
+-\pdflastximagepages                                     (read-only integer)
+-\pdflastannot                                           (read-only integer)
+-\pdflastxpos                                            (read-only integer)
+-\pdflastypos                                            (read-only integer)
+-\pdflastdemerits                                        (read-only integer)
+-\pdfelapsedtime                                         (read-only integer)
+-\pdfrandomseed                                          (read-only integer)
+-\pdfshellescape                                         (read-only integer)
+-
+-%% general commands:
+-\pdfobj <object type spec>                              (h, v, m)
+-\pdfrefobj <object number>                              (h, v, m)
+-\pdfxform [<xform attr spec>] <box number>              (h, v, m)
+-\pdfrefxform <object number>                            (h, v, m)
+-\pdfximage [<image attr spec>] <general text>           (h, v, m)
+-\pdfrefximage <object number>                           (h, v, m)
+-\pdfannot <annot type spec>                             (h, v, m)
+-\pdfstartlink [<rule spec>] [<attr spec>] <action spec> (h, m)
+-\pdfendlink                                             (h, m)
+-\pdfoutline <outline spec>                              (h, v, m)
+-\pdfdest <dest spec>                                    (h, v, m)
+-\pdfthread <thread spec>                                (h, v, m)
+-\pdfstartthread <thread spec>                           (v, m)
+-\pdfendthread                                           (v, m)
+-\pdfsavepos                                             (h, v, m)
+-\pdfinfo <general text>
+-\pdfcatalog <general text> [<open-action spec>]
+-\pdfnames <general text>
+-\pdfmapfile <map spec>
+-\pdfmapline <map spec>
+-\pdffontattr <font> <general text>
+-\pdftrailer <general text>
+-\pdffontexpand <font> <expand spec>
+-\vadjust [<pre spec>] <filler> { <vertical mode material> } (h, m)
+-\pdfliteral [direct] <general text>                     (h, v, m)
+-\special <pdfspecial spec>
+-\pdfresettimer
+-\pdfsetrandomseed <number>
+-\pdfnoligatures <font>
+-
+-%% syntax rules:
+-<general text> --> { <balanced text> }
+-<attr spec> --> attr <general text>
+-<resources spec> --> resources <general text>
+-<rule spec> --> (width | height | depth) <dimension> [<rule spec>]
+-<object type spec> --> reserveobjnum
+-                     | [useobjnum <number>] [stream [<attr spec>]] <object contents>
+-<annot type spec> --> reserveobjnum
+-                    | [useobjnum <number>] [<rule spec>] <general text>
+-<object contents> --> <file spec>
+-                    | <general text>
+-<xform attr spec> --> [<attr spec>] [<resources spec>]
+-<image attr spec> --> [<rule spec>] [<attr spec>] [<page spec>] [<colorspace spec>] [<pdf box spec>]
+-<outline spec> --> [<attr spec>] <action spec> [count <number>] <general text>
+-<action spec> --> user <user-action spec>
+-                | goto <goto-action spec>
+-                | thread <thread-action spec>
+-<user-action spec> --> <general text>
+-<goto-action spec> --> <numid>
+-                     | [<file spec>] <nameid>
+-                     | [<file spec>] [<page spec>] <general text>
+-                     | <file spec> <nameid> <newwindow spec>
+-                     | <file spec> [<page spec>] <general text> <newwindow spec>
+-<thread-action spec> --> [<file spec>] <numid>
+-                       | [<file spec>] <nameid>
+-<open-action spec> --> openaction <action spec>
+-<colorspace spec> --> colorspace <number>
+-<pdf box spec> --> mediabox | cropbox | bleedbox | trimbox | artbox
+-<map spec> --> { [<map modifier>] <balanced text> }
+-<map modifier> --> + | = | -
+-<numid> --> num <number>
+-<nameid> --> name <general text>
+-<newwindow spec> --> newwindow | nonewwindow
+-<dest spec> --> <numid> <dest type>
+-              | <nameid> <dest type>
+-<dest type> --> xyz [zoom <number>]
+-              | fitr <rule spec>
+-              | fitbh
+-              | fitbv
+-              | fitb
+-              | fith
+-              | fitv
+-              | fit
+-<thread spec> --> [<rule spec>] [<attr spec>] <id spec>
+-<id spec> --> <numid> | <nameid>
+-<file spec> --> file <general text>
+-<page spec> --> page <number>
+-<expand spec> --> <stretch> <shrink> <step> [autoexpand]
+-<stretch> --> <number>
+-<shrink> --> <number>
+-<step> --> <number>
+-<pre spec> --> pre
+-<pdfspecial spec> --> { [<pdfspecial id> [<pdfspecial modifier>]] <balanced text> }
+-<pdfspecial id> --> pdf: | PDF:
+-<pdfspecial modifier> --> direct:

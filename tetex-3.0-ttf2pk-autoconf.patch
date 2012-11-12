@@ -1,0 +1,18 @@
+--- ttf2pk/configure.in	1999-06-10 17:51:36.000000000 -0400
++++ ttf2pk/configure.in	2007-08-25 03:01:59.000000000 -0400
+@@ -30,13 +31,13 @@
+   CPPFLAGS="$CPPFLAGS -I$kpathsea_dir/include -I$srcdir"
+ 
+   dnl the function kpse_set_program_name() is available since kpathsea 3.2
+-  AC_CHECK_LIB(kpathsea, kpse_set_program_name, [[]], AC_DEFINE(OLD_KPATHSEA))
++  AC_CHECK_LIB(kpathsea, kpse_set_program_name,, AC_DEFINE(OLD_KPATHSEA))
+ 
+   AC_CHECK_LIB(kpathsea, kpse_init_prog, ,[
+                AC_MSG_ERROR([Can't find kpathsea library! Use --with-kpathsea-dir option.])])
+ 
+   dnl the header file kpathsea.h doesn't exist in kpathsea 2.6 and before
+-  AC_CHECK_HEADER(kpathsea/kpathsea.h, [[]], AC_DEFINE(VERY_OLD_KPATHSEA))
++  AC_CHECK_HEADER(kpathsea/kpathsea.h,, AC_DEFINE(VERY_OLD_KPATHSEA))
+ 
+   AC_CHECK_HEADER(kpathsea/c-auto.h, ,[
+                   AC_MSG_ERROR([Can't find kpathsea include files! Use --with-kpathsea-dir option.])])

@@ -1,0 +1,237 @@
+--- tetex-src-3.0/texk/web2c/pdftexdir/writeimg.c.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/writeimg.c	2007-02-17 19:46:59.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+-Copyright (c) 1996-2002, 2005 Han The Thanh, <thanh@pdftex.org>
++Copyright (c) 1996-2007 Han The Thanh, <thanh@pdftex.org>
+ 
+ This file is part of pdfTeX.
+ 
+@@ -314,7 +314,7 @@
+         if (pdfversion < 4) {
+             pdftex_fail
+                 ("JBIG2 images only possible with at least PDF 1.4; you are generating PDF 1.%i",
+-                 pdfversion);
++                 (int)pdfversion);
+         }
+         jbig2_ptr(img) = xtalloc(1, JBIG2_IMAGE_INFO);
+         img_type(img) = IMAGE_TYPE_JBIG2;
+--- tetex-src-3.0/texk/web2c/pdftexdir/pdftex.web.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/pdftex.web	2007-02-17 19:46:59.000000000 +0100
+@@ -286,8 +286,8 @@
+   {printed when \eTeX\ starts}
+ @#
+ @d pdftex_version==140 { \.{\\pdftexversion} }
+-@d pdftex_revision=="1" { \.{\\pdftexrevision} }
+-@d pdftex_version_string=='-1.40.1' {current \pdfTeX\ version}
++@d pdftex_revision=="3" { \.{\\pdftexrevision} }
++@d pdftex_version_string=='-1.40.3' {current \pdfTeX\ version}
+ @#
+ @d pdfeTeX_banner=='This is pdfeTeX, Version 3.141592',pdftex_version_string,eTeX_version_string
+    {printed when \pdfeTeX\ starts}
+--- tetex-src-3.0/texk/web2c/pdftexdir/writefont.c.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/writefont.c	2007-02-17 19:46:59.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+-Copyright (c) 1996-2006 Han The Thanh, <thanh@pdftex.org>
++Copyright (c) 1996-2007 Han The Thanh, <thanh@pdftex.org>
+ 
+ This file is part of pdfTeX.
+ 
+@@ -504,7 +504,8 @@
+     pdf_printf("/FirstChar %i\n/LastChar %i\n/Widths %i 0 R\n",
+                (int) fo->first_char, (int) fo->last_char,
+                (int) fo->cw->cw_objnum);
+-    if (fo->fe != NULL && fo->fe->fe_objnum != 0)
++    if ((is_type1(fo->fm) || is_opentype(fo->fm)) && fo->fe != NULL
++        && fo->fe->fe_objnum != 0)
+         pdf_printf("/Encoding %i 0 R\n", (int) fo->fe->fe_objnum);
+     if (fo->tounicode_objnum != 0)
+         pdf_printf("/ToUnicode %i 0 R\n", (int) fo->tounicode_objnum);
+--- tetex-src-3.0/texk/web2c/pdftexdir/NEWS.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/NEWS	2007-02-17 19:46:59.000000000 +0100
+@@ -1,4 +1,16 @@
+ -------------------------------------------------
++pdfTeX 3.141592-1.40.3 was released on 2007-02-04
++-------------------------------------------------
++- bugfix: document which used type 1 and truetype or opentype fonts resulted in
++  broken pdfs (729)
++
++-------------------------------------------------
++pdfTeX 3.141592-1.40.2 was released on 2007-01-31
++-------------------------------------------------
++- bugfix: maplines starting with = would not work as advertised
++- bugfix: xpdf would complain that PDF 1.7 is too new
++
++-------------------------------------------------
+ pdfTeX 3.141592-1.40.1 was released on 2007-01-08
+ -------------------------------------------------
+ - bugfix: the shell escape function was a bit broken
+--- tetex-src-3.0/texk/web2c/pdftexdir/mapfile.c.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/mapfile.c	2007-02-17 19:44:17.000000000 +0100
+@@ -197,7 +197,7 @@
+                 break;
+             case FM_REPLACE:
+             case FM_DELETE:
+-                if (fm->in_use) {
++                if (p->in_use) {
+                     pdftex_warn
+                         ("fontmap entry for `%s' has been used, replace/delete not allowed",
+                          fm->tfm_name);
+@@ -231,7 +231,7 @@
+                 break;
+             case FM_REPLACE:
+             case FM_DELETE:
+-                if (fm->in_use)
++                if (p->in_use)
+                     goto exit;
+                 a = avl_delete(ps_tree, p);
+                 assert(a != NULL);
+--- tetex-src-3.0/texk/web2c/pdftexdir/README.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/pdftexdir/README	2007-02-17 19:46:59.000000000 +0100
+@@ -1,10 +1,10 @@
+ pdfTeX
+ ======
+ 
+-README for version 3.14159-1.40.1
++README for version 3.14159-1.40.3
+ =================================
+ 
+-This directory contains the version 1.40.1 of pdfTeX, an extended version
++This directory contains the version 1.40.3 of pdfTeX, an extended version
+ of eTeX that can create PDF directly from TeX source files and enhance the
+ result of TeX typesetting with the help of PDF. When PDF output is not
+ selected, pdfTeX produces normal DVI output, otherwise it produces PDF
+--- tetex-src-3.0/texk/web2c/man/pdfetex.man.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/man/pdfetex.man	2007-02-17 19:43:01.000000000 +0100
+@@ -84,9 +84,12 @@
+ mode, pdfe\*(TX can natively handle the
+ .IR PDF ,
+ .IR JPG ,
++.IR JBIG2 ,
+ and
+ .I PNG
+-graphics formats.
++graphics formats.  pdfe\*(TX cannot include PostScript or Encapsulated
++PostScript (EPS) graphics files; first convert them to PDF using 
++.BR epstopdf (1).
+ pdfe\*(TX's handling of its command-line arguments is similar to that of
+ of the other \*(TX programs in the
+ .I web2c
+@@ -474,14 +477,14 @@
+ website.
+ .\"=====================================================================
+ .SH "SEE ALSO"
+-.BR tex (1),
+-.BR mf (1),
+ .BR etex (1),
+-.BR pdftex (1).
++.BR mf (1),
++.BR pdftex (1),
++.BR tex (1).
+ .\"=====================================================================
+ .SH AUTHORS
+ The primary authors of pdfe\*(TX are Han The Thanh, Petr Sojka,
+-Jiri Zlatuska, and Peter Breitenlohner (e\*TX).
++Jiri Zlatuska, and Peter Breitenlohner (e\*(TX).
+ .PP
+ \*(TX was designed by Donald E. Knuth,
+ who implemented it using his \*(WB system for Pascal programs.
+--- tetex-src-3.0/texk/web2c/man/latex.man.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/man/latex.man	2007-02-17 19:42:32.000000000 +0100
+@@ -19,6 +19,7 @@
+ [ first line ]
+ .\"=====================================================================
+ .SH DESCRIPTION
++.PP
+ This manual page is not meant to be exhaustive.  The complete
+ documentation for this version of \*(TX can be found in the info file
+ or manual
+@@ -60,16 +61,26 @@
+ are available for compatibility with older versions of \*(LX.  These
+ should not be used for new texts.
+ .\"=====================================================================
++.PP
+ .SH "SEE ALSO"
+ .BR amslatex (1),
+ .BR amstex (1),
+-.BR tex (1),
+-.br
++.BR pdflatex (1),
++.BR pdftex (1),
++.BR tex (1).
++.PP
+ Leslie Lamport,
+ .IR "\*(LX \- A Document Preparation System" ,
+-Addison-Wesley, 1985, ISBN 0-201-15790-X.
+-
+-LaTeX Companion
+-
+-LaTeX Graphics Companion
+-
++Addison-Wesley, 1985, ISBN 020115790X.
++.PP
++Frank Mittelbach, Michel Goossens, Johannes Braams, David Carlisle,
++and Chris Rowley, 
++.IR "LaTeX Companion" ,
++Addison-Wesley, 2004, ISBN 0201362996 (2nd edition).
++.PP
++\fILaTeX Graphics Companion\fP, available as part of a boxed set:
++\fIThe LaTeX Companions, Revised Boxed Set : A Complete Guide and
++Reference for Preparing, Illustrating, and Publishing Technical
++Documents\fP (2nd Edition), by Frank Mittelbach, Michel Goossens,
++Sebastian Rahtz, Helmut Kopka, Patrick W. Daly (Addison-Wesley, 2004,
++ISBN 0321269446).
+--- tetex-src-3.0/texk/web2c/man/pdftex.man.pdf1403	2007-02-17 17:35:34.000000000 +0100
++++ tetex-src-3.0/texk/web2c/man/pdftex.man	2007-02-17 19:43:25.000000000 +0100
+@@ -1,4 +1,4 @@
+-.TH PDFTEX 1 "8 Jan 2007" "pdftex 1.40" "Web2C @VERSION@"
++.TH PDFTEX 1 "8 January 2007" "pdftex 1.40" "Web2C @VERSION@"
+ .\"=====================================================================
+ .if n .ds MF Metafont
+ .if t .ds MF M\s-2ETAFONT\s0
+@@ -88,7 +88,9 @@
+ .IR JBIG2 ,
+ and
+ .I PNG
+-graphics formats.
++graphics formats.  pdf\*(TX cannot include PostScript or Encapsulated
++PostScript (EPS) graphics files; first convert them to PDF using 
++.BR epstopdf (1).
+ pdf\*(TX's handling of its command-line arguments is similar to that of
+ of the other \*(TX programs in the
+ .I web2c
+@@ -476,13 +478,17 @@
+ website.
+ .\"=====================================================================
+ .SH "SEE ALSO"
+-.BR tex (1),
++.BR epstopdf (1),
+ .BR etex (1),
++.BR latex (1),
++.BR mptopdf (1),
++.BR tex (1),
++.BR texexec (1),
+ .BR mf (1).
+ .\"=====================================================================
+ .SH AUTHORS
+ The primary authors of pdf\*(TX are Han The Thanh, Petr Sojka,
+-Jiri Zlatuska, and Peter Breitenlohner (e\*TX).
++Jiri Zlatuska, and Peter Breitenlohner (e\*(TX).
+ .PP
+ \*(TX was designed by Donald E. Knuth,
+ who implemented it using his \*(WB system for Pascal programs.
+--- tetex-src-3.0/libs/xpdf/xpdf/config.h.pdf1403	2007-02-17 17:35:28.000000000 +0100
++++ tetex-src-3.0/libs/xpdf/xpdf/config.h	2007-02-17 19:41:27.000000000 +0100
+@@ -24,8 +24,9 @@
+ #define xpdfUpdateVersionStr "0"
+ 
+ // supported PDF version
+-#define supportedPDFVersionStr "1.5"
+-#define supportedPDFVersionNum 1.5
++// xpdf says only 1.5, but 1.7 is the same for pdfTeX's purpose
++#define supportedPDFVersionStr "1.7"
++#define supportedPDFVersionNum 1.7
+ 
+ // copyright notice
+ #define xpdfCopyright "Copyright 1996-2005 Glyph & Cog, LLC"

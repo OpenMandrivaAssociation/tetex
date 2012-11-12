@@ -1,0 +1,99 @@
+--- tetex-src-3.0/texk/web2c/cwebdir/cwebmac.tex.ctangle	2007-02-17 21:03:46.000000000 +0100
++++ tetex-src-3.0/texk/web2c/cwebdir/cwebmac.tex	2007-01-13 16:23:41.000000000 +0100
+@@ -1,8 +1,8 @@
+ % standard macros for CWEB listings (in addition to plain.tex)
+-% Version 3.64 --- February 2002
+-\ifx\documentstyle\undefined\else\endinput\fi % LaTeX will use other macros
+-\xdef\fmtversion{\fmtversion+CWEB3.64}
+-\chardef\cwebversion=3 \chardef\cwebrevision=64
++% Version 3.67 --- July 2006
++\ifx\renewenvironment\undefined\else\endinput\fi % LaTeX will use other macros
++\xdef\fmtversion{\fmtversion+CWEB3.67}
++\chardef\cwebversion=3 \chardef\cwebrevision=67
+ \newif\ifpdf
+ \ifx\pdf+\pdftrue\fi
+ % Uncomment the following line if you want PDF goodies to be the default
+@@ -339,7 +339,8 @@
+ % \S is section sign
+ \def\T#1{\leavevmode % octal, hex or decimal constant
+   \hbox{$\def\?{\kern.2em}%
+-    \def\$##1{\egroup_{\,\rm##1}\bgroup}% suffix to constant
++%    \def\$##1{\egroup_{\,\rm##1}\bgroup}% suffix to constant % versions < 3.67
++    \def\$##1{\egroup_{\rm##1}\bgroup}% suffix to constant
+     \def\_{\cdot 10^{\aftergroup}}% power of ten (via dirty trick)
+     \let\~=\oct \let\^=\hex {#1}$}}
+ \def\U{\note{This code is used in section}} % xref for use of a section
+@@ -534,6 +535,11 @@
+ \def\datethis{\def\startsection{\leftline{\sc\today\ at \hours}\bigskip
+   \let\startsection=\stsec\stsec}}
+   % say `\datethis' in limbo, to get your listing timestamped before section 1
+-\def\datecontentspage{%
+-  \def\topofcontents{\leftline{\sc\today\ at \hours}\bigskip
+-   \centerline{\titlefont\title}\vfill}} % timestamps the contents page
++%\def\datecontentspage{% versions up to 3.65
++%  \def\topofcontents{\leftline{\sc\today\ at \hours}\bigskip
++%   \centerline{\titlefont\title}\vfill}} % timestamps the contents page
++\def\datecontentspage{% changed in version 3.66
++  \def\botofcontents{\vfill
++   \centerline{\covernote}
++   \bigskip
++   \leftline{\sc\today\ at \hours}}} % timestamps the contents page
+--- tetex-src-3.0/texk/web2c/cwebdir/cwebman.tex.ctangle	2002-03-02 19:55:30.000000000 +0100
++++ tetex-src-3.0/texk/web2c/cwebdir/cwebman.tex	2007-01-13 16:23:41.000000000 +0100
+@@ -699,7 +699,7 @@
+ be totally ignored---it's a comment for readers of the \.{CWEB} file only.
+ A file intended to be included in
+ limbo, with \.{@i}, can identify itself with \.{@q} comments.
+-Another use is to balance unbalanced parentheses in C strings,
++Another use is to balance unbalanced parentheses in \CEE/ strings,
+ so that your text editor's parenthesis matcher doesn't go into a tailspin.
+ 
+ \@! [TMCc] $*$
+@@ -910,7 +910,7 @@
+ of file \.{foo} and files it includes are not changeable; but changes
+ can be made to lines from files that were included by unchanged input.
+ 
+-\more On UNIX systems (and others that support environment variables),
++\more On \UNIX/ systems (and others that support environment variables),
+ if the environment variable \.{CWEBINPUTS} is set, or if the compiler flag
+ of the same name was defined at compile time,
+ \.{CWEB} will look for include files in the directory thus named, if
+@@ -1158,7 +1158,7 @@
+ \.{CTWILL} is intended primarily for hardcopy output, but its principles
+ could be used for hypertext as well.
+ See Chapter 11 of {\sl Digital Typography\/} by D.~E. Knuth (1999), and
+-the program sources at \.{ftp://labrea.stanford.edu/pub/ctwill}.
++the program sources at \.{ftp://ftp.cs.stanford.edu/pub/ctwill}.
+ 
+ \section Appendices.
+ 
+@@ -1514,7 +1514,7 @@
+ 
+ \point 1. Four fonts have been declared in addition to the standard fonts of
+ \.{PLAIN} format: You can say `\.{\{\\mc UNIX\}}' to get {\mc UNIX} in
+-medium-size caps; you can say `\.{\{\\sc STUFF\}}' to get {\sc STUFF}
++xmedium-size caps; you can say `\.{\{\\sc STUFF\}}' to get {\sc STUFF}
+ in small caps; and you can select the largish fonts \.{\\titlefont}
+ and \.{\\ttitlefont} in the title of your document, where \.{\\ttitlefont}
+ is a typewriter style of type. There are macros \.{\\UNIX/} and \.{\\CEE/}
+@@ -1678,7 +1678,8 @@
+ if you prefer the shorter notation \.{\\+}.
+ 
+ \point 14. To get output in languages other than English, redefine the
+-macros \.{\\A}, \.{\\As}, \.{\\ET}, \.{\\ETs}, \.{\\Q}, \.{\\Qs}, \.{\\U},
++macros \.{\\A}, \.{\\As}, \.{\\ATH},
++\.{\\ET}, \.{\\ETs}, \.{\\Q}, \.{\\Qs}, \.{\\U},
+ \.{\\Us}, \.{\\ch}, \.{\\fin}, \.{\\con}, \.{\\today}, \.{\\datethis}, and
+ \.{\\datecontentspage}. \.{CWEAVE} itself need not be changed.
+ 
+--- tetex-src-3.0/texk/web2c/cwebdir/ctangle.w.ctangle	2002-02-01 15:44:51.000000000 +0100
++++ tetex-src-3.0/texk/web2c/cwebdir/ctangle.w	2007-02-17 21:01:53.000000000 +0100
+@@ -831,7 +831,7 @@
+ to the output. If the comment is introduced by \.{/*}, |skip_comment|
+ proceeds until finding the end-comment token \.{*/} or a newline; in the
+ latter case |skip_comment| will be called again by |get_next|, since the
+-comment is not finished.  This is done so that the each newline in the
++comment is not finished.  This is done so that each newline in the
+ \CEE/ part of a section is copied to the output; otherwise the \&{\#line}
+ commands inserted into the \CEE/ file by the output routines become useless.
+ On the other hand, if the comment is introduced by \.{//} (i.e., if it

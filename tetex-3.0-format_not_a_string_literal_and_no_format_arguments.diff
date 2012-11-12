@@ -1,0 +1,224 @@
+diff -Naurp tetex-src-3.0/libs/t1lib/t1subset.c tetex-src-3.0.oden/libs/t1lib/t1subset.c
+--- tetex-src-3.0/libs/t1lib/t1subset.c	2004-01-27 23:26:32.000000000 +0100
++++ tetex-src-3.0.oden/libs/t1lib/t1subset.c	2010-05-17 14:53:27.975206313 +0200
+@@ -737,7 +737,7 @@ char *T1_SubsetFont( int FontID,
+ 	     tr_len);
+     T1_PrintLog( "T1_SubsetFont()", err_warn_msg_buf,
+ 		 T1LOG_DEBUG);
+-    l+=sprintf( &(trailerbuf[l]), linebuf); /* contains the PostScript trailer */
++    l+=sprintf( &(trailerbuf[l]), "%s", linebuf); /* contains the PostScript trailer */
+   }
+   
+   /* compute size of output file */
+diff -Naurp tetex-src-3.0/libs/type1/objects.c tetex-src-3.0.oden/libs/type1/objects.c
+--- tetex-src-3.0/libs/type1/objects.c	2001-04-19 01:23:16.000000000 +0200
++++ tetex-src-3.0.oden/libs/type1/objects.c	2010-05-17 14:54:36.828207406 +0200
+@@ -957,7 +957,7 @@ struct xobject *TypeErr(name, obj, expec
+  
+        sprintf(typemsg, "Wrong object type in %s; expected %s, found %s.\n",
+                   name, TypeFmt(expect), TypeFmt(obj->type));
+-       IfTrace0(TRUE,typemsg);
++       IfTrace0(TRUE,"typemsg");
+  
+        ObjectPostMortem(obj);
+  
+diff -Naurp tetex-src-3.0/texk/dvipdfm/error.h tetex-src-3.0.oden/texk/dvipdfm/error.h
+--- tetex-src-3.0/texk/dvipdfm/error.h	2001-06-28 21:55:26.000000000 +0200
++++ tetex-src-3.0.oden/texk/dvipdfm/error.h	2010-05-17 15:06:15.663330742 +0200
+@@ -35,7 +35,7 @@ extern void error_cleanup();
+ 
+ #define ERROR(string) { \
+   fprintf(stderr, "\n"); \
+-  fprintf (stderr,  string); \
++  fprintf (stderr, "%s", string); \
+   fprintf (stderr, "\n");  \
+   error_cleanup(); \
+   exit(1);}
+diff -Naurp tetex-src-3.0/texk/dvipdfm/type1.c tetex-src-3.0.oden/texk/dvipdfm/type1.c
+--- tetex-src-3.0/texk/dvipdfm/type1.c	2003-02-15 23:55:19.000000000 +0100
++++ tetex-src-3.0.oden/texk/dvipdfm/type1.c	2010-05-17 15:06:15.662299988 +0200
+@@ -495,7 +495,7 @@ static unsigned char *get_pfb_segment (u
+     if (ch != 128){
+       sprintf (work_buffer, "get_pfb_segment:  Not a pfb file.\n");
+       sprintf (work_buffer, "get_pfb_segment:  pfb header has %d, expecting 128\n", ch);
+-      ERROR (work_buffer);
++      // ERROR (work_buffer);
+     }
+     if ((stream_type = fgetc (file)) < 0 || stream_type != expected_type) {
+       seek_relative (file, -2); /* Backup up two (yuck!) */
+diff -Naurp tetex-src-3.0/texk/ps2pkm/objects.h tetex-src-3.0.oden/texk/ps2pkm/objects.h
+--- tetex-src-3.0/texk/ps2pkm/objects.h	1999-11-09 21:05:16.000000000 +0100
++++ tetex-src-3.0.oden/texk/ps2pkm/objects.h	2010-05-17 15:06:15.663330742 +0200
+@@ -236,7 +236,7 @@ struct xobject {
+ /*SHARED*/
+ /* NDW: personally, I want to see status and error messages! */
+ #define IfTrace0(condition,model)                                 \
+-        {if (condition) printf(model);}
++        {if (condition) printf("%s", model);}
+ #define IfTrace1(condition,model,arg0)                            \
+         {if (condition) printf(model,arg0);}
+ #define IfTrace2(condition,model,arg0,arg1)                       \
+diff -Naurp tetex-src-3.0/texk/web2c/cwebboot.c tetex-src-3.0.oden/texk/web2c/cwebboot.c
+--- tetex-src-3.0/texk/web2c/cwebboot.c	2004-07-21 20:07:49.000000000 +0200
++++ tetex-src-3.0.oden/texk/web2c/cwebboot.c	2010-05-17 15:07:50.046425130 +0200
+@@ -1113,7 +1113,7 @@ void
+  fatal P2C(char*,s,char*,t)
+ #line 1182 "./cwebdir/common.w"
+ {
+-if(*s)printf(s);
++if(*s)printf("%s", s);
+ err_print(t);
+ history= fatal_message;exit(wrap_up());
+ }
+diff -Naurp tetex-src-3.0/texk/web2c/cwebdir/common.w tetex-src-3.0.oden/texk/web2c/cwebdir/common.w
+--- tetex-src-3.0/texk/web2c/cwebdir/common.w	2002-02-01 16:04:58.000000000 +0100
++++ tetex-src-3.0.oden/texk/web2c/cwebdir/common.w	2010-05-17 15:07:40.747215894 +0200
+@@ -1180,7 +1180,7 @@ concatenated to print the final error me
+ fatal(s,t)
+   char *s,*t;
+ {
+-  if (*s) printf(s);
++  if (*s) printf("%s", s);
+   err_print(t);
+   history=fatal_message; exit(wrap_up());
+ }
+diff -Naurp tetex-src-3.0/texk/web2c/cwebdir/cweave.w tetex-src-3.0.oden/texk/web2c/cwebdir/cweave.w
+--- tetex-src-3.0/texk/web2c/cwebdir/cweave.w	2002-02-01 15:46:47.000000000 +0100
++++ tetex-src-3.0.oden/texk/web2c/cwebdir/cweave.w	2010-05-17 15:06:05.113206282 +0200
+@@ -1784,7 +1784,7 @@ void
+ print_cat(c) /* symbolic printout of a category */
+ eight_bits c;
+ {
+-  printf(cat_name[c]);
++  printf("%s", cat_name[c]);
+ }
+ 
+ @ The token lists for translated \TEX/ output contain some special control
+diff -Naurp tetex-src-3.0/texk/web2c/omegafonts/error_routines.c tetex-src-3.0.oden/texk/web2c/omegafonts/error_routines.c
+--- tetex-src-3.0/texk/web2c/omegafonts/error_routines.c	2001-11-10 14:42:37.000000000 +0100
++++ tetex-src-3.0.oden/texk/web2c/omegafonts/error_routines.c	2010-05-17 15:06:05.113206282 +0200
+@@ -35,7 +35,7 @@ void
+ lex_error_0(string fmt)
+ {
+     fprintf(stderr, "line %d (lexing): ", line_number);
+-    fprintf(stderr, fmt);
++    fprintf(stderr, "%s", fmt);
+     fprintf(stderr, "\n");
+ }
+ 
+@@ -67,7 +67,7 @@ void
+ yyerror(string fmt)
+ {
+     fprintf(stderr, "line %d (parsing): ", line_number);
+-    fprintf(stderr, fmt);
++    fprintf(stderr, "%s", fmt);
+     fprintf(stderr, "\n");
+ }
+ 
+@@ -76,7 +76,7 @@ void
+ warning_0(string fmt)
+ {
+     fprintf(stderr, "line %d (warning): ", line_number);
+-    fprintf(stderr, fmt);
++    fprintf(stderr, "%s", fmt);
+     fprintf(stderr, "\n");
+ }
+ 
+@@ -124,7 +124,7 @@ void
+ fatal_error_0(string fmt)
+ {
+     fprintf(stderr, "line %d (fatal): ", line_number);
+-    fprintf(stderr, fmt);
++    fprintf(stderr, "%s", fmt);
+     fprintf(stderr, "\n");
+     exit(1);
+ }
+@@ -160,7 +160,7 @@ void
+ internal_error_0(string fmt)
+ {
+     fprintf(stderr, "line %d (internal): ", line_number);
+-    fprintf(stderr, fmt);
++    fprintf(stderr, "%s", fmt);
+     fprintf(stderr, "\n");
+     exit(2);
+ }
+diff -Naurp tetex-src-3.0/texk/web2c/omegafonts/out_routines.c tetex-src-3.0.oden/texk/web2c/omegafonts/out_routines.c
+--- tetex-src-3.0/texk/web2c/omegafonts/out_routines.c	2001-11-10 14:42:37.000000000 +0100
++++ tetex-src-3.0.oden/texk/web2c/omegafonts/out_routines.c	2010-05-17 15:06:05.113206282 +0200
+@@ -377,5 +377,5 @@ out_digits(unsigned counter)
+ void
+ out(string sval)
+ {
+-	fprintf(file_output, sval);
++	fprintf(file_output, "%s", sval);
+ }
+diff -Naurp tetex-src-3.0/texk/web2c/otps/outocp.c tetex-src-3.0.oden/texk/web2c/otps/outocp.c
+--- tetex-src-3.0/texk/web2c/otps/outocp.c	2002-10-16 22:34:14.000000000 +0200
++++ tetex-src-3.0.oden/texk/web2c/otps/outocp.c	2010-05-17 15:10:08.933268916 +0200
+@@ -73,7 +73,7 @@ char *otp_names[] = {
+ void ctp_abort
+ P1C (string, s)
+ {
+-  fprintf (stderr, s);
++  fprintf (stderr, "%s", s);
+   exit (EXIT_FAILURE);
+ }
+ 
+diff -Naurp tetex-src-3.0/texk/web2c/pdftexdir/subfont.c tetex-src-3.0.oden/texk/web2c/pdftexdir/subfont.c
+--- tetex-src-3.0/texk/web2c/pdftexdir/subfont.c	2010-05-17 15:12:09.957277032 +0200
++++ tetex-src-3.0.oden/texk/web2c/pdftexdir/subfont.c	2010-05-17 15:06:05.113206282 +0200
+@@ -126,7 +126,7 @@ static sfd_entry *read_sfd(char *sfd_nam
+         return NULL;
+     }
+     tex_printf("{");
+-    tex_printf(cur_file_name);
++    tex_printf("%s", cur_file_name);
+     sfd = new_sfd_entry();
+     sfd->name = xstrdup(sfd_name);
+     while (!sfd_eof()) {
+diff -Naurp tetex-src-3.0/texk/web2c/tiedir/tie-w2c.ch tetex-src-3.0.oden/texk/web2c/tiedir/tie-w2c.ch
+--- tetex-src-3.0/texk/web2c/tiedir/tie-w2c.ch	2001-11-18 00:36:02.000000000 +0100
++++ tetex-src-3.0.oden/texk/web2c/tiedir/tie-w2c.ch	2010-05-17 15:06:05.113206282 +0200
+@@ -104,6 +104,6 @@ int main P2C(int, argc, string *, argv)
+   print_ln(copyright); /* include the copyright notice */
+ @y
+   print(banner); /* print a ``banner line'' */
+-  print_ln(versionstring);  /* Web2C version */
++  fprintf(stdout, "%s", versionstring);  /* Web2C version */
+   print_ln(copyright); /* include the copyright notice */
+ @z
+diff -Naurp tetex-src-3.0/texk/xdvik/gui/message-window.c tetex-src-3.0.oden/texk/xdvik/gui/message-window.c
+--- tetex-src-3.0/texk/xdvik/gui/message-window.c	2004-11-12 02:25:31.000000000 +0100
++++ tetex-src-3.0.oden/texk/xdvik/gui/message-window.c	2010-05-17 15:06:15.663330742 +0200
+@@ -717,7 +717,7 @@ internal_popup_window(Widget parent,
+     Widget ret;
+ 
+     ASSERT(type < (sizeof my_msg_map / sizeof my_msg_map[0]), "too few elements in my_msg_map");
+-    sprintf(win_title, my_msg_map[type].window_title);
++    sprintf(win_title, "%s", my_msg_map[type].window_title);
+ 
+ #if DEBUG
+     fprintf(stderr, "internal_popup_window called with prompt: \"%s\"\n", msg_buf);
+@@ -729,11 +729,11 @@ internal_popup_window(Widget parent,
+ 	   supposed to be printf-format strings (i.e. with doubled `%' to escape them)
+ 	*/
+ 	fprintf(stderr, "\n%s:\n", my_msg_map[type].window_title);
+-	fprintf(stderr, msg_buf);
++	fprintf(stderr, "%s", msg_buf);
+ 	fprintf(stderr, "\n");
+ 	if (helptext) {
+ 	    fprintf(stderr, "---------- helptext ----------\n");
+-	    fprintf(stderr, helptext);
++	    fprintf(stderr, "%s", helptext);
+ 	    fprintf(stderr, "\n---------- end of helptext ----------\n");
+ 	}
+ 	return NULL;
+@@ -745,7 +745,7 @@ internal_popup_window(Widget parent,
+     if (my_popup_num == MAX_POPUPS) {
+ 	/* already enough popups on screen, just dump it to stderr */
+ 	fprintf(stderr, "%s:\n", win_title);
+-	fprintf(stderr, msg_buf);
++	fprintf(stderr, "%s", msg_buf);
+ 	/* Note: If a mad function continues to open popups, this will
+ 	 * stop after MAX_POPUPS, but open a new window for each
+ 	 * window the user pops down. Maybe we ought to do something

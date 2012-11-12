@@ -1,0 +1,21 @@
+--- tetex-src-3.0/texk/kpathsea/cnf.c.kpath	2007-02-17 17:35:33.000000000 +0100
++++ tetex-src-3.0/texk/kpathsea/cnf.c	2007-02-17 20:57:24.000000000 +0100
+@@ -162,7 +162,7 @@
+   cnf_hash = hash_create (CNF_HASH_SIZE);
+ 
+   cnf_files = kpse_all_path_search (cnf_path, CNF_NAME);
+-  if (cnf_files) {
++  if (cnf_files && *cnf_files) {
+     for (cnf = cnf_files; *cnf; cnf++) {
+       string line;
+       FILE *cnf_file = xfopen (*cnf, FOPEN_R_MODE);
+@@ -197,7 +197,8 @@
+       free (*cnf);
+     }
+     free (cnf_files);
+-  }
++  } else
++    WARNING1 ("Configuration file texmf.cnf not found! Searched these directories:\n%s\nTrying to proceed..", cnf_path);
+ }
+ 
+ /* Read the cnf files on the first call.  Return the first value in the

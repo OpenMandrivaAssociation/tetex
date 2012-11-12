@@ -1,0 +1,49 @@
+--- tetex-src-3.0/texk/web2c/man/latex.man.manfix	2003-12-11 01:23:52.000000000 +0100
++++ tetex-src-3.0/texk/web2c/man/latex.man	2007-01-21 16:47:01.000000000 +0100
+@@ -1,4 +1,4 @@
+-.TH LATEX 1 "29 March 1999" "Web2C @VERSION@"
++.TH LATEX 1 "7 January 2007" "Web2C @VERSION@"
+ .\"=====================================================================
+ .if t .ds TX \fRT\\h'-0.1667m'\\v'0.20v'E\\v'-0.20v'\\h'-0.125m'X\fP
+ .if n .ds TX TeX
+@@ -68,3 +68,8 @@
+ Leslie Lamport,
+ .IR "\*(LX \- A Document Preparation System" ,
+ Addison-Wesley, 1985, ISBN 0-201-15790-X.
++
++LaTeX Companion
++
++LaTeX Graphics Companion
++
+--- tetex-src-3.0/texk/web2c/man/bibtex.man.manfix	2005-01-21 10:42:04.000000000 +0100
++++ tetex-src-3.0/texk/web2c/man/bibtex.man	2007-01-21 16:47:01.000000000 +0100
+@@ -1,4 +1,4 @@
+-.TH BIBTEX 1 "24 November 1994" "Web2C @VERSION@"
++.TH BIBTEX 1 "8 January 2007" "bibtex 0.99c" "Web2C @VERSION@"
+ .\"=====================================================================
+ .if t .ds TX \fRT\\h'-0.1667m'\\v'0.20v'E\\v'-0.20v'\\h'-0.125m'X\fP
+ .if n .ds TX TeX
+--- tetex-src-3.0/texk/web2c/man/tex.man.manfix	2005-01-21 10:29:52.000000000 +0100
++++ tetex-src-3.0/texk/web2c/man/tex.man	2007-01-21 16:47:01.000000000 +0100
+@@ -1,4 +1,4 @@
+-.TH TEX 1 "21 August 2004" "Web2C @VERSION@"
++.TH TEX 1 "6 December 2006" "Web2C @VERSION@"
+ .\"=====================================================================
+ .if n .ds MF Metafont
+ .if t .ds MF M\s-2ETAFONT\s0
+@@ -308,11 +308,13 @@
+ file comment instead of the date.
+ .TP
+ .BI -output-directory \ directory
+-.rb Write output files in
++.rb
++Write output files in
+ .I directory
+ instead of the current directory.  Look up input files in
+ .I directory
+-first, the along the normal search path.
++first, then along the normal search path.  See also description of the
++TEXMFOUTPUT environment variable.
+ .TP
+ .B -parse-first-line
+ .rb

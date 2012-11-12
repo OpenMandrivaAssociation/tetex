@@ -1,0 +1,11 @@
+--- tetex-src-3.0/texk/kpathsea/mktexlsr.mktexlsr	2007-02-17 17:35:33.000000000 +0100
++++ tetex-src-3.0/texk/kpathsea/mktexlsr	2007-02-17 22:36:06.000000000 +0100
+@@ -143,7 +143,7 @@
+   until PERMS=`kpsestat = "$db_file"`; do sleep 1; done
+   chmod $PERMS "$db_file_tmp"
+   rm -f "$db_file"
+-  mv "$db_file_tmp" "$db_file"
++  install -m644 "$db_file_tmp" "$db_file"
+   rm -rf "$db_dir_tmp"
+ done
+ tty -s && echo "$progname: Done." >&2

@@ -1,0 +1,11 @@
+--- tetex-src-3.0.orig/texk/kpathsea/tex-make.c	2007-01-21 15:10:22.000000000 +0100
++++ tetex-src-3.0/texk/kpathsea/tex-make.c	2007-01-21 15:21:08.000000000 +0100
+@@ -72,7 +72,7 @@
+                   sprintf(q, "%u+%u/(%u*%u)", dpi/bdpi, dpi%bdpi, f, bdpi/f);
+               }
+           } else {
+-              sprintf(q, "%u+%u/(4000 + %u)", dpi/bdpi, dpi%bdpi, bdpi, r);
++              sprintf(q, "%u+%u/(4000 + %u)", dpi/bdpi, dpi%bdpi, r);
+           }
+       }
+   } else {

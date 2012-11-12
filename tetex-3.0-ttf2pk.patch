@@ -1,0 +1,67 @@
+--- tetex-src-3.0/ttf2pk/Makefile.in.ttf2pk	1998-09-03 07:12:57.000000000 +0200
++++ tetex-src-3.0/ttf2pk/Makefile.in	2005-02-07 13:35:01.301539568 +0100
+@@ -17,7 +17,7 @@
+ CC = @CC@
+ CPP = @CPP@
+ 
+-LIBTOOL = ../../libtool
++LIBTOOL = /usr/bin/libtool 
+ MKINSTALLDIRS = $(srcdir)/../../mkinstalldirs
+ 
+ include MakeSub
+@@ -60,13 +60,13 @@
+ 
+ default all: $(PROGRAMS)
+ 
+-ttf2pk: $(ttf2pkobjs) $(LIBDIR)/libttf.la
++ttf2pk: $(ttf2pkobjs)
+ 	$(LIBTOOL) --mode=link $(CC) $(FT_CFLAGS) -o ttf2pk $(ttf2pkobjs) \
+-                                     $(LIBDIR)/libttf.la $(LDFLAGS)
++                                     $(LDFLAGS)
+ 
+-ttf2tfm: $(ttf2tfmobjs) $(LIBDIR)/libttf.la
++ttf2tfm: $(ttf2tfmobjs)
+ 	$(LIBTOOL) --mode=link $(CC) $(FT_CFLAGS) -o ttf2tfm $(ttf2tfmobjs) \
+-                                     $(LIBDIR)/libttf.la $(LDFLAGS)
++                                     $(LDFLAGS)
+ 
+ install: $(PROGRAMS)
+ 	$(MKINSTALLDIRS) $(bindir) $(mandir)/man1
+@@ -87,11 +87,10 @@
+ 	-$(RMF) dep.end $(PROGRAMS)
+ 	-$(RMF) *~ *.orig core *.core
+ 	-$(RMF) config.cache config.log config.status Makefile MakeSub
+-	-$(RMF) .libs/*
+-	-$(RMDIR) .libs
++	-[ -d .libs ] && ( $(RMF) .libs/*; $(RMDIR) .libs ) || /bin/true
+ 
+ do_clean:
+-	-$(RMF) *.o
++	-$(RMF) *.o ttf2pk ttf2tfm *.bak
+ 
+ 
+ depend:
+--- tetex-src-3.0/ttf2pk/configure.in.ttf2pk	1999-06-10 23:51:36.000000000 +0200
++++ tetex-src-3.0/ttf2pk/configure.in	2005-02-07 13:35:01.310539713 +0100
+@@ -5,7 +5,8 @@
+ dnl Some tests are omitted since we assume that you've built the
+ dnl FreeType library successfully.
+ 
+-AC_INIT(../../lib/freetype.h)
++AC_INIT(ttf2pk.c)
++AC_CONFIG_AUX_DIR(../config)
+ 
+ AC_CANONICAL_SYSTEM
+ 
+@@ -48,9 +49,8 @@
+ AC_CHECK_LIB(intl, gettext)
+ 
+ OLDLIBS=$LIBS
+-LIBS="$LIBS -L../../lib/.libs"
+-CPPFLAGS="-I$srcdir/../../lib $CPPFLAGS"
+-AC_CHECK_LIB(ttf, TT_Init_FreeType, LIBS="$LIBS -lttf",[
++CPPFLAGS="$CPPFLAGS -I/usr/include/freetype"
++AC_CHECK_LIB(ttf, TT_Init_FreeType, OLDLIBS="$LIBS -lttf",[
+              AC_MSG_ERROR([Can't find ttf library! Compile FreeType first.])])
+ LIBS=$OLDLIBS
+ 

@@ -38,7 +38,7 @@ Version:	%{version}
 Release:	%mkrel %{tetexrelease}
 License:	Distributable
 Group:		Publishing
-URL:		http://www.tug.org/teTeX/
+URL:		https://www.tug.org/teTeX/
 #
 Source0:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-src-%{tetexversion}.tar.bz2
 Source1:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmf-%{texmfversion}.tar.bz2
@@ -350,7 +350,7 @@ Version: 	%{jadeversion}
 Release:	%mkrel %{jaderelease}
 Group:		Publishing
 License: 	Distributable (C) Sebastian Rahtz <s.rahtz@elsevier.co.uk>
-URL: 		http://sourceforge.net/projects/jadetex
+URL: 		https://sourceforge.net/projects/jadetex
 Requires: 	sgml-common >=  0.6.3-2mdk
 Requires: 	tetex = %{tetexversion}-%{mkrel %tetexrelease}
 Requires: 	tetex-latex = %{tetexversion}-%{mkrel %tetexrelease}
@@ -368,7 +368,7 @@ Version: 	%{xmltexversion}
 Release:	%mkrel %{xmltexrelease}
 Group:		Publishing
 License: 	LaTeX Project Public License
-URL: 		http://www.dcarlisle.demon.co.uk/xmltex/manual.html
+URL: 		https://www.dcarlisle.demon.co.uk/xmltex/manual.html
 Requires: 	tetex = %{tetexversion}-%{mkrel %tetexrelease}
 Requires: 	tetex-latex = %{tetexversion}-%{mkrel %tetexrelease}
 

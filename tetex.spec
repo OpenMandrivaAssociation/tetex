@@ -124,6 +124,8 @@ Requires:	ed
 Requires:	info-install
 # Zé: currently sam2p doesnt exist
 #Requires:	sam2p
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
